@@ -1,0 +1,149 @@
+﻿<dotnetnuke type="Package" version="5.0">
+  <packages>
+    <package name="DNN_ActiveDirectoryAuthentication" type="Auth_System" version="05.00.06">
+      <friendlyName>DNN_ActiveDirectoryAuthentication</friendlyName>
+      <description>The DotNetNuke Active Directory Authentication Project is an Authentication provider for DotNetNuke that uses the Windows 
+        Active Directory authentication protocol to authenticate users.
+      </description>
+      <owner>
+        <name>DotNetNuke Corporation</name>
+        <organization>DotNetNuke Corporation</organization>
+        <url>http://www.dotnetnuke.com</url>
+        <email>support@dotnetnuke.com</email>
+      </owner>
+      <license src="License.txt"/>
+      <releaseNotes src="ReleaseNotes.txt" />
+
+      <dependencies>
+		<dependency type="Permission">AspNetHostingPermission</dependency>
+        <dependency type="CoreVersion">06.00.00</dependency>
+      </dependencies>
+
+      <components>
+        <component type="AuthenticationSystem">
+          <authenticationService>
+            <type>ActiveDirectory</type>
+            <settingsControlSrc>DesktopModules/AuthenticationServices/ActiveDirectory/Settings.ascx</settingsControlSrc>
+            <loginControlSrc>DesktopModules/AuthenticationServices/ActiveDirectory/Login.ascx</loginControlSrc>
+            <logoffControlSrc/>
+          </authenticationService>
+        </component>
+        <component type="Assembly">
+          <assemblies>
+            <assembly>
+              <path>bin\Providers</path>
+              <name>DotNetNuke.Authentication.ActiveDirectory.dll</name>
+              <version>05.00.06</version>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Mvolo.FormsAuthenticationModule.dll</name>
+              <version>01.00.00</version>
+            </assembly>
+          </assemblies>
+        </component>
+
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/AuthenticationServices/ActiveDirectory</basePath>
+            <resourceFile>
+              <name>Resources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+
+        <component type="Cleanup">
+          <files>
+            <file>
+              <path>bin\Providers</path>
+              <name>Interop.ActiveDs.dll</name>
+            </file>
+            <file>
+              <path>install\package</path>
+              <name>ActiveDirectory_01.00.04_install.resources</name>
+            </file>
+            <file>
+              <path>install\package</path>
+              <name>ActiveDirectory_01.00.03_install.resources</name>
+            </file>
+            <file>
+              <path>install\package</path>
+              <name>ActiveDirectory_01.00.00_install.resources</name>
+            </file>
+            <file>
+              <path>install\AuthSystem</path>
+              <name>ActiveDirectory_05.00.00_install.resources</name>
+            </file>
+            <file>
+              <path>install\AuthSystem</path>
+              <name>ActiveDirectory_05.00.01_install.resources</name>
+            </file>
+            <file>
+              <path>install\AuthSystem</path>
+              <name>ActiveDirectory_05.00.02_install.resources</name>
+            </file>
+          </files>
+        </component>
+
+        <component type="Config">
+          <config>
+            <configFile>web.config</configFile>
+            <install>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.web/httpModules" action="update" key="name" collision="overwrite">
+                    <add name="Authentication" type="DotNetNuke.Authentication.ActiveDirectory.HttpModules.AuthenticationModule, DotNetNuke.Authentication.ActiveDirectory" />
+                  </node>
+                  <node path="/configuration/dotnetnuke/authentication/providers" action="update" key="name" collision="overwrite">
+                    <add name="ADSIAuthenticationProvider" type="DotNetNuke.Authentication.ActiveDirectory.ADSI.ADSIProvider, DotNetNuke.Authentication.ActiveDirectory"
+                    providerPath="~\Providers\AuthenticationProviders\ADSIProvider\" />
+                  </node>
+                  <node path="/configuration/configSections" action="update" key="name" collision="overwrite">
+                    <section name="formsAuthenticationWrapper" type="Mvolo.Modules.FormsAuthConfigurationSection" />
+                  </node>
+                  <node path="/configuration/system.webServer/modules" action="update" key="name" collision="overwrite">
+                    <remove name="FormsAuthentication" />
+                  </node>
+                  <node path="/configuration/system.webServer/modules" action="update" key="name" collision="overwrite">
+                    <add name="FormsAuthentication" type="Mvolo.Modules.FormsAuthModule" />
+                  </node>
+                  <node path="/configuration/system.webServer/modules" action="update" key="name" collision="overwrite">
+                    <add name="Authentication" type="DotNetNuke.Authentication.ActiveDirectory.HttpModules.AuthenticationModule, DotNetNuke.Authentication.ActiveDirectory" />
+                  </node>
+                  <node path="/configuration" action="update" key="path" collision="overwrite">
+                    <location path="DesktopModules/AuthenticationServices/ActiveDirectory/WindowsSignin.aspx">
+                      <!-- Disable Forms Authentication -->
+                      <formsAuthenticationWrapper enabled="false" />
+                      <system.webServer>
+                        <security>
+                          <!-- Enable IIS Windows authentication for the login page -->
+                          <authentication>
+                            <windowsAuthentication enabled="true" />
+                            <anonymousAuthentication enabled="false" />
+                          </authentication>
+                        </security>
+                      </system.webServer>
+                    </location>
+                  </node>
+                </nodes>
+              </configuration>
+            </install>
+            <uninstall>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.web/httpModules/add[@name='Authentication']" action="remove" />
+                  <node path="/configuration/dotnetnuke/authentication/providers/add[@name='ADSIAuthenticationProvider']" action="remove" />
+                  <node path="/configuration/configSections/section[@name='formsAuthenticationWrapper']" action="remove" />
+                  <node path="/configuration/system.webServer/modules/remove[@name='FormsAuthentication']" action="remove" />
+                  <node path="/configuration/system.webServer/modules/add[@name='FormsAuthentication']" action="remove" />
+                  <node path="/configuration/system.webServer/modules/add[@name='Authentication']" action="remove" />
+                  <node path="/configuration/location[@path='DesktopModules/AuthenticationServices/ActiveDirectory/WindowsSignin.aspx']" action="remove" />
+                </nodes>
+              </configuration>
+            </uninstall>
+          </config>
+        </component>
+      </components>
+    </package>
+  </packages>
+</dotnetnuke>

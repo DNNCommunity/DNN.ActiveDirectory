@@ -1,0 +1,61 @@
+Medium Trust
+============
+
+1. Portal should not run under Medium Trust with Active Directory Provider installed.
+	- Install Active Directory provider
+	- Enable Medium Trust
+	- Portal should be redirected to Error page
+
+
+Full Trust
+==========
+
+1. Configure Basic ActiveDirectory Settings
+	- Set web.config to Full Trust
+	- Log in as an Administrator or SuperUser
+	- Goto Admin/Authentication
+	- Check Enabled to Enable Active Directory
+	- Enter Root Domain information (eg: dc=domain,dc=com)
+	- Enter valid AD user (eg:domain\username)
+	- Enter AD user password and comfirm password
+	- Enter AD domain email (eg: @domain.com)
+	- Click "Update" 
+	- Logout
+	- Goto Login page
+	- Active Directory "login control" should be displayed
+	
+2. Enable ActiveDirectory Full Authentication
+	- Set web.config to Full Trust
+	- Log in as an Administrator or SuperUser
+	- Goto Admin/Authentication
+	- Check Enabled to Enable Active Directory
+	- Enter Root Domain information (eg: dc=domain,dc=com)
+	- Enter valid AD user (eg:domain\username)
+	- Enter AD user password and comfirm password
+	- Enter AD domain email (eg: @domain.com)
+	- Click "Update" 
+	- Logout and Close DNN
+	- Restart ASPNet process or IIS Application pool
+	- Launch DNN
+	- Verify that your currently logged in domain account automatically logs into DNN
+
+3. Enable ActiveDirectory Mixed-Mode Authentication
+	- Set web.config to Full Trust
+	- Log in as an Administrator or SuperUser
+	- Goto Admin/Authentication
+	- Check Enabled to Enable Active Directory
+	- Enter Root Domain information (eg: dc=domain,dc=com)
+	- Enter valid AD user (eg:domain\username)
+	- Enter AD user password and comfirm password
+	- Enter AD domain email (eg: @domain.com)
+	- Click "Update" 
+	- Logout and Close DNN
+	- Edit web.config and comment out <add name="Authentication"..../> in <httpModules> section
+	- Restart ASPNet process or IIS Application pool
+	- Launch DNN
+	- Goto Login page
+	- Verify that you can log into Windows Login section with your domain credentials
+
+
+	
+	

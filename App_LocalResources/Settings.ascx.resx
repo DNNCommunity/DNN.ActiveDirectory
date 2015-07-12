@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ControlTitle_.Text" xml:space="preserve">
+    <value>Active Directory Authentication</value>
+  </data>
+  <data name="plAuthentication.Text" xml:space="preserve">
+    <value>Enabled?</value>
+  </data>
+  <data name="plAuthentication.Help" xml:space="preserve">
+    <value>Check to enable Active Directory Authentication for this portal</value>
+  </data>
+  <data name="chkAuthentication.Text" xml:space="preserve">
+    <value />
+  </data>
+  <data name="plSynchronizeRole.Text" xml:space="preserve">
+    <value>Synchronize Role?</value>
+  </data>
+  <data name="plSynchronizeRole.Help" xml:space="preserve">
+    <value>If select, user's role will be synchronized with Windows Active Directory security group each time user logon</value>
+  </data>
+  <data name="chkSynchronizeRole.Text" xml:space="preserve">
+    <value />
+  </data>
+  <data name="plSynchornizePassword.Text" xml:space="preserve">
+    <value>Synchronize Password?</value>
+  </data>
+  <data name="plSynchornizePassword.Help" xml:space="preserve">
+    <value>If select, user's password will be updated with Windows password (if 2 password not match) when user logon</value>
+  </data>
+  <data name="chkSynchronizePassword.Text" xml:space="preserve">
+    <value />
+  </data>
+  <data name="plProvider.Text" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="plProvider.Help" xml:space="preserve">
+    <value>Select Authentication provider for this portal</value>
+  </data>
+  <data name="plAuthenticationType.Text" xml:space="preserve">
+    <value>Authentication Type</value>
+  </data>
+  <data name="plAuthenticationType.Help" xml:space="preserve">
+    <value>Select Authentication type for this portal (Delegation is recommenced)</value>
+  </data>
+  <data name="plRootDomain.Text" xml:space="preserve">
+    <value>Root Domain:</value>
+  </data>
+  <data name="plRootDomain.Help" xml:space="preserve">
+    <value>Root Domain in format yourdomain.com or DC=yourdomain,DC=com or LDAP://mydomain.com. Leave this value blank if you want to obtain Active Directory objects from root forest. While using LDAP, please specify the four-letter LDAP prefix in upper-case. </value>
+  </data>
+  <data name="plUserName.Text" xml:space="preserve">
+    <value>User Name:</value>
+  </data>
+  <data name="plUserName.Help" xml:space="preserve">
+    <value>User Name, who has permission to access Active Directory</value>
+  </data>
+  <data name="plPassword.Text" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="plPassword.Help" xml:space="preserve">
+    <value>Password of this User</value>
+  </data>
+  <data name="plConfirm.Text" xml:space="preserve">
+    <value>Confirm Password:</value>
+  </data>
+  <data name="plConfirm.Help" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="plEmailDomain.Text" xml:space="preserve">
+    <value>Email Domain:</value>
+  </data>
+  <data name="plEmailDomain.Help" xml:space="preserve">
+    <value>Email Domain to be used for user email when your network doesn't have Windows Active Directory (Blank is recommended)</value>
+  </data>
+  <data name="cmdUpdate.Text" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="[Global Catalog Status].Text" xml:space="preserve">
+    <value>Accessing Global Catalog:</value>
+  </data>
+  <data name="[Root Domain Status].Text" xml:space="preserve">
+    <value>Checking Root Domain:</value>
+  </data>
+  <data name="[LDAP Status].Text" xml:space="preserve">
+    <value>Accessing LDAP:</value>
+  </data>
+  <data name="[Network Domains Status].Text" xml:space="preserve">
+    <value>Find all domains in network:</value>
+  </data>
+  <data name="[LDAP Error Message].Text" xml:space="preserve">
+    <value>Could not access LDAP to obtain domains info</value>
+  </data>
+  <data name="OK.Text" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="FAIL.Text" xml:space="preserve">
+    <value>FAIL</value>
+  </data>
+  <data name="AuthProviderError.Text" xml:space="preserve">
+    <value>The default authentication provider specified in web.config is not configured properly.  Authentication settings are disabled.</value>
+  </data>
+  <data name="SameDomainError.Text" xml:space="preserve">
+    <value>The domain name of the authenticated user ({0}) is the same as the server name ({1}).  This usually indicates the server is not a member of a domain.  Authentication settings are disabled.</value>
+  </data>
+  <data name="Title.Text" xml:space="preserve">
+    <value>Active Directory Settings</value>
+  </data>
+  <data name="FullTrustRequired.Text" xml:space="preserve">
+    <value>ASP.Net Full Trust is required to use the Active Directory Authentication Provider. Modify the web.config file so that the TRUST tag in SYSTEM.WEB has a level of "Full".</value>
+  </data>
+  <data name="plAutoIP.Help" xml:space="preserve">
+    <value>Enter the IP string, address, or range separated by semicolons that you want to automatically log in (eg: 192.168.0.1-192 - 192.168.0.100 for any IP in that range, 192.168.0.50 for only that IP.). An example string could look like 192.168.0.100;192.168.0.1-192.168.0.100</value>
+  </data>
+  <data name="plAutoIP.Text" xml:space="preserve">
+    <value>Auto-login IP Address (Optional):</value>
+  </data>
+  <data name="plStripDomainName.Help" xml:space="preserve">
+    <value>Optional:Users will be entered into the DNN database as Username instead of Domain\Username. Not a good idea for Intranet/Internet sites where a user may already exist.</value>
+  </data>
+  <data name="plStripDomainName.Text" xml:space="preserve">
+    <value>Strip Domain Name (Optional)</value>
+  </data>
+  <data name="plHidden.Help" xml:space="preserve">
+    <value>Hides the Windows Login button on the Login screen.</value>
+  </data>
+  <data name="plHidden.Text" xml:space="preserve">
+    <value>Hide Login Controls?</value>
+  </data>
+  <data name="IntegratedWarning.Text" xml:space="preserve">
+    <value>Warning: Automatic user logins only works in IIS7 when using the Classic .NET AppPool. This site has been detected as using an application pool using the Integrate Pipeline Mode</value>
+  </data>
+  <data name="InValidIPAddress.Text" xml:space="preserve">
+    <value>is not a valid IP address</value>
+  </data>
+  <data name="plDefaultDomain.Help" xml:space="preserve">
+    <value>If you enter the default domain users can login with just their username instead of DOMAIN\Username.</value>
+  </data>
+  <data name="plDefaultDomain.Text" xml:space="preserve">
+    <value>Default Domain</value>
+  </data>
+  <data name="plAutoCreate.Help" xml:space="preserve">
+    <value>If checked Active Directory users not able to log into the DNN portal until an account is created.</value>
+  </data>
+  <data name="plAutoCreate.Text" xml:space="preserve">
+    <value>Do Not Automatically Create Users?</value>
+  </data>
+  <data name="plBots.Help" xml:space="preserve">
+    <value>Enter the name of the search crawler that you wish to allow to crawl the site separated by a comma  (eg: gsa-crawler, MS Search 5.0 Robot).</value>
+  </data>
+  <data name="plBots.Text" xml:space="preserve">
+    <value>Allowed Search Bots</value>
+  </data>
+</root>
