@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ControlTitle_.Text" xml:space="preserve">
     <value>Active Directory Authentication</value>
@@ -266,5 +266,11 @@
   </data>
   <data name="plBots.Text" xml:space="preserve">
     <value>Allowed Search Bots</value>
+  </data>
+  <data name="plSynchronizePhoto.Help" xml:space="preserve">
+    <value>If a user has a thumbnail image in Active Directory, this option will copy that image to DNN and use it for the profile picture.  </value>
+  </data>
+  <data name="plSynchronizePhoto.Text" xml:space="preserve">
+    <value>Synchronize Photo?</value>
   </data>
 </root>

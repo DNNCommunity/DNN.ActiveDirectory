@@ -85,7 +85,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     '''     [tamttt]	08/01/2004	Created
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Enum UserFlag
+    Public Enum UserFlag
         ADS_UF_SCRIPTADS_UF_SCRIPT = 1
         '0x1 The logon script is executed. This flag does not work for the ADSI LDAP provider on either read or write operations. For the  ADSI WinNT provider, this flag is  read-only data, and it cannot be set for user objects. = 1    
         ADS_UF_ACCOUNTDISABLE = 2
@@ -131,7 +131,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     End Enum
 
 #End Region
-
+    ''' -------------------------------------------------------------------
+    ''' <summary>
+    ''' </summary>
+    ''' <remarks>
+    ''' </remarks>
+    ''' <history>
+    '''     [sawest]    12/16/2016  Added photo constant
+    ''' </history>
+    ''' -------------------------------------------------------------------
     Public Class Configuration
         Public Const ADSI_CONFIGURATIONNAMIMGCONTEXT As String = "configurationNamingContext"
         Public Const ADSI_DEFAULTNAMIMGCONTEXT As String = "defaultNamingContext"
@@ -169,6 +177,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Const ADSI_MANAGER As String = "manager"
         Public Const ADSI_DEPARTMENT As String = "department"
         Public Const ADSI_ASSISTANT As String = "assistant"
+        Public Const ADSI_PHOTO As String = "thumbnailPhoto"
 
         Private Const ADSI_CONFIG_CACHE_PREFIX As String = "ADSI.Configuration"
 

@@ -42,7 +42,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         Private Sub DisplayIpError(ByVal strInvalidIP As String)
             Dim _
-                strError As String = strInvalidIP & " " & _
+                strError As String = strInvalidIP & " " &
                                      Localization.GetString("InValidIPAddress", Me.LocalResourceFile)
             tblSettings.Visible = True
             pnlError.Visible = True
@@ -60,19 +60,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private Function LocalizedStatus(ByVal InputText As String) As String
             'Return InputText
             Dim strReturn As String = InputText
-            strReturn = _
-                strReturn.Replace("[Global Catalog Status]", _
+            strReturn =
+                strReturn.Replace("[Global Catalog Status]",
                                    Localization.GetString("[Global Catalog Status]", Me.LocalResourceFile))
-            strReturn = _
-                strReturn.Replace("[Root Domain Status]", _
+            strReturn =
+                strReturn.Replace("[Root Domain Status]",
                                    Localization.GetString("[Root Domain Status]", Me.LocalResourceFile))
-            strReturn = _
+            strReturn =
                 strReturn.Replace("[LDAP Status]", Localization.GetString("[LDAP Status]", Me.LocalResourceFile))
-            strReturn = _
-                strReturn.Replace("[Network Domains Status]", _
+            strReturn =
+                strReturn.Replace("[Network Domains Status]",
                                    Localization.GetString("[Network Domains Status]", Me.LocalResourceFile))
-            strReturn = _
-                strReturn.Replace("[LDAP Error Message]", _
+            strReturn =
+                strReturn.Replace("[LDAP Error Message]",
                                    Localization.GetString("[LDAP Error Message]", Me.LocalResourceFile))
             strReturn = strReturn.Replace("OK", Localization.GetString("OK", Me.LocalResourceFile))
             strReturn = strReturn.Replace("FAIL", Localization.GetString("FAIL", Me.LocalResourceFile))
@@ -98,7 +98,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                             Case 3
                                 arrIPArray.Add(arrIPRange(intIPCount).ToString)
                             Case Else
-                                DisplayIPError(arrIPRange(intIPCount).ToString)
+                                DisplayIpError(arrIPRange(intIPCount).ToString)
                                 Return False
                                 'Exit Function
                         End Select
@@ -109,7 +109,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         Case 3
                             arrIPArray.Add(arrAutoIP(intCount).ToString)
                         Case Else
-                            DisplayIPError(arrAutoIP(intCount).ToString)
+                            DisplayIpError(arrAutoIP(intCount).ToString)
                             Return False
                             'Exit Function
                     End Select
@@ -119,7 +119,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Try
                     Dim strIPAddr As String = Utilities.GetIP4Address(arrIPArray(intIPCheck))
                 Catch ex As Exception
-                    DisplayIPError(arrIPArray(intIPCheck))
+                    DisplayIpError(arrIPArray(intIPCheck))
                     Return False
                     'Exit Function
                 End Try
@@ -134,91 +134,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Overrides Sub UpdateSettings()
             Dim _portalSettings As PortalSettings = CType(HttpContext.Current.Items("PortalSettings"), PortalSettings)
             Try
-                'If chkAuthentication.Checked And Not chkHidden.Checked Then
-                '    Dim providerTypeName As String = Me.cboProviders.SelectedItem.Value
-                '    Dim authenticationType As String = Me.cboAuthenticationType.SelectedItem.Value
-                '    If Not (txtAutoIP.Text = String.Empty) Then
-                '        If Not (CheckEnteredIPAddr()) Then
-                '            Exit Sub
-                '        End If
-                '    End If
-                '    'ACD-5585
-                '    'WorkItems 4766 and 4077
-                '    Configuration.UpdateConfig(_portalSettings.PortalId, Me.chkAuthentication.Checked, _
-                '                                Me.chkHidden.Checked, _
-                '                                Me.txtRootDomain.Text, Me.txtEmailDomain.Text, Me.txtUserName.Text, _
-                '                                Me.txtPassword.Text, Me.chkSynchronizeRole.Checked, _
-                '                                Me.chkSynchronizePassword.Checked, Me.chkStripDomainName.Checked, _
-                '                                providerTypeName, authenticationType, Me.txtAutoIP.Text, _
-                '                                Me.txtDefaultDomain.Text, Me.chkAutoCreate.Checked, Me.txtBots.Text)
-                '    Configuration.ResetConfig()
-                '    Dim objAuthenticationController As New AuthenticationController
-                '    Dim statusMessage As String = objAuthenticationController.NetworkStatus
-                '    If statusMessage.ToLower.IndexOf ("fail") > - 1 Then
-                '        MessageCell.Controls.Add ( _
-                '                                  DotNetNuke.UI.Skins.Skin.GetModuleMessageControl ("", _
-                '                                                                                    LocalizedStatus ( _
-                '                                                                                                     statusMessage), _
-                '                                                                                    ModuleMessage. _
-                '                                                                                       ModuleMessageType _
-                '                                                                                       .RedError))
-                '    Else
-                '        MessageCell.Controls.Add ( _
-                '                                  DotNetNuke.UI.Skins.Skin.GetModuleMessageControl ("", _
-                '                                                                                    LocalizedStatus ( _
-                '                                                                                                     statusMessage), _
-                '                                                                                    ModuleMessage. _
-                '                                                                                       ModuleMessageType _
-                '                                                                                       .GreenSuccess))
-                '    End If
-                'ElseIf chkAuthentication.Checked And chkHidden.Checked Then
-                '    Dim providerTypeName As String = Me.cboProviders.SelectedItem.Value
-                '    Dim authenticationType As String = Me.cboAuthenticationType.SelectedItem.Value
-                '    If Not (txtAutoIP.Text = String.Empty) Then
-                '        If Not (CheckEnteredIPAddr()) Then
-                '            Exit Sub
-                '        End If
-                '    End If
-                '    'ACD-5585
-                '    'WorkItems 4766 and 4077
-                '    Configuration.UpdateConfig(_portalSettings.PortalId, False, Me.chkHidden.Checked, _
-                '                                Me.txtRootDomain.Text, Me.txtEmailDomain.Text, _
-                '                                Me.txtUserName.Text, Me.txtPassword.Text, Me.chkSynchronizeRole.Checked, _
-                '                                Me.chkSynchronizePassword.Checked, _
-                '                                Me.chkStripDomainName.Checked, providerTypeName, authenticationType, _
-                '                                Me.txtAutoIP.Text, Me.txtDefaultDomain.Text, Me.chkAutoCreate.Checked, Me.txtBots.Text)
-                '    Configuration.ResetConfig()
-
-                '    Dim objAuthenticationController As New AuthenticationController
-                '    Dim statusMessage As String = objAuthenticationController.NetworkStatus
-
-                '    If statusMessage.ToLower.IndexOf ("fail") > - 1 Then
-                '        MessageCell.Controls.Add ( _
-                '                                  DotNetNuke.UI.Skins.Skin.GetModuleMessageControl ("", _
-                '                                                                                    LocalizedStatus ( _
-                '                                                                                                     statusMessage), _
-                '                                                                                    ModuleMessage. _
-                '                                                                                       ModuleMessageType _
-                '                                                                                       .RedError))
-                '    Else
-                '        MessageCell.Controls.Add ( _
-                '                                  DotNetNuke.UI.Skins.Skin.GetModuleMessageControl ("", _
-                '                                                                                    LocalizedStatus ( _
-                '                                                                                                     statusMessage), _
-                '                                                                                    ModuleMessage. _
-                '                                                                                       ModuleMessageType _
-                '                                                                                       .GreenSuccess))
-                '    End If
-                'ElseIf Not chkAuthentication.Checked Then
-                '    Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False, _
-                '                                False, "", "", "", "", False, "")
-                '    Configuration.ResetConfig()
-                'End If
 
                 'Code Cleanup
                 If Not chkAuthentication.Checked Then
-                    Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False, _
-                                                False, "", "", "", "", False, "")
+                    Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False,
+                                                False, "", "", "", "", False, "", False)
                     Configuration.ResetConfig()
                 Else
                     Dim providerTypeName As String = cboProviders.SelectedItem.Value
@@ -231,34 +151,34 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     'ACD-5585
                     'WorkItems 4766 and 4077
                     If chkAuthentication.Checked And Not chkHidden.Checked Then
-                        Configuration.UpdateConfig(_portalSettings.PortalId, chkAuthentication.Checked, _
-                                                    chkHidden.Checked, _
-                                                    txtRootDomain.Text, txtEmailDomain.Text, txtUserName.Text, _
-                                                    txtPassword.Text, chkSynchronizeRole.Checked, _
-                                                    chkSynchronizePassword.Checked, chkStripDomainName.Checked, _
-                                                    providerTypeName, authenticationType, txtAutoIP.Text, _
-                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text)
+                        Configuration.UpdateConfig(_portalSettings.PortalId, chkAuthentication.Checked,
+                                                    chkHidden.Checked,
+                                                    txtRootDomain.Text, txtEmailDomain.Text, txtUserName.Text,
+                                                    txtPassword.Text, chkSynchronizeRole.Checked,
+                                                    chkSynchronizePassword.Checked, chkStripDomainName.Checked,
+                                                    providerTypeName, authenticationType, txtAutoIP.Text,
+                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text, chkSynchronizePhoto.Checked)
                     Else
-                        Configuration.UpdateConfig(_portalSettings.PortalId, False, chkHidden.Checked, _
-                                                    txtRootDomain.Text, txtEmailDomain.Text, _
-                                                    txtUserName.Text, txtPassword.Text, chkSynchronizeRole.Checked, _
-                                                    chkSynchronizePassword.Checked, _
-                                                    chkStripDomainName.Checked, providerTypeName, authenticationType, _
-                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text)
+                        Configuration.UpdateConfig(_portalSettings.PortalId, False, chkHidden.Checked,
+                                                    txtRootDomain.Text, txtEmailDomain.Text,
+                                                    txtUserName.Text, txtPassword.Text, chkSynchronizeRole.Checked,
+                                                    chkSynchronizePassword.Checked,
+                                                    chkStripDomainName.Checked, providerTypeName, authenticationType,
+                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text, chkSynchronizePhoto.Checked)
                     End If
                     Configuration.ResetConfig()
                     Dim objAuthenticationController As New AuthenticationController
                     Dim statusMessage As String = objAuthenticationController.NetworkStatus
                     If statusMessage.ToLower.IndexOf("fail") > -1 Then
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus( _
-                                                                                                                     statusMessage), _
-                                                                                                    ModuleMessage. _
+                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
+                                                                                                                     statusMessage),
+                                                                                                    ModuleMessage.
                                                                                                        ModuleMessageType _
                                                                                                        .RedError))
                     Else
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus( _
-                                                                                                                     statusMessage), _
-                                                                                                    ModuleMessage. _
+                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
+                                                                                                                     statusMessage),
+                                                                                                    ModuleMessage.
                                                                                                        ModuleMessageType _
                                                                                                        .GreenSuccess))
                     End If
@@ -275,7 +195,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Init
             Dim objAuthenticationController As New AuthenticationController
             Dim _
-                objProviderConfiguration As ProviderConfiguration = _
+                objProviderConfiguration As ProviderConfiguration =
                     ProviderConfiguration.GetProviderConfiguration(Configuration.AUTHENTICATION_KEY)
             Dim _Provider As Object
             ' Bind Authentication provider list, this allows each portal could use different provider for authentication
@@ -306,7 +226,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Response.Redirect("~/DesktopModules/AuthenticationServices/ActiveDirectory/trusterror.htm", True)
                 Else
                     ' Obtain PortalSettings from Current Context
-                    Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+                    Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
 
                     ' Reset config
                     Configuration.ResetConfig()
@@ -315,9 +235,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     If UserInfo.Username.IndexOf("\") > 0 Then
                         Dim strDomain As String = GetUserDomainName(UserInfo.Username)
                         If strDomain.ToLower = Request.ServerVariables("SERVER_NAME").ToLower Then
-                            _strError = _
-                                String.Format(Localization.GetString("SameDomainError", Me.LocalResourceFile), _
-                                               strDomain, _
+                            _strError =
+                                String.Format(Localization.GetString("SameDomainError", Me.LocalResourceFile),
+                                               strDomain,
                                                HttpUtility.HtmlEncode(Request.ServerVariables("SERVER_NAME")))
                         End If
                     End If
@@ -330,6 +250,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                             chkAuthentication.Checked = True
                         End If
                         chkSynchronizeRole.Checked = config.SynchronizeRole
+                        chkSynchronizePhoto.Checked = config.Photo
                         chkSynchronizePassword.Checked = config.SynchronizePassword
                         chkStripDomainName.Checked = config.StripDomainName
                         txtRootDomain.Text = config.RootDomain
