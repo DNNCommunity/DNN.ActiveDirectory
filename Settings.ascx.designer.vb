@@ -11,9 +11,9 @@ Option Strict On
 Option Explicit On
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
-
+    
     Partial Public Class Settings
-
+        
         '''<summary>
         '''pnlError control.
         '''</summary>
@@ -22,7 +22,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents pnlError As Global.System.Web.UI.WebControls.Panel
-
+        
         '''<summary>
         '''Image1 control.
         '''</summary>
@@ -31,7 +31,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents Image1 As Global.System.Web.UI.WebControls.Image
-
+        
         '''<summary>
         '''lblError control.
         '''</summary>
@@ -40,7 +40,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents lblError As Global.System.Web.UI.WebControls.Label
-
+        
         '''<summary>
         '''tblSettings control.
         '''</summary>
@@ -49,7 +49,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents tblSettings As Global.System.Web.UI.HtmlControls.HtmlTable
-
+        
         '''<summary>
         '''MessageCell control.
         '''</summary>
@@ -58,7 +58,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents MessageCell As Global.System.Web.UI.HtmlControls.HtmlTableCell
-
+        
         '''<summary>
         '''plAuthentication control.
         '''</summary>
@@ -66,8 +66,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAuthentication As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plAuthentication As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkAuthentication control.
         '''</summary>
@@ -76,7 +76,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkAuthentication As Global.System.Web.UI.WebControls.CheckBox
-
+        
         '''<summary>
         '''plHidden control.
         '''</summary>
@@ -84,8 +84,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plHidden As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plHidden As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkHidden control.
         '''</summary>
@@ -94,7 +94,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkHidden As Global.System.Web.UI.WebControls.CheckBox
-
+        
         '''<summary>
         '''plSynchronizeRole control.
         '''</summary>
@@ -102,8 +102,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plSynchronizeRole As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plSynchronizeRole As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkSynchronizeRole control.
         '''</summary>
@@ -112,7 +112,25 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkSynchronizeRole As Global.System.Web.UI.WebControls.CheckBox
-
+        
+        '''<summary>
+        '''plSynchronizePhoto control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents plSynchronizePhoto As Global.DotNetNuke.UI.UserControls.LabelControl
+        
+        '''<summary>
+        '''chkSynchronizePhoto control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents chkSynchronizePhoto As Global.System.Web.UI.WebControls.CheckBox
+        
         '''<summary>
         '''rowSynchornizePassword control.
         '''</summary>
@@ -121,7 +139,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowSynchornizePassword As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plSynchornizePassword control.
         '''</summary>
@@ -129,8 +147,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plSynchornizePassword As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plSynchornizePassword As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkSynchronizePassword control.
         '''</summary>
@@ -139,7 +157,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkSynchronizePassword As Global.System.Web.UI.WebControls.CheckBox
-
+        
         '''<summary>
         '''rowAutoCreate control.
         '''</summary>
@@ -148,7 +166,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowAutoCreate As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plAutoCreate control.
         '''</summary>
@@ -156,8 +174,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAutoCreate As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plAutoCreate As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkAutoCreate control.
         '''</summary>
@@ -166,7 +184,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkAutoCreate As Global.System.Web.UI.WebControls.CheckBox
-
+        
         '''<summary>
         '''plStripDomainName control.
         '''</summary>
@@ -174,8 +192,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plStripDomainName As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plStripDomainName As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''chkStripDomainName control.
         '''</summary>
@@ -184,7 +202,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkStripDomainName As Global.System.Web.UI.WebControls.CheckBox
-
+        
         '''<summary>
         '''plProvider control.
         '''</summary>
@@ -192,8 +210,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plProvider As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plProvider As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''cboProviders control.
         '''</summary>
@@ -202,7 +220,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents cboProviders As Global.System.Web.UI.WebControls.DropDownList
-
+        
         '''<summary>
         '''plAuthenticationType control.
         '''</summary>
@@ -210,8 +228,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAuthenticationType As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plAuthenticationType As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''cboAuthenticationType control.
         '''</summary>
@@ -220,7 +238,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents cboAuthenticationType As Global.System.Web.UI.WebControls.DropDownList
-
+        
         '''<summary>
         '''rowRootDomain control.
         '''</summary>
@@ -229,7 +247,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowRootDomain As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plRootDomain control.
         '''</summary>
@@ -237,8 +255,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plRootDomain As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plRootDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtRootDomain control.
         '''</summary>
@@ -247,7 +265,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtRootDomain As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowUserName control.
         '''</summary>
@@ -256,7 +274,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowUserName As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plUserName control.
         '''</summary>
@@ -264,8 +282,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plUserName As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plUserName As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtUserName control.
         '''</summary>
@@ -274,7 +292,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtUserName As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowPassword control.
         '''</summary>
@@ -283,7 +301,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowPassword As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plPassword control.
         '''</summary>
@@ -291,8 +309,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plPassword As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plPassword As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtPassword control.
         '''</summary>
@@ -301,7 +319,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtPassword As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowConfirm control.
         '''</summary>
@@ -310,7 +328,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowConfirm As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plConfirm control.
         '''</summary>
@@ -318,8 +336,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plConfirm As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plConfirm As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtConfirm control.
         '''</summary>
@@ -328,7 +346,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtConfirm As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''valConfirm control.
         '''</summary>
@@ -337,7 +355,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents valConfirm As Global.System.Web.UI.WebControls.CompareValidator
-
+        
         '''<summary>
         '''rowEmailDomain control.
         '''</summary>
@@ -346,7 +364,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowEmailDomain As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plEmailDomain control.
         '''</summary>
@@ -354,8 +372,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plEmailDomain As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plEmailDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtEmailDomain control.
         '''</summary>
@@ -364,7 +382,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtEmailDomain As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowDefaultDomain control.
         '''</summary>
@@ -373,7 +391,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowDefaultDomain As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plDefaultDomain control.
         '''</summary>
@@ -381,8 +399,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plDefaultDomain As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plDefaultDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtDefaultDomain control.
         '''</summary>
@@ -391,7 +409,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtDefaultDomain As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowSubNet control.
         '''</summary>
@@ -400,7 +418,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowSubNet As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plAutoIP control.
         '''</summary>
@@ -408,8 +426,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAutoIP As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plAutoIP As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtAutoIP control.
         '''</summary>
@@ -418,7 +436,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtAutoIP As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''rowBots control.
         '''</summary>
@@ -427,7 +445,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents rowBots As Global.System.Web.UI.HtmlControls.HtmlTableRow
-
+        
         '''<summary>
         '''plBots control.
         '''</summary>
@@ -435,8 +453,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plBots As Global.System.Web.UI.UserControl
-
+        Protected WithEvents plBots As Global.DotNetNuke.UI.UserControls.LabelControl
+        
         '''<summary>
         '''txtBots control.
         '''</summary>

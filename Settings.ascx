@@ -23,6 +23,10 @@
                     <td class="SubHead" width="200"><dnn:Label id="plSynchronizeRole" runat="server" controlname="chkSynchronizeRole" text="Synchronize Role?" /></td>
                     <td valign="top"><asp:CheckBox ID="chkSynchronizeRole" runat="server" CssClass="NormalTextBox" /></td>
                 </tr>
+                <tr>
+                    <td class="SubHead" width="200"><dnn:Label id="plSynchronizePhoto" runat="server" controlname="chkSynchronizePhoto" text="Synchronize Photo?" /></td>
+                    <td valign="top"><asp:CheckBox ID="chkSynchronizePhoto" runat="server" CssClass="NormalTextBox" /></td>
+                </tr>
                 <tr id="rowSynchornizePassword" runat="server" visible="False">
                     <td class="SubHead" width="200"><dnn:label id="plSynchornizePassword" runat="server" controlname="chkSynchronizePassword" text="Synchronize Password?" /></td>
                     <td valign="top"><asp:CheckBox ID="chkSynchronizePassword" runat="server" CssClass="NormalTextBox" /></td>

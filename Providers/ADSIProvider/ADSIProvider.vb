@@ -27,8 +27,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class ADSIProvider
         Inherits AuthenticationProvider
 
-        Private _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+        Private _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
         Private _adsiConfig As Configuration = Configuration.GetConfig()
+        Private _config As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
 
 #Region "Private Methods"
 
@@ -43,21 +44,21 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
 
-            Private Function GetSimplyUser (ByVal UserName As String) As ADUserInfo
+        Private Function GetSimplyUser(ByVal UserName As String) As ADUserInfo
             Dim objAuthUser As New ADUserInfo
 
             With objAuthUser
                 .PortalID = _portalSettings.PortalId
                 .IsNotSimplyUser = False
                 .Username = UserName
-                .FirstName = Utilities.TrimUserDomainName (UserName)
-                .LastName = Utilities.GetUserDomainName (UserName)
+                .FirstName = Utilities.TrimUserDomainName(UserName)
+                .LastName = Utilities.GetUserDomainName(UserName)
                 .IsSuperUser = False
-                .DistinguishedName = Utilities.ConvertToDistinguished (UserName)
+                .DistinguishedName = Utilities.ConvertToDistinguished(UserName)
 
                 Dim strEmail As String = _adsiConfig.DefaultEmailDomain
                 If Not strEmail.Length = 0 Then
-                    If strEmail.IndexOf ("@") = - 1 Then
+                    If strEmail.IndexOf("@") = -1 Then
                         strEmail = "@" & strEmail
                     End If
                     strEmail = .FirstName & strEmail
@@ -71,7 +72,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 .Membership.Approved = True
                 .Membership.LastLoginDate = Date.Now
                 .Membership.Password = Utilities.GetRandomPassword()
-                'Membership.GeneratePassword(6)
                 .AuthenticationExists = False
             End With
 
@@ -79,10 +79,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Private Function IsAuthenticated (ByVal Path As String, ByVal UserName As String, ByVal Password As String) _
+        Private Function IsAuthenticated(ByVal Path As String, ByVal UserName As String, ByVal Password As String) _
             As Boolean
             Try
-                Dim _config As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
+                'Moved to private global for access from other functions - sawest
+                'Dim _config As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
                 If _config.StripDomainName Then
                     Dim crossRef As CrossReferenceCollection.CrossReference
                     For Each crossRef In Configuration.GetConfig.RefCollection
@@ -101,7 +102,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Private Sub FillUserInfo(ByVal UserEntry As DirectoryEntry, ByVal UserInfo As ADUserInfo)
+        ''' <summary>
+        ''' Fill UserInfo object
+        ''' </summary>
+        ''' <param name="UserEntry"></param>
+        ''' <param name="UserInfo"></param>
+        ''' <history>
+        '''     [sawest]    12/16/2016  Added set photo
+        ''' </history>
+        Private Sub FillUserInfo(ByVal UserEntry As DirectoryEntry, ByRef UserInfo As ADUserInfo)
 
             With UserInfo
                 .IsSuperUser = False
@@ -118,32 +127,32 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_DISPLAYNAME).Value) = "") _
                         Then
-                        .DisplayName = _
+                        .DisplayName =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_DISPLAYNAME).Value)
                     End If
                     If _
                         Not _
-                        (Utilities.CheckNullString( _
-                                                    UserEntry.Properties(Configuration.ADSI_DISTINGUISHEDNAME).Value. _
+                        (Utilities.CheckNullString(
+                                                    UserEntry.Properties(Configuration.ADSI_DISTINGUISHEDNAME).Value.
                                                        ToString) = "") Then
-                        .DistinguishedName = _
-                            Utilities.CheckNullString( _
-                                                       UserEntry.Properties(Configuration.ADSI_DISTINGUISHEDNAME).Value. _
+                        .DistinguishedName =
+                            Utilities.CheckNullString(
+                                                       UserEntry.Properties(Configuration.ADSI_DISTINGUISHEDNAME).Value.
                                                           ToString)
                     End If
                     If _
                         Not _
-                        (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_ACCOUNTNAME).Value.ToString) = _
+                        (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_ACCOUNTNAME).Value.ToString) =
                          "") Then
-                        .sAMAccountName = _
+                        .sAMAccountName =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_ACCOUNTNAME).Value.ToString)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_CNAME).Value) = "") Then
-                        .Profile.FirstName = _
+                        .Profile.FirstName =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_FIRSTNAME).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_LASTNAME).Value) = "") Then
-                        .Profile.LastName = _
+                        .Profile.LastName =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_LASTNAME).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_STREET).Value) = "") Then
@@ -157,15 +166,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_POSTALCODE).Value) = "") _
                         Then
-                        .Profile.PostalCode = _
+                        .Profile.PostalCode =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_POSTALCODE).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_COUNTRY).Value) = "") Then
-                        .Profile.Country = _
+                        .Profile.Country =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_COUNTRY).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_TELEPHONE).Value) = "") Then
-                        .Profile.Telephone = _
+                        .Profile.Telephone =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_TELEPHONE).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_FAX).Value) = "") Then
@@ -175,12 +184,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         .Profile.Cell = Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_CELL).Value)
                     End If
                     If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_WEBSITE).Value) = "") Then
-                        .Profile.Website = _
+                        .Profile.Website =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_WEBSITE).Value)
+                    End If
+                    If _config.Photo Then
+                        'sync photo from AD if checked in settings
+                        If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_PHOTO).Value) = "") Then
+                            .Profile.Photo =
+                            Utilities.WritePhoto(UserInfo, UserEntry.Properties(Configuration.ADSI_PHOTO).Value)
+                        End If
                     End If
                 End If
 
-                If .Email = "" Then
+                    If .Email = "" Then
                     .Email = Utilities.TrimUserDomainName(UserInfo.Username) & _adsiConfig.DefaultEmailDomain
                 End If
                 If .DisplayName = "" Then
@@ -198,7 +214,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 #End Region
 
 
-        Public Overloads Overrides Function GetUser (ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) _
+        Public Overloads Overrides Function GetUser(ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) _
             As ADUserInfo
             Dim objAuthUser As ADUserInfo
 
@@ -207,7 +223,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             End If
 
             Try
-                Dim entry As DirectoryEntry = Utilities.GetUserEntryByName (LoggedOnUserName)
+                Dim entry As DirectoryEntry = Utilities.GetUserEntryByName(LoggedOnUserName)
 #If DEBUG Then
                 Dim key As String
                 For Each key In entry.Properties.PropertyNames
@@ -233,8 +249,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 ' Return authenticated if no error 
                 objAuthUser = New ADUserInfo
                 'ACD-6760
-                InitializeUser (objAuthUser)
-                Dim location As String = Utilities.GetEntryLocation (entry)
+                InitializeUser(objAuthUser)
+                Dim location As String = Utilities.GetEntryLocation(entry)
                 If location.Length = 0 Then
                     location = _adsiConfig.ConfigDomainPath
                 End If
@@ -246,23 +262,23 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     .Membership.Password = LoggedOnPassword
                 End With
 
-                FillUserInfo (entry, objAuthUser)
+                FillUserInfo(entry, objAuthUser)
 
                 Return objAuthUser
 
             Catch exc As Exception
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
         End Function
 
-        Public Overloads Overrides Function GetUser (ByVal LoggedOnUserName As String) As ADUserInfo
+        Public Overloads Overrides Function GetUser(ByVal LoggedOnUserName As String) As ADUserInfo
             Dim objAuthUser As ADUserInfo
             Try
                 If _adsiConfig.ADSINetwork Then
                     Dim entry As DirectoryEntry
 
-                    entry = Utilities.GetUserEntryByName (LoggedOnUserName)
+                    entry = Utilities.GetUserEntryByName(LoggedOnUserName)
 #If DEBUG Then
                     Dim key As String
                     For Each key In entry.Properties.PropertyNames
@@ -278,8 +294,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     If Not entry Is Nothing Then
                         objAuthUser = New ADUserInfo
                         'ACD-6760
-                        InitializeUser (objAuthUser)
-                        Dim location As String = Utilities.GetEntryLocation (entry)
+                        InitializeUser(objAuthUser)
+                        Dim location As String = Utilities.GetEntryLocation(entry)
                         If location.Length = 0 Then
                             location = _adsiConfig.ConfigDomainPath
                         End If
@@ -291,20 +307,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                             .Membership.Password = Utilities.GetRandomPassword()
                         End With
 
-                        FillUserInfo (entry, objAuthUser)
+                        FillUserInfo(entry, objAuthUser)
 
                     Else
-                        objAuthUser = GetSimplyUser (LoggedOnUserName)
+                        objAuthUser = GetSimplyUser(LoggedOnUserName)
                     End If
 
                 Else ' could not find it in AD, so populate user object with minumum info
-                    objAuthUser = GetSimplyUser (LoggedOnUserName)
+                    objAuthUser = GetSimplyUser(LoggedOnUserName)
                 End If
 
                 Return objAuthUser
 
             Catch exc As COMException
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
         End Function
@@ -315,7 +331,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 Dim colGroup As New ArrayList
                 Dim objRoleController As New RoleController
-                Dim lstRoles As ArrayList = objRoleController.GetPortalRoles (_portalSettings.PortalId)
+                Dim lstRoles As List(Of RoleInfo) = objRoleController.GetRoles(_portalSettings.PortalId)
                 Dim objRole As RoleInfo
                 Dim AllAdGroupNames As ArrayList = Utilities.GetAllGroupnames
 
@@ -325,7 +341,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
                         ' It's possible in multiple domains network that search result return more than one group with the same name (i.e Administrators)
                         ' We better check them all
-                        If AllAdGroupNames.Contains (objRole.RoleName) Then
+                        If AllAdGroupNames.Contains(objRole.RoleName) Then
                             Dim group As New GroupInfo
 
                             With group
@@ -343,7 +359,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                                 .AutoAssignment = objRole.AutoAssignment
                             End With
 
-                            colGroup.Add (group)
+                            colGroup.Add(group)
                         End If
                     End If
                 Next
@@ -351,7 +367,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 Return colGroup
 
             Catch exc As COMException
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
         End Function
@@ -408,7 +424,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         End Function
 
         Public Overrides Function GetAuthenticationTypes() As Array
-            Return [Enum].GetValues (GetType (AuthenticationTypes))
+            Return [Enum].GetValues(GetType(AuthenticationTypes))
         End Function
 
         Public Overrides Function GetNetworkStatus() As String
@@ -417,69 +433,69 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Configuration.ResetConfig()
             _adsiConfig = Configuration.GetConfig
 
-            sb.Append ("<b>[Global Catalog Status]</b>" & "<br>")
+            sb.Append("<b>[Global Catalog Status]</b>" & "<br>")
             Try
                 If _adsiConfig.ADSINetwork Then
-                    sb.Append ("OK<br>")
+                    sb.Append("OK<br>")
                 Else
-                    sb.Append ("FAIL<br>")
+                    sb.Append("FAIL<br>")
                 End If
             Catch ex As COMException
-                sb.Append ("FAIL<br>")
-                sb.Append (ex.Message & "<br>")
+                sb.Append("FAIL<br>")
+                sb.Append(ex.Message & "<br>")
             End Try
 
-            sb.Append ("<b>[Root Domain Status]</b><br>")
+            sb.Append("<b>[Root Domain Status]</b><br>")
             Try
                 If Not Utilities.GetRootEntry() Is Nothing Then
-                    sb.Append ("OK<br>")
+                    sb.Append("OK<br>")
                 Else
-                    sb.Append ("FAIL<br>")
+                    sb.Append("FAIL<br>")
                 End If
             Catch ex As COMException
-                sb.Append ("FAIL<br>")
-                sb.Append (ex.Message & "<br>")
+                sb.Append("FAIL<br>")
+                sb.Append(ex.Message & "<br>")
             End Try
 
-            sb.Append ("<b>[LDAP Status]</b><br>")
+            sb.Append("<b>[LDAP Status]</b><br>")
             Try
                 If _adsiConfig.LDAPAccesible Then
-                    sb.Append ("OK<br>")
+                    sb.Append("OK<br>")
                 Else
-                    sb.Append ("FAIL<br>")
+                    sb.Append("FAIL<br>")
                 End If
             Catch ex As COMException
-                sb.Append ("FAIL<br>")
-                sb.Append (ex.Message & "<br>")
+                sb.Append("FAIL<br>")
+                sb.Append(ex.Message & "<br>")
             End Try
 
-            sb.Append ("<b>[Network Domains Status]</b><br>")
+            sb.Append("<b>[Network Domains Status]</b><br>")
             Try
                 If Not _adsiConfig.RefCollection Is Nothing AndAlso _adsiConfig.RefCollection.Count > 0 Then
-                    sb.Append (_adsiConfig.RefCollection.Count.ToString)
-                    sb.Append (" Domain(s):<br>")
+                    sb.Append(_adsiConfig.RefCollection.Count.ToString)
+                    sb.Append(" Domain(s):<br>")
                     Dim crossRef As CrossReferenceCollection.CrossReference
                     For Each crossRef In _adsiConfig.RefCollection
-                        sb.Append (crossRef.CanonicalName)
-                        sb.Append (" (")
-                        sb.Append (crossRef.NetBIOSName)
-                        sb.Append (")<br>")
+                        sb.Append(crossRef.CanonicalName)
+                        sb.Append(" (")
+                        sb.Append(crossRef.NetBIOSName)
+                        sb.Append(")<br>")
                     Next
 
                     If _adsiConfig.RefCollection.ProcesssLog.Length > 0 Then
-                        sb.Append (_adsiConfig.RefCollection.ProcesssLog & "<br>")
+                        sb.Append(_adsiConfig.RefCollection.ProcesssLog & "<br>")
                     End If
 
                 Else
-                    sb.Append ("[LDAP Error Message]<br>")
+                    sb.Append("[LDAP Error Message]<br>")
                 End If
             Catch ex As COMException
-                sb.Append ("[LDAP Error Message]<br>")
-                sb.Append (ex.Message & "<br>")
+                sb.Append("[LDAP Error Message]<br>")
+                sb.Append(ex.Message & "<br>")
             End Try
 
             If _adsiConfig.ProcessLog.Length > 0 Then
-                sb.Append (_adsiConfig.ProcessLog & "<br>")
+                sb.Append(_adsiConfig.ProcessLog & "<br>")
             End If
 
             Return sb.ToString
@@ -501,15 +517,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
 
-            Private Sub InitializeUser (ByVal objUser As ADUserInfo)
-            objUser.Profile.InitialiseProfile (_portalSettings.PortalId)
+        Private Sub InitializeUser(ByVal objUser As ADUserInfo)
+            objUser.Profile.InitialiseProfile(_portalSettings.PortalId)
 
-            'Dim lc As String = New DotNetNuke.Services.Localization.Localization().CurrentCulture
-            'If String.IsNullOrEmpty(lc) Then lc = _portalSettings.DefaultLanguage
             'ACD-9442
             objUser.Profile.PreferredLocale = _portalSettings.DefaultLanguage
-            'TimeZone and TimeZoneOffset is deprecated
-            'objUser.Profile.TimeZone = _portalSettings.TimeZoneOffset 
             objUser.Profile.PreferredTimeZone = _portalSettings.TimeZone
         End Sub
     End Class

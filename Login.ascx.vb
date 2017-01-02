@@ -19,14 +19,10 @@
 '
 
 
-Imports DotNetNuke.Common
 Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Security.Membership
 Imports DotNetNuke.Services.Log.EventLog
-Imports DotNetNuke.Security
 Imports System.Security.Permissions
-Imports DotNetNuke.Services.Localization
-Imports DotNetNuke.Common.Utilities
 Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
 
 
