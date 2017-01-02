@@ -286,7 +286,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Function GetConfig() As Configuration
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
             Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
 
             Dim config As Configuration = CType (DataCache.GetCache (strKey), Configuration)
@@ -310,7 +310,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Sub ResetConfig()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
             Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
             DataCache.RemoveCache (strKey)
 

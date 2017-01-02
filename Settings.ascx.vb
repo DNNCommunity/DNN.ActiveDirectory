@@ -21,10 +21,7 @@
 Imports DotNetNuke.UI.Skins.Controls
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Services.Authentication
-Imports DotNetNuke.Common.Utilities
-Imports DotNetNuke.Services.Localization
 Imports DotNetNuke.Entities.Portals
-Imports DotNetNuke.Services.Exceptions
 Imports DotNetNuke.Framework.Providers
 
 

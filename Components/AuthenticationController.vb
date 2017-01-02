@@ -254,7 +254,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         objDnnUserInfo.Membership = objAuthUser.Membership
                         objDnnUserInfo.PortalID = objAuthUser.PortalID
                         objDnnUserInfo.Profile = objAuthUser.Profile
-                        objDnnUserInfo.RefreshRoles = objAuthUser.RefreshRoles
+                        'Deprecated in DNN 6.2
+                        'objDnnUserInfo.RefreshRoles = objAuthUser.RefreshRoles
                         objDnnUserInfo.Roles = objAuthUser.Roles
                         objDnnUserInfo.Username = objAuthUser.Username
                         CreateUser(objDnnUserInfo, loginStatus)
@@ -398,7 +399,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             'ACD-4158 - Make sure password in the DNN database does not match that of the password in the AD.
 
             Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
-            Dim strStoredPassword As String
+            Dim strStoredPassword As String = ""
             If Web.Security.Membership.Provider.EnablePasswordRetrieval Then
                 strStoredPassword = aspNetUser.GetPassword()
             End If
@@ -425,7 +426,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         Private Function RandomizePassword(ByVal aspNetUser As MembershipUser, ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
-            Dim strStoredPassword As String
+            Dim strStoredPassword As String = ""
             If Web.Security.Membership.Provider.EnablePasswordRetrieval Then
                 strStoredPassword = aspNetUser.GetPassword()
             End If
@@ -450,7 +451,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Sub AuthenticationLogoff()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
 
             ' Log User Off from Cookie Authentication System
             FormsAuthentication.SignOut()
@@ -709,7 +710,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Private Sub UpdateDisplayName(ByVal objDnnUser As UserInfo)
             'Update DisplayName to conform to Format
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
             Dim setting As Object = GetSetting(_portalSettings.PortalId, "Security_DisplayNameFormat")
             If (Not setting Is Nothing) AndAlso (Not String.IsNullOrEmpty(Convert.ToString(setting))) Then
                 objDnnUser.UpdateDisplayName(Convert.ToString(setting))

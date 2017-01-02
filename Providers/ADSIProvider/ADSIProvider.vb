@@ -331,7 +331,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 Dim colGroup As New ArrayList
                 Dim objRoleController As New RoleController
-                Dim lstRoles As ArrayList = objRoleController.GetPortalRoles(_portalSettings.PortalId)
+                Dim lstRoles As List(Of RoleInfo) = objRoleController.GetRoles(_portalSettings.PortalId)
                 Dim objRole As RoleInfo
                 Dim AllAdGroupNames As ArrayList = Utilities.GetAllGroupnames
 
