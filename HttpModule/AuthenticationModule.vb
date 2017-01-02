@@ -47,10 +47,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             End If
             'Check that Host/Admin user is not already logged into the site. 
             'If so then bypass authentication (ACD-2592)
-            If Not (Users.UserController.GetCurrentUserInfo().Username = String.Empty) Then
-                Dim bHost As Boolean = Users.UserController.GetCurrentUserInfo().IsSuperUser
+            If Not (Users.UserController.Instance.GetCurrentUserInfo().Username = String.Empty) Then
+                Dim bHost As Boolean = Users.UserController.Instance.GetCurrentUserInfo().IsSuperUser
                 Dim _
-                    bAdmin As Boolean = Users.UserController.GetCurrentUserInfo().IsInRole("Administrators")
+                    bAdmin As Boolean = Users.UserController.Instance.GetCurrentUserInfo().IsInRole("Administrators")
                 If bAdmin Or bHost Then Exit Sub
             End If
 

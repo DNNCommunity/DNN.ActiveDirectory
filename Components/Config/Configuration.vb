@@ -31,8 +31,26 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Const AUTHENTICATION_KEY As String = "authentication"
         Public Const AUTHENTICATION_STATUS_KEY As String = "authentication.status"
         Public Const LOGON_USER_VARIABLE As String = "LOGON_USER"
-        '
         Private Const AUTHENTICATION_CONFIG_CACHE_PREFIX As String = "Authentication.Configuration"
+
+        'Setting Name Constants
+        Public Const AD_WINDOWSAUTHENTICATION As String = "AD_WindowsAuthentication"
+        Public Const AD_HIDEWINDOWSLOGIN As String = "AD_HideWindowsLogin"
+        Public Const AD_SYNCHRONIZEROLE As String = "AD_SynchronizeRole"
+        Public Const AD_SYNCHRONIZEPASSWORD As String = "AD_SynchronizePassword"
+        Public Const AD_STRIPDOMAINNAME As String = "AD_StripDomainName"
+        Public Const AD_ROOTDOMAIN As String = "AD_RootDomain"
+        Public Const AD_EMAILDOMAIN As String = "AD_EmailDomain"
+        Public Const AD_USERNAME As String = "AD_UserName"
+        Public Const AD_PROVIDERTYPENAME As String = "AD_ProviderTypeName"
+        Public Const AD_AUTHENTICATIONTYPE As String = "AD_AuthenticationType"
+        Public Const AD_AUTHENTICATIONPASSWORD As String = "AD_AuthenticationPassword"
+        Public Const AD_SUBNET As String = "AD_SubNet"
+        Public Const AD_AUTOCREATEUSERS As String = "AD_AutoCreateUsers"
+        Public Const AD_DEFAULTDOMAIN As String = "AD_DefaultDomain"
+        Public Const AD_SEARCHBOTS As String = "AD_SearchBots"
+        Public Const AD_SYNCPHOTO As String = "AD_SyncPhoto"
+
 
         Private mPortalId As Integer
         Private mWindowsAuthentication As Boolean = False
@@ -54,6 +72,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private mDefaultDomain As String = ""
         'WorkItems 4766 and 4077
         Private mBots As String = ""
+        Private mPhoto As Boolean = False
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -68,13 +87,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [cnurse]    07/04/2007  Moved settings to Authentication Module from Site Settings
         '''     [mhorton]     01/02/2008  Move mPortalID inside of the Try/Catch in case PortalSettings hasn't been initialized.
         '''     [mhorton]     06/15/2008  ACD-7913
+        '''     [sawest]    12/16/2016  Added if contain statements.  If a key was missing, an error was thrown in the try block and the rest of the settings did not load.  
+        '''     [sawest]    12/16/2016  Switched to using constants for setting names
+        '''     [sawest]    01/02/2017  Added photo setting and constant
         ''' </history>
         ''' -------------------------------------------------------------------        
         Sub New()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-            Dim _
-                _providerConfiguration As ProviderConfiguration = _
-                    ProviderConfiguration.GetProviderConfiguration (AUTHENTICATION_KEY)
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+            Dim _providerConfiguration As ProviderConfiguration = ProviderConfiguration.GetProviderConfiguration(AUTHENTICATION_KEY)
             Dim objSecurity As New PortalSecurity
 
             Try
@@ -83,47 +103,62 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Return
                 Else
                     mPortalId = _portalSettings.PortalId
-
-                    Dim _
-                        CambrianSettings As Dictionary(Of String, String) = _
-                            PortalController.GetPortalSettingsDictionary(PortalId)
-                    mWindowsAuthentication = _
-                        CType(Null.GetNull(CambrianSettings("AD_WindowsAuthentication"), mWindowsAuthentication), _
-                            Boolean)
-                    mHideWindowsLogin = _
-                        CType(Null.GetNull(CambrianSettings("AD_HideWindowsLogin"), mHideWindowsLogin), Boolean)
-                    mSynchronizeRole = _
-                        CType(Null.GetNull(CambrianSettings("AD_SynchronizeRole"), mSynchronizeRole), Boolean)
-                    mSynchronizePassword = _
-                        CType(Null.GetNull(CambrianSettings("AD_SynchronizePassword"), mSynchronizePassword), Boolean)
-                    mStripDomainName = _
-                        CType(Null.GetNull(CambrianSettings("AD_StripDomainName"), mStripDomainName), Boolean)
-                    mRootDomain = CType(Null.GetNull(CambrianSettings("AD_RootDomain"), mRootDomain), String)
-                    mEmailDomain = CType(Null.GetNull(CambrianSettings("AD_EmailDomain"), mEmailDomain), String)
-                    mUserName = CType(Null.GetNull(CambrianSettings("AD_UserName"), mUserName), String)
-                    mProviderTypeName = _
-                        CType(Null.GetNull(CambrianSettings("AD_ProviderTypeName"), mProviderTypeName), String)
-                    mAuthenticationType = _
-                        CType(Null.GetNull(CambrianSettings("AD_AuthenticationType"), mAuthenticationType), String)
-                    mPassword = _
-                        objSecurity.Decrypt(AUTHENTICATION_KEY, _
-                                             CType( _
-                                                Null.GetNull(CambrianSettings("AD_AuthenticationPassword"), _
-                                                              mPassword.ToString), String))
-                    mAutoIP = CType(Null.GetNull(CambrianSettings("AD_SubNet"), mAutoIP), String)
-                    'ACD-4259
-                    mAutoCreateUsers = _
-                        CType(Null.GetNull(CambrianSettings("AD_AutoCreateUsers"), mAutoCreateUsers), Boolean)
-                    'ACD-5585
-                    mDefaultDomain = _
-                        CType(Null.GetNull(CambrianSettings("AD_DefaultDomain"), mDefaultDomain), String)
-                    'WorkItems 4766 and 4077
-                    mBots = _
-                        CType(Null.GetNull(CambrianSettings("AD_SearchBots"), mBots), String)
-
+                    Dim CambrianSettings As Dictionary(Of String, String) = PortalController.Instance.GetPortalSettings(PortalId)
+                    If CambrianSettings.ContainsKey(AD_WINDOWSAUTHENTICATION) Then
+                        mWindowsAuthentication = CType(Null.GetNull(CambrianSettings(AD_WINDOWSAUTHENTICATION), mWindowsAuthentication), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_HIDEWINDOWSLOGIN) Then
+                        mHideWindowsLogin = CType(Null.GetNull(CambrianSettings(AD_HIDEWINDOWSLOGIN), mHideWindowsLogin), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_SYNCHRONIZEROLE) Then
+                        mSynchronizeRole = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEROLE), mSynchronizeRole), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_SYNCHRONIZEPASSWORD) Then
+                        mSynchronizePassword = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEPASSWORD), mSynchronizePassword), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_STRIPDOMAINNAME) Then
+                        mStripDomainName = CType(Null.GetNull(CambrianSettings(AD_STRIPDOMAINNAME), mStripDomainName), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_ROOTDOMAIN) Then
+                        mRootDomain = CType(Null.GetNull(CambrianSettings(AD_ROOTDOMAIN), mRootDomain), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_EMAILDOMAIN) Then
+                        mEmailDomain = CType(Null.GetNull(CambrianSettings(AD_EMAILDOMAIN), mEmailDomain), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_USERNAME) Then
+                        mUserName = CType(Null.GetNull(CambrianSettings(AD_USERNAME), mUserName), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_PROVIDERTYPENAME) Then
+                        mProviderTypeName = CType(Null.GetNull(CambrianSettings(AD_PROVIDERTYPENAME), mProviderTypeName), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_AUTHENTICATIONTYPE) Then
+                        mAuthenticationType = CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONTYPE), mAuthenticationType), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_AUTHENTICATIONPASSWORD) Then
+                        mPassword = objSecurity.Decrypt(AUTHENTICATION_KEY, CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONPASSWORD), mPassword.ToString), String))
+                    End If
+                    If CambrianSettings.ContainsKey(AD_SUBNET) Then
+                        mAutoIP = CType(Null.GetNull(CambrianSettings(AD_SUBNET), mAutoIP), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_AUTOCREATEUSERS) Then
+                        'ACD-4259
+                        mAutoCreateUsers = CType(Null.GetNull(CambrianSettings(AD_AUTOCREATEUSERS), mAutoCreateUsers), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_DEFAULTDOMAIN) Then
+                        'ACD-5585
+                        mDefaultDomain = CType(Null.GetNull(CambrianSettings(AD_DEFAULTDOMAIN), mDefaultDomain), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_SEARCHBOTS) Then
+                        'WorkItems 4766 and 4077
+                        mBots = CType(Null.GetNull(CambrianSettings(AD_SEARCHBOTS), mBots), String)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_SYNCPHOTO) Then
+                        mPhoto = CType(Null.GetNull(CambrianSettings(AD_SYNCPHOTO), mPhoto), Boolean)
+                    End If
                 End If
             Catch ex As Exception
-                ' Do nothing: we cannot access data at this time
+                'Log the exception
+                ADSI.Utilities.AddEventLog(_portalSettings, "There was a problem loading the settings for the AD Authentication Provider.  Error: " & ex.Message)
             End Try
 
         End Sub
@@ -145,14 +180,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Shared Function GetConfig() As Configuration
             Dim config As Configuration = Nothing
             Try
-                Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-                Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
+                Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
 
-                config = CType (DataCache.GetCache (strKey), Configuration)
+                config = CType(DataCache.GetCache(strKey), Configuration)
 
                 If config Is Nothing Then
                     config = New Configuration
-                    DataCache.SetCache (strKey, config)
+                    DataCache.SetCache(strKey, config)
                 End If
 
             Catch exc As Exception
@@ -174,11 +209,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Sub ResetConfig()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-            Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
-            DataCache.RemoveCache (strKey)
-            strKey = "AuthenticationProvider" & CStr (_portalSettings.PortalId)
-            DataCache.RemoveCache (strKey)
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+            Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
+            DataCache.RemoveCache(strKey)
+            strKey = "AuthenticationProvider" & CStr(_portalSettings.PortalId)
+            DataCache.RemoveCache(strKey)
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -191,76 +226,50 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]     06/15/2008  ACD-7913
         '''     [mhorton]     04/14/2013 Item 8473 Null values not saved in DNN7. Use blank string
         '''     [mhorton]     04/18/2013 Item 8512 Null values not saved in DNN7. Use blank string
+        '''     [sawest]    12/16/2016 Condensed some code.  Switched to using constants for setting names
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Sub UpdateConfig(ByVal PortalID As Integer, _
-                                        ByVal WindowsAuthentication As Boolean, _
-                                        ByVal Hidden As Boolean, _
-                                        ByVal RootDomain As String, _
-                                        ByVal EmailDomain As String, _
-                                        ByVal AuthenticationUserName As String, _
-                                        ByVal AuthenticationPassword As String, _
-                                        ByVal SynchronizeRole As Boolean, _
-                                        ByVal SynchronizePassword As Boolean, _
-                                        ByVal StripDomainName As Boolean, _
-                                        ByVal ProviderTypeName As String, _
-                                        ByVal AuthenticationType As String, _
-                                        ByVal SubNet As String, _
-                                        ByVal DefaultDomain As String, _
-                                        ByVal AutoCreateUsers As Boolean, _
-                                        ByVal Bots As String)
+        Public Shared Sub UpdateConfig(ByVal PortalID As Integer,
+                                        ByVal WindowsAuthentication As Boolean,
+                                        ByVal Hidden As Boolean,
+                                        ByVal RootDomain As String,
+                                        ByVal EmailDomain As String,
+                                        ByVal AuthenticationUserName As String,
+                                        ByVal AuthenticationPassword As String,
+                                        ByVal SynchronizeRole As Boolean,
+                                        ByVal SynchronizePassword As Boolean,
+                                        ByVal StripDomainName As Boolean,
+                                        ByVal ProviderTypeName As String,
+                                        ByVal AuthenticationType As String,
+                                        ByVal SubNet As String,
+                                        ByVal DefaultDomain As String,
+                                        ByVal AutoCreateUsers As Boolean,
+                                        ByVal Bots As String,
+                                       ByVal Photo As Boolean)
 
             Dim objSecurity As New PortalSecurity
             'Item 8512
-            PortalController.UpdatePortalSetting(PortalID, "AD_WindowsAuthentication", WindowsAuthentication.ToString)
-            PortalController.UpdatePortalSetting(PortalID, "AD_HideWindowsLogin", Hidden.ToString)
-            PortalController.UpdatePortalSetting(PortalID, "AD_SynchronizeRole", SynchronizeRole.ToString)
-            PortalController.UpdatePortalSetting(PortalID, "AD_SynchronizePassword", SynchronizePassword.ToString)
-            PortalController.UpdatePortalSetting(PortalID, "AD_StripDomainName", StripDomainName.ToString)
-            If String.IsNullOrEmpty(RootDomain) Then
-                RootDomain = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_RootDomain", RootDomain)
-            If String.IsNullOrEmpty(EmailDomain) Then
-                EmailDomain = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_EmailDomain", EmailDomain)
-            If String.IsNullOrEmpty(AuthenticationUserName) Then
-                AuthenticationUserName = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_UserName", AuthenticationUserName)
-            If String.IsNullOrEmpty(ProviderTypeName) Then
-                ProviderTypeName = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_ProviderTypeName", ProviderTypeName)
-            If String.IsNullOrEmpty(AuthenticationType) Then
-                AuthenticationType = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_AuthenticationType", AuthenticationType)
-            If String.IsNullOrEmpty(SubNet) Then
-                SubNet = ""
-                PortalController.UpdatePortalSetting(PortalID, "AD_SubNet", "127.0.0.1")
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_SubNet", SubNet)
+            PortalController.UpdatePortalSetting(PortalID, AD_WINDOWSAUTHENTICATION, WindowsAuthentication.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_HIDEWINDOWSLOGIN, Hidden.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_SYNCHRONIZEROLE, SynchronizeRole.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_SYNCHRONIZEPASSWORD, SynchronizePassword.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_STRIPDOMAINNAME, StripDomainName.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_ROOTDOMAIN, If(String.IsNullOrEmpty(RootDomain), "", RootDomain))
+            PortalController.UpdatePortalSetting(PortalID, AD_EMAILDOMAIN, If(String.IsNullOrEmpty(EmailDomain), "", EmailDomain))
+            PortalController.UpdatePortalSetting(PortalID, AD_USERNAME, If(String.IsNullOrEmpty(AuthenticationUserName), "", AuthenticationUserName))
+            PortalController.UpdatePortalSetting(PortalID, AD_PROVIDERTYPENAME, If(String.IsNullOrEmpty(ProviderTypeName), "", ProviderTypeName))
+            PortalController.UpdatePortalSetting(PortalID, AD_AUTHENTICATIONTYPE, If(String.IsNullOrEmpty(AuthenticationType), "", AuthenticationType))
+            PortalController.UpdatePortalSetting(PortalID, AD_SUBNET, If(String.IsNullOrEmpty(SubNet), "127.0.0.1", SubNet))
             'ACD-5585
-            If String.IsNullOrEmpty(DefaultDomain) Then
-                DefaultDomain = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_DefaultDomain", DefaultDomain)
+            PortalController.UpdatePortalSetting(PortalID, AD_DEFAULTDOMAIN, If(String.IsNullOrEmpty(DefaultDomain), "", DefaultDomain))
             'ACD-4259
-            PortalController.UpdatePortalSetting(PortalID, "AD_AutoCreateUsers", AutoCreateUsers.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_AUTOCREATEUSERS, AutoCreateUsers.ToString)
             'WorkItems 4766 and 4077
-            If String.IsNullOrEmpty(Bots) Then
-                Bots = ""
-            End If
-            PortalController.UpdatePortalSetting(PortalID, "AD_SearchBots", Bots)
-
+            PortalController.UpdatePortalSetting(PortalID, AD_SEARCHBOTS, If(String.IsNullOrEmpty(Bots), "", Bots))
+            PortalController.UpdatePortalSetting(PortalID, AD_SYNCPHOTO, Photo.ToString)
             'Only update password if it has been changed
             If AuthenticationPassword.Length > 0 Then
-                PortalController.UpdatePortalSetting(PortalID, "AD_AuthenticationPassword", _
-                                                      Convert.ToString( _
-                                                                        objSecurity.Encrypt(AUTHENTICATION_KEY, _
-                                                                                             AuthenticationPassword)))
+                PortalController.UpdatePortalSetting(PortalID, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, AuthenticationPassword)))
             End If
 
         End Sub
@@ -307,13 +316,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Public Shared ReadOnly Property DefaultEmailDomain() As String
             Get
-                Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+                Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
                 Dim _portalEmail As String = _portalSettings.Email
                 Dim sRet As String = ""
-                If Not String.IsNullOrEmpty (_portalEmail) Then
-                    Dim nPos As Integer = _portalEmail.IndexOf ("@")
+                If Not String.IsNullOrEmpty(_portalEmail) Then
+                    Dim nPos As Integer = _portalEmail.IndexOf("@")
                     If nPos > 0 Then
-                        sRet = _portalEmail.Substring (nPos)
+                        sRet = _portalEmail.Substring(nPos)
                     End If
                 End If
                 Return sRet
@@ -521,11 +530,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]    08/20/2005  Replace by core Null.GetNull function
         ''' </history>
         ''' -------------------------------------------------------------------
-        Private Function GetValue (ByVal Input As Object, ByVal DefaultValue As String) As String
+        Private Function GetValue(ByVal Input As Object, ByVal DefaultValue As String) As String
             If Input Is Nothing Then
                 Return DefaultValue
             Else
-                Return CStr (Input)
+                Return CStr(Input)
             End If
         End Function
 
@@ -590,5 +599,26 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Return mDefaultDomain
             End Get
         End Property
+
+        ''' -------------------------------------------------------------------
+        ''' <summary>
+        ''' </summary>
+        ''' <remarks>
+        ''' </remarks>
+        ''' <history>
+        '''     [sawest]	01/02/2017	Created 
+        ''' </history>
+        ''' -------------------------------------------------------------------
+        Public ReadOnly Property Photo() As String
+            Get
+                Return mPhoto
+            End Get
+        End Property
+
+
+
+
     End Class
+
+
 End Namespace

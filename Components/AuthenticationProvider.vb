@@ -39,7 +39,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Shared Sub New()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
             Dim _config As Configuration = Configuration.GetConfig()
             Dim strKey As String = "AuthenticationProvider" & _portalSettings.PortalId.ToString
 
@@ -58,7 +58,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Public Shared Shadows Function Instance (ByVal AuthenticationTypeName As String) As AuthenticationProvider
             'CreateProvider()
-            Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
             Dim strKey As String = "AuthenticationProvider" & _portalSettings.PortalId.ToString
             objProvider = CType (Reflection.CreateObject (AuthenticationTypeName, strKey), AuthenticationProvider)
             Return objProvider
