@@ -110,16 +110,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                 Dim theUser As String = String.Empty
                 Dim strDomain As String = String.Empty
-
+                Dim userinfo As String()
                 If Not String.IsNullOrEmpty (txtUsername.Text) Then
-                    If txtUsername.Text.IndexOf ("@") > - 1 Then
-                        theUser = Left (txtUsername.Text, txtUsername.Text.IndexOf ("@"))
-                        strDomain = Right (txtUsername.Text, Len (txtUsername.Text) - (Len (theUser) + 1)).ToUpper
-                        If strDomain.Contains (sDefaultDomain) Then
-                            theUser = Trim (sDefaultDomain).Replace ("\", "") & "\" & theUser
+                    If txtUsername.Text.Contains("@") Then
+                        userinfo = Split(txtUsername.Text, "@")
+                        theUser = userinfo(0)
+                        'theUser = Left(txtUsername.Text, txtUsername.Text.IndexOf("@")) ***Changed Steven A West 2-25-2017  Bug fix #12
+                        strDomain = UCase(userinfo(1))
+
+                        '***Changed Steven A West 2-25-2017 Bug fix #12
+                        'strDomain = Right(txtUsername.Text, Len(txtUsername.Text) - (Len(theUser) + 1)).ToUpper 
+                        If strDomain.Contains(sDefaultDomain) Then
+                            theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & theUser
                         Else
-                            theUser = txtUsername.Text
+                            theUser = strDomain & "\" & theUser
                         End If
+                        '****
                     Else
                         'If username doesn't contain the DOMAIN\ already and config uses Default Domain
                         'Then append default domain as prefix
@@ -258,8 +264,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 End If
                 'Raise UserAuthenticated Event
                 Dim _
-                    eventArgs As UserAuthenticatedEventArgs = _
-                        New UserAuthenticatedEventArgs(objUser, txtUsername.Text, loginStatus, "Active Directory")
+                    eventArgs As UserAuthenticatedEventArgs =
+                        New UserAuthenticatedEventArgs(objUser, Split(UserName, "\")(1), loginStatus, "Active Directory") 'Bug fix #12 Steven A West
                 eventArgs.Authenticated = authenticated
                 eventArgs.Message = message
                 OnUserAuthenticated(eventArgs)
