@@ -198,7 +198,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
                 Dim strPassword As String
 
-                If Web.Security.Membership.Provider.EnablePasswordRetrieval Then
+                If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
                     strPassword = RandomizePassword(aspNetUser, objUser, aspNetUser.GetPassword())
                 Else
                     strPassword = RandomizePassword(aspNetUser, objUser, "")
@@ -239,9 +239,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 If Not _config.AutoCreateUsers = True Then
                     'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
                     objUser = DNNUserController.GetUserByName(Null.NullInteger, objAuthUser.Username)
+                    objAuthUser.Membership.Password = Utilities.GetRandomPassword()
                     If objUser Is Nothing Then 'User doesn't exist in any portal
                         'Item 6365
-                        objAuthUser.Membership.Password = Utilities.GetRandomPassword()
+                        'objAuthUser.Membership.Password = Utilities.GetRandomPassword() 'moved up Steven A West 1/11/2018
                         Dim objDnnUserInfo As New UserInfo
                         objDnnUserInfo.AffiliateID = objAuthUser.AffiliateID
                         objDnnUserInfo.DisplayName = objAuthUser.DisplayName
@@ -260,7 +261,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         objDnnUserInfo.Username = objAuthUser.Username
                         CreateUser(objDnnUserInfo, loginStatus)
                     Else 'user exists in another portal
-                        objAuthUser.Membership.Password = RandomizePassword(objUser, "")
+                        'No need to use randomizepassword here useing getrandompassword instead 
+                        'password set above - Steven A West 1/11/2018 regarding #23
+                        'objAuthUser.Membership.Password = RandomizePassword(objUser, "") 
                         objAuthUser.UserID = objUser.UserID
                         CreateUser(CType(objAuthUser, UserInfo), loginStatus)
                     End If
@@ -400,7 +403,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
             Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
             Dim strStoredPassword As String = ""
-            If Web.Security.Membership.Provider.EnablePasswordRetrieval Then
+            If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
                 strStoredPassword = aspNetUser.GetPassword()
             End If
 
@@ -427,7 +430,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private Function RandomizePassword(ByVal aspNetUser As MembershipUser, ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
             Dim strStoredPassword As String = ""
-            If Web.Security.Membership.Provider.EnablePasswordRetrieval Then
+            If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
                 strStoredPassword = aspNetUser.GetPassword()
             End If
 
