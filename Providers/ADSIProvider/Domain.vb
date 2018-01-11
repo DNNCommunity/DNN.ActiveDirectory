@@ -146,7 +146,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Function GetDomain (ByVal Path As String) As Domain
-            Return GetDomain (Path, "", "", AuthenticationTypes.Delegation)
+            Return GetDomain(Path, "", "", AuthenticationTypes.Delegation)
         End Function
 
         ''' -------------------------------------------------------------------

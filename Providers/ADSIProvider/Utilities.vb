@@ -266,7 +266,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 userEntries = .GetEntries
                 Select Case userEntries.Count
                     Case 0
-                        ' Found no entry, return nothing
+                        'Found no entry, return nothing
                         Return Nothing
                     Case 1
                         ' Find only one entry, return it
