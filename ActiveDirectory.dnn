@@ -1,6 +1,6 @@
 ﻿<dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="DNN_ActiveDirectoryAuthentication" type="Auth_System" version="05.00.06">
+    <package name="DNN_ActiveDirectoryAuthentication" type="Auth_System" version="06.00.06">
       <friendlyName>DNN_ActiveDirectoryAuthentication</friendlyName>
       <description>The DotNetNuke Active Directory Authentication Project is an Authentication provider for DotNetNuke that uses the Windows 
         Active Directory authentication protocol to authenticate users.
@@ -16,7 +16,7 @@
 
       <dependencies>
 		<dependency type="Permission">AspNetHostingPermission</dependency>
-        <dependency type="CoreVersion">06.00.00</dependency>
+        <dependency type="CoreVersion">07.00.00</dependency>
       </dependencies>
 
       <components>
@@ -33,7 +33,7 @@
             <assembly>
               <path>bin\Providers</path>
               <name>DotNetNuke.Authentication.ActiveDirectory.dll</name>
-              <version>05.00.06</version>
+              <version>06.00.06</version>
             </assembly>
             <assembly>
               <path>bin</path>
@@ -82,6 +82,10 @@
               <path>install\AuthSystem</path>
               <name>ActiveDirectory_05.00.02_install.resources</name>
             </file>
+            <file>
+              <path>install\AuthSystem</path>
+              <name>ActiveDirectory_06.00.00_install.resources</name>
+            </file>
           </files>
         </component>
 
@@ -116,9 +120,10 @@
                       <formsAuthenticationWrapper enabled="false" />
                       <system.webServer>
                         <security>
-                          <!-- Enable IIS Windows authentication for the login page -->
+                          <!-- Change enabled to true if you want to enable IIS Windows authentication for the login page -->
+                          <!-- False by default due to unfavorable behavior -->
                           <authentication>
-                            <windowsAuthentication enabled="true" />
+                            <windowsAuthentication enabled="false" />
                             <anonymousAuthentication enabled="false" />
                           </authentication>
                         </security>

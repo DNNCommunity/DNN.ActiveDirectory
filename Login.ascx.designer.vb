@@ -11,9 +11,9 @@ Option Strict On
 Option Explicit On
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
-
+    
     Partial Public Class Login
-
+        
         '''<summary>
         '''plUsername control.
         '''</summary>
@@ -22,7 +22,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents plUsername As Global.System.Web.UI.WebControls.Label
-
+        
         '''<summary>
         '''txtUsername control.
         '''</summary>
@@ -31,7 +31,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtUsername As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''plPassword control.
         '''</summary>
@@ -40,7 +40,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents plPassword As Global.System.Web.UI.WebControls.Label
-
+        
         '''<summary>
         '''txtPassword control.
         '''</summary>
@@ -49,7 +49,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents txtPassword As Global.System.Web.UI.WebControls.TextBox
-
+        
         '''<summary>
         '''divCaptcha1 control.
         '''</summary>
@@ -58,7 +58,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents divCaptcha1 As Global.System.Web.UI.HtmlControls.HtmlGenericControl
-
+        
         '''<summary>
         '''plCaptcha control.
         '''</summary>
@@ -67,7 +67,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents plCaptcha As Global.System.Web.UI.WebControls.Label
-
+        
         '''<summary>
         '''divCaptcha2 control.
         '''</summary>
@@ -76,7 +76,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents divCaptcha2 As Global.System.Web.UI.HtmlControls.HtmlGenericControl
-
+        
         '''<summary>
         '''ctlCaptcha control.
         '''</summary>
@@ -85,7 +85,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents ctlCaptcha As Global.DotNetNuke.UI.WebControls.CaptchaControl
-
+        
         '''<summary>
         '''cmdLogin control.
         '''</summary>
