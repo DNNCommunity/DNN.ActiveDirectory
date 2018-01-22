@@ -315,7 +315,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             ' Only access CrossRefCollection if LDAP is accessible
             If Not config.RefCollection Is Nothing AndAlso config.RefCollection.Count > 0 Then
                 Dim refObject As CrossReferenceCollection.CrossReference = config.RefCollection.Item(CanonicalName)
-                Return refObject.mNetBIOSName
+                If Not refObject Is Nothing Then
+                    Return refObject.mNetBIOSName
+                Else
+                    Return ""
+                End If
             Else
                 Return ""
             End If
