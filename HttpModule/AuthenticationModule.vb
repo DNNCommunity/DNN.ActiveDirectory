@@ -1,5 +1,5 @@
 '
-' DotNetNuke® - http://www.dotnetnuke.com
+' DotNetNukeÂ® - http://www.dotnetnuke.com
 ' Copyright (c) 2002-2013
 ' by DotNetNuke Corporation
 '
@@ -99,7 +99,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                                                                                (Configuration.AUTHENTICATION_LOGOFF_PAGE) _
                                                                                   .ToLower) > -1)
                 SetDnnReturnToCookie(request, response, portalSettings)
-                If (authStatus = AuthenticationStatus.Undefined) Then 'OrElse (blnWinLogon) Then
+                If (authStatus = AuthenticationStatus.Undefined) OrElse (authStatus = AuthenticationStatus.WinProcess) Then
                     AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
                     Dim url As String = request.RawUrl
                     Dim arrAutoIp() = config.AutoIP.Split(";")
