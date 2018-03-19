@@ -98,7 +98,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                                               (request.RawUrl.ToLower.IndexOf( _
                                                                                (Configuration.AUTHENTICATION_LOGOFF_PAGE) _
                                                                                   .ToLower) > -1)
-                Dim blnWinProcess As Boolean = authStatus = AuthenticationStatus.WinProcess AndAlso Not blnWinLogon AndAlso Not blnWinLogoff
+                Dim blnWinProcess As Boolean = (authStatus = AuthenticationStatus.WinProcess) AndAlso (Not (blnWinLogon OrElse blnWinLogoff))
+                                    
                 SetDnnReturnToCookie(request, response, portalSettings)
                 If (authStatus = AuthenticationStatus.Undefined) OrElse (blnWinProcess) Then
                     AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
