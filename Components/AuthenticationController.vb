@@ -239,10 +239,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 If Not _config.AutoCreateUsers = True Then
                     'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
                     objUser = DNNUserController.GetUserByName(Null.NullInteger, objAuthUser.Username)
-                    objAuthUser.Membership.Password = Utilities.GetRandomPassword()
+                    'objAuthUser.Membership.Password = Utilities.GetRandomPassword()
                     If objUser Is Nothing Then 'User doesn't exist in any portal
                         'Item 6365
-                        'objAuthUser.Membership.Password = Utilities.GetRandomPassword() 'moved up Steven A West 1/11/2018
+                        objAuthUser.Membership.Password = Utilities.GetRandomPassword()
                         Dim objDnnUserInfo As New UserInfo
                         objDnnUserInfo.AffiliateID = objAuthUser.AffiliateID
                         objDnnUserInfo.DisplayName = objAuthUser.DisplayName
@@ -263,7 +263,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Else 'user exists in another portal
                         'No need to use randomizepassword here useing getrandompassword instead 
                         'password set above - Steven A West 1/11/2018 regarding #23
-                        'objAuthUser.Membership.Password = RandomizePassword(objUser, "") 
+                        objAuthUser.Membership.Password = RandomizePassword(objUser, "")
                         objAuthUser.UserID = objUser.UserID
                         CreateUser(CType(objAuthUser, UserInfo), loginStatus)
                     End If
