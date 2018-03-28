@@ -8,15 +8,28 @@
 <div class="License">
 	<h3>About the DotNetNuke.Authentication.ActiveDirectory</h3>
 	<p class="Owner">
-		<b>Version 5.0.6</b><br /><br />		
+		<b>Version 6.0.0</b><br /><br />		
 	</p>
-	<p>This version of the provider requires DotNetNuke Core 6.0.0 or greater. 
-        FYI: Developers should be aware that the provider uses Visual Studio 2010 only.</p>
+	<p>This version of the provider requires DotNetNuke Core 7.0.0 or greater. 
+        FYI: Developers should be aware that the provider uses Visual Studio 2010+ only.</p>
 	
 	<h4>Bug Fixes</h4>
-	<ul>
+	<ul>Version 5.0.6
 		<li>8512: Settings not saved properly and two user accounts created.</li>
 		<li>8571: Users not being logged into the correct portal when going to child portal.</li>
+	</ul>
+	<ul>Version 6.0.0
+		<li>Compatible with DNN 7, 8, and 9</i>
+	</ul>
+	<ul>Version 6.0.2
+		<li>Better UPN handling  Issue #12</i>
+	</ul>
+	<h4>Features</h4>
+	<ul>Version 6.0.0
+		<li>Ability to sync AD thumbnail photo to profile pic in DNN portal.</li>
+	</ul>
+	<ul>Version 6.0.2
+		<li>Keyboard Enter elicits Login function Issue #13</li>
 	</ul>
 	<p class="Owner">
 		To run the provider under IIS 7.x in integrated mode two commands are needed to be run from a command prompt on the server.

@@ -34,12 +34,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-            Public Structure CrossReference
+        Public Class CrossReference
             Friend mDomainPath As String
             Friend mCanonicalName As String
             Friend mNetBIOSName As String
 
-            Friend Sub New (ByVal Path As String, ByVal NetBIOS As String, ByVal Canonical As String)
+            Friend Sub New(ByVal Path As String, ByVal NetBIOS As String, ByVal Canonical As String)
                 mDomainPath = Path
                 mCanonicalName = Canonical
                 mNetBIOSName = NetBIOS
@@ -62,7 +62,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     Return mNetBIOSName
                 End Get
             End Property
-        End Structure
+        End Class
 
         ' Allows access to items by both NetBiosName or CanonicalName
         Private mNetBIOSLookup As Hashtable = New Hashtable

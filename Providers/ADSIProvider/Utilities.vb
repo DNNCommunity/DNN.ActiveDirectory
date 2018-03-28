@@ -23,9 +23,14 @@ Imports System.Runtime.InteropServices
 Imports DotNetNuke.Services.Exceptions
 Imports System.Net
 Imports SecurityException = System.Security.SecurityException
+Imports DotNetNuke.Services.Log.EventLog
+Imports DotNetNuke.Services.FileSystem
+Imports DotNetNuke.Entities.Users
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class Utilities
+        Public Shared objEventLog As New EventLogController
+        Public Const AD_IMAGE_FOLDER_PATH As String = "Images/AD Photos"
         Sub New()
         End Sub
 
@@ -38,18 +43,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Overloads Shared Function GetRootDomain (ByVal ADSIPath As Path) As Domain
+        Public Overloads Shared Function GetRootDomain(ByVal ADSIPath As Path) As Domain
             Try
                 Dim adsiConfig As Configuration = Configuration.GetConfig()
 
-                Dim rootDomainFullPath As String = AddADSIPath (adsiConfig.RootDomainPath, ADSIPath)
+                Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath, ADSIPath)
                 Dim _
-                    rootDomainEntry As Domain = _
-                        Domain.GetDomain (rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, _
+                    rootDomainEntry As Domain =
+                        Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password,
                                           adsiConfig.AuthenticationType)
                 Return rootDomainEntry
             Catch exc As COMException
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
 
@@ -68,14 +73,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 Dim adsiConfig As Configuration = Configuration.GetConfig()
 
-                Dim rootDomainFullPath As String = AddADSIPath (adsiConfig.RootDomainPath)
+                Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath)
                 Dim _
-                    rootDomainEntry As Domain = _
-                        Domain.GetDomain (rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, _
+                    rootDomainEntry As Domain =
+                        Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password,
                                           adsiConfig.AuthenticationType)
                 Return rootDomainEntry
             Catch exc As COMException
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
 
@@ -91,16 +96,16 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetDomainByBIOSName (ByVal Name As String) As Domain
+        Public Shared Function GetDomainByBIOSName(ByVal Name As String) As Domain
             Dim adsiConfig As Configuration = Configuration.GetConfig()
 
             ' Only access CrossRefCollection if LDAP is accessible
             If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
-                Dim refObject As CrossReferenceCollection.CrossReference = adsiConfig.RefCollection.ItemByNetBIOS (Name)
-                Dim path As String = AddADSIPath (refObject.DomainPath)
+                Dim refObject As CrossReferenceCollection.CrossReference = adsiConfig.RefCollection.ItemByNetBIOS(Name)
+                Dim path As String = AddADSIPath(refObject.DomainPath)
                 Dim _
-                    domain As Domain = _
-                        domain.GetDomain (path, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
+                    domain As Domain =
+                        Domain.GetDomain(path, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
 
                 Return domain
             Else
@@ -110,17 +115,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         End Function
 
         Public Overloads Shared Function GetRootEntry() As DirectoryEntry
-            Return GetRootEntry (Path.GC)
+            Return GetRootEntry(Path.GC)
         End Function
 
-        Public Overloads Shared Function GetRootEntry (ByVal ADSIPath As Path) As DirectoryEntry
+        Public Overloads Shared Function GetRootEntry(ByVal ADSIPath As Path) As DirectoryEntry
             Try
                 Dim adsiConfig As Configuration = Configuration.GetConfig()
                 Dim entry As DirectoryEntry = Nothing
                 If Not adsiConfig Is Nothing Then
-                    Dim rootDomainFullPath As String = AddADSIPath (adsiConfig.RootDomainPath, ADSIPath)
+                    Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath, ADSIPath)
                     If Not rootDomainFullPath Is Nothing Then
-                        entry = GetDirectoryEntry (rootDomainFullPath)
+                        entry = GetDirectoryEntry(rootDomainFullPath)
                     End If
                 End If
                 If Not entry Is Nothing AndAlso entry.Name.Length > 0 Then
@@ -129,7 +134,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     Return Nothing
                 End If
             Catch exc As COMException
-                LogException (exc)
+                LogException(exc)
                 Return Nothing
             End Try
 
@@ -147,15 +152,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetDirectoryEntry (ByVal Path As String) As DirectoryEntry
+        Public Shared Function GetDirectoryEntry(ByVal Path As String) As DirectoryEntry
             Dim adsiConfig As Configuration = Configuration.GetConfig()
             Dim returnEntry As DirectoryEntry
 
             If (adsiConfig.UserName.Length > 0) AndAlso (adsiConfig.Password.Length > 0) Then
-                returnEntry = _
-                    New DirectoryEntry (Path, adsiConfig.UserName, adsiConfig.Password, AuthenticationTypes.Delegation)
+                returnEntry =
+                    New DirectoryEntry(Path, adsiConfig.UserName, adsiConfig.Password, AuthenticationTypes.Delegation)
             Else
-                returnEntry = New DirectoryEntry (Path)
+                returnEntry = New DirectoryEntry(Path)
             End If
 
             Return returnEntry
@@ -172,19 +177,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''    [tamttt]	08/01/2004	Created
         '''</history>
         '''-------------------------------------------------------------------
-        Public Shared Function GetRootForestPath (Optional ByVal ADSIPath As Path = Path.GC) As String
+        Public Shared Function GetRootForestPath(Optional ByVal ADSIPath As Path = Path.GC) As String
             Try
                 Dim strADSIPath As String = ADSIPath.ToString & "://"
-                Dim ADsRoot As New DirectoryEntry (strADSIPath & "rootDSE")
+                Dim ADsRoot As New DirectoryEntry(strADSIPath & "rootDSE")
                 Dim _
-                    strRootDomain As String = strADSIPath & _
-                                              CType ( _
-                                                  ADsRoot.Properties (Configuration.ADSI_ROOTDOMAINNAMIMGCONTEXT).Value, _
+                    strRootDomain As String = strADSIPath &
+                                              CType(
+                                                  ADsRoot.Properties(Configuration.ADSI_ROOTDOMAINNAMIMGCONTEXT).Value,
                                                   String)
 
                 Return strRootDomain
             Catch ex As COMException
-                LogException (ex)
+                LogException(ex)
                 Return Nothing
             End Try
         End Function
@@ -200,14 +205,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetEntryLocation (ByVal Entry As DirectoryEntry) As String
+        Public Shared Function GetEntryLocation(ByVal Entry As DirectoryEntry) As String
             Dim strReturn As String = ""
             If Not Entry Is Nothing Then
-                Dim entryPath As String = CheckNullString (Entry.Path)
+                Dim entryPath As String = CheckNullString(Entry.Path)
 
                 If entryPath.Length > 0 Then
-                    strReturn = Right (entryPath, entryPath.Length - entryPath.IndexOf ("DC="))
-                    strReturn = ConvertToCanonical (strReturn, False)
+                    strReturn = Right(entryPath, entryPath.Length - entryPath.IndexOf("DC="))
+                    strReturn = ConvertToCanonical(strReturn, False)
                 End If
             End If
 
@@ -224,14 +229,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
 
-            Public Shared Function GetAllGroupnames() As ArrayList
+        Public Shared Function GetAllGroupnames() As ArrayList
             Dim RootDomain As Domain = GetRootDomain()
-            Dim objSearch As New Search (RootDomain)
+            Dim objSearch As New Search(RootDomain)
 
-            objSearch.AddFilter (Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.group.ToString)
-            objSearch.PropertiesToLoad.Add (Configuration.ADSI_CNAME)
+            objSearch.AddFilter(Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.group.ToString)
+            objSearch.PropertiesToLoad.Add(Configuration.ADSI_CNAME)
 
-            Return objSearch.GetPropertyEntries (Configuration.ADSI_CNAME)
+            Return objSearch.GetPropertyEntries(Configuration.ADSI_CNAME)
 
         End Function
 
@@ -247,35 +252,35 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetUserEntryByName (ByVal Name As String) As DirectoryEntry
+        Public Shared Function GetUserEntryByName(ByVal Name As String) As DirectoryEntry
             ' Create search object then assign required params to get user entry in Active Directory
-            Dim objSearch As New Search (GetRootDomain)
+            Dim objSearch As New Search(GetRootDomain)
             Dim userEntries As ArrayList
             Dim userEntry As DirectoryEntry
             Dim userDomain As Domain
 
             With objSearch
-                .AddFilter (Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.person.ToString)
+                .AddFilter(Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.person.ToString)
                 .AddFilter(Configuration.ADSI_ACCOUNTNAME, CompareOperator.Is, TrimUserDomainName(Name))
 
                 userEntries = .GetEntries
                 Select Case userEntries.Count
                     Case 0
-                        ' Found no entry, return nothing
+                        'Found no entry, return nothing
                         Return Nothing
                     Case 1
                         ' Find only one entry, return it
-                        Return CType (userEntries.Item (0), DirectoryEntry)
+                        Return CType(userEntries.Item(0), DirectoryEntry)
                     Case Else
                         ' Find more than one entry, so we have to check to obtain correct user
                         ' Get user domain
-                        userDomain = GetDomainByBIOSName (GetUserDomainName (Name))
+                        userDomain = GetDomainByBIOSName(GetUserDomainName(Name))
                         If Not userDomain Is Nothing Then
                             For Each userEntry In userEntries
                                 Dim entryPath As String = userEntry.Path
                                 Dim _
-                                    entryLocation As String = _
-                                        Right (entryPath, entryPath.Length - entryPath.IndexOf ("DC="))
+                                    entryLocation As String =
+                                        Right(entryPath, entryPath.Length - entryPath.IndexOf("DC="))
                                 If entryLocation.ToLower = userDomain.DistinguishedName.ToLower Then
                                     Return userEntry
                                 End If
@@ -283,7 +288,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         Else
                             ' If an error occurs while accessing LDAP (i.e double-hop issue), we return the first entry
                             ' This method not very accurately, however it would be OK for ALMOST network
-                            Return CType (userEntries.Item (0), DirectoryEntry)
+                            Return CType(userEntries.Item(0), DirectoryEntry)
                         End If
 
                 End Select
@@ -304,13 +309,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function CanonicalToNetBIOS (ByVal CanonicalName As String) As String
+        Public Shared Function CanonicalToNetBIOS(ByVal CanonicalName As String) As String
             Dim config As Configuration = Configuration.GetConfig()
 
             ' Only access CrossRefCollection if LDAP is accessible
             If Not config.RefCollection Is Nothing AndAlso config.RefCollection.Count > 0 Then
-                Dim refObject As CrossReferenceCollection.CrossReference = config.RefCollection.Item (CanonicalName)
-                Return refObject.mNetBIOSName
+                Dim refObject As CrossReferenceCollection.CrossReference = config.RefCollection.Item(CanonicalName)
+                If Not refObject Is Nothing Then
+                    Return refObject.mNetBIOSName
+                Else
+                    Return ""
+                End If
             Else
                 Return ""
             End If
@@ -328,17 +337,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function UPNToLogonName0 (ByVal UserPrincipalName As String) As String
+        Public Shared Function UPNToLogonName0(ByVal UserPrincipalName As String) As String
             Dim config As Configuration = Configuration.GetConfig()
             Dim userName As String = UserPrincipalName
 
             If config.LDAPAccesible Then
                 Dim _
-                    userDomain As String = _
-                        Right (UserPrincipalName, UserPrincipalName.Length - (UserPrincipalName.IndexOf ("@") + 1))
-                Dim userNetBIOS As String = CanonicalToNetBIOS (userDomain)
+                    userDomain As String =
+                        Right(UserPrincipalName, UserPrincipalName.Length - (UserPrincipalName.IndexOf("@") + 1))
+                Dim userNetBIOS As String = CanonicalToNetBIOS(userDomain)
                 If Not userNetBIOS.Length = 0 Then
-                    userName = userNetBIOS & "\" & TrimUserDomainName (UserPrincipalName)
+                    userName = userNetBIOS & "\" & TrimUserDomainName(UserPrincipalName)
                 End If
             End If
 
@@ -357,10 +366,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetUserDomainName (ByVal UserName As String) As String
+        Public Shared Function GetUserDomainName(ByVal UserName As String) As String
             Dim strReturn As String = ""
-            If UserName.IndexOf ("\") > 0 Then
-                strReturn = Left (UserName, (UserName.IndexOf ("\")))
+            If UserName.IndexOf("\") > 0 Then
+                strReturn = Left(UserName, (UserName.IndexOf("\")))
             End If
             Return strReturn
         End Function
@@ -379,12 +388,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function TrimUserDomainName (ByVal UserName As String) As String
+        Public Shared Function TrimUserDomainName(ByVal UserName As String) As String
             Dim strReturn As String
-            If UserName.IndexOf ("\") > - 1 Then
-                strReturn = Right (UserName, UserName.Length - (UserName.IndexOf ("\") + 1))
-            ElseIf UserName.IndexOf ("@") > - 1 Then
-                strReturn = Left (UserName, UserName.IndexOf ("@"))
+            If UserName.IndexOf("\") > -1 Then
+                strReturn = Right(UserName, UserName.Length - (UserName.IndexOf("\") + 1))
+            ElseIf UserName.IndexOf("@") > -1 Then
+                strReturn = Left(UserName, UserName.IndexOf("@"))
             Else
                 strReturn = UserName
             End If
@@ -402,13 +411,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function AddADSIPath (ByVal Path As String, Optional ByVal ADSIPath As Path = ADSI.Path.GC) _
+        Public Shared Function AddADSIPath(ByVal Path As String, Optional ByVal ADSIPath As Path = ADSI.Path.GC) _
             As String
             If Path.IndexOf("LDAP://") <> -1 Then
-                Return Path	    
-            ElseIf Path.IndexOf ("://") <> - 1 Then
+                Return Path
+            ElseIf Path.IndexOf("://") <> -1 Then
                 'Clean existing ADs path first
-                Path = Right (Path, Path.Length - (Path.IndexOf ("://") + 3))
+                Path = Right(Path, Path.Length - (Path.IndexOf("://") + 3))
             End If
             Return ADSIPath.ToString & "://" & Path
         End Function
@@ -422,18 +431,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function ValidateDomainPath (ByVal Path As String, Optional ByVal ADSIPath As Path = ADSI.Path.GC) _
+        Public Shared Function ValidateDomainPath(ByVal Path As String, Optional ByVal ADSIPath As Path = ADSI.Path.GC) _
             As String
             ' If root domain is not specified in site settings, we start from top root forest
             If Path.Length = 0 Then
                 Return GetRootForestPath()
-            ElseIf (Path.IndexOf ("DC=") <> - 1) And (Path.IndexOf ("://") <> - 1) Then
+            ElseIf (Path.IndexOf("DC=") <> -1) And (Path.IndexOf("://") <> -1) Then
                 Return Path
             ElseIf (Path.IndexOf("LDAP://") <> -1) And (Path.IndexOf("://") <> -1) Then
                 Return Path
-            ElseIf (Path.IndexOf (".") <> - 1) Then
+            ElseIf (Path.IndexOf(".") <> -1) Then
                 ' "ttt.com.vn" format,  it's possible for "LDAP://ttt.com.vn" format to access Authentication, however GC:// gives better performance
-                Return ConvertToDistinguished (Path)
+                Return ConvertToDistinguished(Path)
             Else
                 ' Invalid path, so we get root path from Active Directory
                 Return GetRootForestPath()
@@ -451,22 +460,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function ConvertToDistinguished (ByVal Canonical As String, _
+        Public Shared Function ConvertToDistinguished(ByVal Canonical As String,
                                                        Optional ByVal ADSIPath As Path = Path.GC) As String
             Dim strDistinguished As String
 
             ' Clean up ADSI.Path to make sure we get a proper path
-            If Canonical.IndexOf ("://") <> - 1 Then
-                strDistinguished = Right (Canonical, Canonical.Length - (Canonical.IndexOf ("://") + 3))
+            If Canonical.IndexOf("://") <> -1 Then
+                strDistinguished = Right(Canonical, Canonical.Length - (Canonical.IndexOf("://") + 3))
             Else
                 strDistinguished = Canonical
             End If
 
-            strDistinguished = Replace (strDistinguished, ".", ",DC=")
+            strDistinguished = Replace(strDistinguished, ".", ",DC=")
             strDistinguished = "DC=" & strDistinguished
 
-            If Canonical.IndexOf ("://") <> - 1 Then
-                strDistinguished = AddADSIPath (strDistinguished, ADSIPath)
+            If Canonical.IndexOf("://") <> -1 Then
+                strDistinguished = AddADSIPath(strDistinguished, ADSIPath)
             End If
 
             Return strDistinguished
@@ -483,19 +492,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function ConvertToCanonical (ByVal Distinguished As String, ByVal IncludeADSIPath As Boolean) _
+        Public Shared Function ConvertToCanonical(ByVal Distinguished As String, ByVal IncludeADSIPath As Boolean) _
             As String
             Dim strCanonical As String = Distinguished
 
-            If Not IncludeADSIPath AndAlso Distinguished.IndexOf ("://") <> - 1 Then
-                strCanonical = Right (Distinguished, Distinguished.Length - (Distinguished.IndexOf ("://") + 3))
+            If Not IncludeADSIPath AndAlso Distinguished.IndexOf("://") <> -1 Then
+                strCanonical = Right(Distinguished, Distinguished.Length - (Distinguished.IndexOf("://") + 3))
             End If
 
-            strCanonical = Replace (strCanonical, "DC=", "")
-            strCanonical = Replace (strCanonical, "dc=", "")
-            strCanonical = Replace (strCanonical, "CN=", "")
-            strCanonical = Replace (strCanonical, "cn=", "")
-            strCanonical = Replace (strCanonical, ",", ".")
+            strCanonical = Replace(strCanonical, "DC=", "")
+            strCanonical = Replace(strCanonical, "dc=", "")
+            strCanonical = Replace(strCanonical, "CN=", "")
+            strCanonical = Replace(strCanonical, "cn=", "")
+            strCanonical = Replace(strCanonical, ",", ".")
 
             Return strCanonical
 
@@ -510,7 +519,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function CheckNullString (ByVal value As Object) As String
+        Public Shared Function CheckNullString(ByVal value As Object) As String
             If value Is Nothing Then
                 Return ""
             Else
@@ -530,29 +539,29 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' -------------------------------------------------------------------
         Public Shared Function GetRandomPassword() As String
             Dim rd As New Random
-            Return Convert.ToString (rd.Next)
+            Return Convert.ToString(rd.Next)
         End Function
 
         ' See http://www.aspalliance.com/bbilbro/viewarticle.aspx?paged_article_id=4
-        Public Shared Function ReplaceCaseInsensitive (ByVal text As String, ByVal oldValue As String, _
+        Public Shared Function ReplaceCaseInsensitive(ByVal text As String, ByVal oldValue As String,
                                                        ByVal newValue As String) As String
-            oldValue = GetCaseInsensitiveSearch (oldValue)
+            oldValue = GetCaseInsensitiveSearch(oldValue)
 
-            Return Regex.Replace ([text], oldValue, newValue)
+            Return Regex.Replace([text], oldValue, newValue)
 
         End Function
 
         'ReplaceCaseInsensitive
 
-        Shared Function GetCaseInsensitiveSearch (ByVal search As String) As String
+        Shared Function GetCaseInsensitiveSearch(ByVal search As String) As String
             Dim result As String = String.Empty
 
             Dim index As Integer
 
             For index = 0 To search.Length - 1
-                Dim character As Char = search.Chars (index)
-                Dim characterLower As Char = Char.ToLower (character)
-                Dim characterUpper As Char = Char.ToUpper (character)
+                Dim character As Char = search.Chars(index)
+                Dim characterLower As Char = Char.ToLower(character)
+                Dim characterUpper As Char = Char.ToUpper(character)
 
                 If characterUpper = characterLower Then
                     result = result + character
@@ -568,9 +577,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         'ACD-7422 - Role Synchronization Not Working On W2K Domain Controllers
         'By using TokenGroups it should work with W2K.
-        Public Shared Function GetADGroups (ByVal Name As String) As ArrayList
-            Dim user As DirectoryEntry = GetUserEntryByName (Name)
-            Dim irc As IdentityReferenceCollection = ExpandTokenGroups (user).Translate (GetType (NTAccount))
+        Public Shared Function GetADGroups(ByVal Name As String) As ArrayList
+            Dim user As DirectoryEntry = GetUserEntryByName(Name)
+            Dim irc As IdentityReferenceCollection = ExpandTokenGroups(user).Translate(GetType(NTAccount))
             Dim arrAccounts As New ArrayList
 
             For Each account As IdentityReference In irc
@@ -580,9 +589,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 #End If
                     'arrAccounts.Add (account.Value)
                     'Trim the leading Group Name off the group (i.e. Remove DOMAIN\ from DOMAIN\Group)
-                    If InStr (account.Value, "\") Then
-                        If Not (arrAccounts.Contains (account.Value.Substring (InStr (account.Value, "\")))) Then
-                            arrAccounts.Add (account.Value.Substring (InStr (account.Value, "\")))
+                    If InStr(account.Value, "\") Then
+                        If Not (arrAccounts.Contains(account.Value.Substring(InStr(account.Value, "\")))) Then
+                            arrAccounts.Add(account.Value.Substring(InStr(account.Value, "\")))
                         End If
                     Else
                         arrAccounts.Add(account.Value)
@@ -593,21 +602,21 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Return arrAccounts
         End Function
 
-        Private Shared Function ExpandTokenGroups (ByVal user As DirectoryEntry) As IdentityReferenceCollection
-            user.RefreshCache (New String() {"tokenGroups"})
+        Private Shared Function ExpandTokenGroups(ByVal user As DirectoryEntry) As IdentityReferenceCollection
+            user.RefreshCache(New String() {"tokenGroups"})
 
             Dim irc As New IdentityReferenceCollection()
 
-            For Each sidBytes As Byte() In user.Properties ("tokenGroups")
-                irc.Add (New SecurityIdentifier (sidBytes, 0))
+            For Each sidBytes As Byte() In user.Properties("tokenGroups")
+                irc.Add(New SecurityIdentifier(sidBytes, 0))
             Next
             Return irc
         End Function
 
-        Public Shared Function GetIP4Address (ByVal strPassedIP As String) As String
+        Public Shared Function GetIP4Address(ByVal strPassedIP As String) As String
             Dim IP4Address As String = String.Empty
 
-            For Each IPA As IPAddress In Dns.GetHostAddresses (strPassedIP)
+            For Each IPA As IPAddress In Dns.GetHostAddresses(strPassedIP)
                 If IPA.AddressFamily.ToString() = "InterNetwork" Then
                     IP4Address = IPA.ToString()
                     Exit For
@@ -618,7 +627,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 Return IP4Address
             End If
 
-            For Each IPA As IPAddress In Dns.GetHostAddresses (Dns.GetHostName())
+            For Each IPA As IPAddress In Dns.GetHostAddresses(Dns.GetHostName())
                 If IPA.AddressFamily.ToString() = "InterNetwork" Then
                     IP4Address = IPA.ToString()
                     Exit For
@@ -639,13 +648,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Function GetCurrentTrustLevel() As AspNetHostingPermissionLevel
-            For Each trustLevel As AspNetHostingPermissionLevel In _
+            For Each trustLevel As AspNetHostingPermissionLevel In
                 New AspNetHostingPermissionLevel() _
-                    {AspNetHostingPermissionLevel.Unrestricted, AspNetHostingPermissionLevel.High, _
-                     AspNetHostingPermissionLevel.Medium, AspNetHostingPermissionLevel.Low, _
+                    {AspNetHostingPermissionLevel.Unrestricted, AspNetHostingPermissionLevel.High,
+                     AspNetHostingPermissionLevel.Medium, AspNetHostingPermissionLevel.Low,
                      AspNetHostingPermissionLevel.Minimal}
                 Try
-                    Dim perm As New AspNetHostingPermission (trustLevel)
+                    Dim perm As New AspNetHostingPermission(trustLevel)
                     perm.Demand()
                 Catch generatedExceptionName As SecurityException
                     Continue For
@@ -682,6 +691,42 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 Return Nothing
             End If
 
+        End Function
+
+        Public Shared Function AddEventLog(portalsettings As Portals.PortalSettings, description As String) As Boolean
+            objEventLog.AddLog("Description", description, portalsettings, -1, DotNetNuke.Services.Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+        End Function
+
+        ''' <summary>
+        ''' Uses the byte data from active directory and writes an image file to the specified folder.  Returns the FileID 
+        ''' </summary>
+        ''' <param name="objUserInfo">User object</param>
+        ''' <param name="photo">Byte array containing photo bytes</param>
+        ''' <history>
+        '''     [sawest]    12/16/2016     Created
+        ''' </history>
+        Public Shared Function WritePhoto(ByVal objUserInfo As ADUserInfo, ByVal photo() As Byte) As String
+
+            Dim _folderinfo As IFolderInfo
+            Dim _fileinfo As IFileInfo
+
+            _folderinfo = FolderManager.Instance.GetUserFolder(objUserInfo)
+
+            If Not _folderinfo Is Nothing Then
+                Using stream As New System.IO.MemoryStream(photo)
+                    Dim fname As String = Replace(objUserInfo.Username, "\", "_") & "_profile_photo.jpg"
+                    _fileinfo = FileManager.Instance.AddFile(_folderinfo, fname, stream)
+                    stream.Close()
+                    _folderinfo = Nothing
+                    If Not _fileinfo Is Nothing Then
+                        Return _fileinfo.FileId
+                    Else
+                        Return ""
+                    End If
+                End Using
+            Else
+                Return ""
+            End If
         End Function
     End Class
 End Namespace

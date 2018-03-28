@@ -1,5 +1,5 @@
 '
-' DotNetNuke® - http://www.dotnetnuke.com
+' DotNetNukeÂ® - http://www.dotnetnuke.com
 ' Copyright (c) 2002-2013
 ' by DotNetNuke Corporation
 '
@@ -47,10 +47,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             End If
             'Check that Host/Admin user is not already logged into the site. 
             'If so then bypass authentication (ACD-2592)
-            If Not (Users.UserController.GetCurrentUserInfo().Username = String.Empty) Then
-                Dim bHost As Boolean = Users.UserController.GetCurrentUserInfo().IsSuperUser
+            If Not (Users.UserController.Instance.GetCurrentUserInfo().Username = String.Empty) Then
+                Dim bHost As Boolean = Users.UserController.Instance.GetCurrentUserInfo().IsSuperUser
                 Dim _
-                    bAdmin As Boolean = Users.UserController.GetCurrentUserInfo().IsInRole("Administrators")
+                    bAdmin As Boolean = Users.UserController.Instance.GetCurrentUserInfo().IsInRole("Administrators")
                 If bAdmin Or bHost Then Exit Sub
             End If
 
@@ -98,8 +98,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                                               (request.RawUrl.ToLower.IndexOf( _
                                                                                (Configuration.AUTHENTICATION_LOGOFF_PAGE) _
                                                                                   .ToLower) > -1)
+                Dim blnWinProcess As Boolean = (authStatus = AuthenticationStatus.WinProcess) AndAlso (Not (blnWinLogon OrElse blnWinLogoff))
+                                    
                 SetDnnReturnToCookie(request, response, portalSettings)
-                If (authStatus = AuthenticationStatus.Undefined) Then 'OrElse (blnWinLogon) Then
+                If (authStatus = AuthenticationStatus.Undefined) OrElse (blnWinProcess) Then
                     AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
                     Dim url As String = request.RawUrl
                     Dim arrAutoIp() = config.AutoIP.Split(";")
