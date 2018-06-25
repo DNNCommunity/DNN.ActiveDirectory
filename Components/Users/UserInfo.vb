@@ -166,9 +166,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return msAMAccountName
             End Get
-            Set (ByVal Value As String)
+            Set(ByVal Value As String)
                 msAMAccountName = Value
             End Set
         End Property
+
     End Class
 End Namespace
