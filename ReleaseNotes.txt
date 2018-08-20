@@ -31,6 +31,10 @@
 	<ul>Version 6.0.2
 		<li>Keyboard Enter elicits Login function Issue #13</li>
 	</ul>
+	<ul>Version 6.1.2
+		<li>Fixed Issue: 47</li>
+		<li>Fixed Issue: 36</li>
+	</ul>
 	<p class="Owner">
 		To run the provider under IIS 7.x in integrated mode two commands are needed to be run from a command prompt on the server.
 		<ul>

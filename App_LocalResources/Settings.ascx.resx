@@ -273,4 +273,10 @@
   <data name="plSynchronizePhoto.Text" xml:space="preserve">
     <value>Synchronize Photo?</value>
   </data>
+  <data name="plAutoLogin.Help" xml:space="preserve">
+    <value>Enabling this will auto-login users when they access the portal.  You can restrict which users get this feature by IP below.</value>
+  </data>
+  <data name="plAutoLogin.Text" xml:space="preserve">
+    <value>Enable Auto Login?</value>
+  </data>
 </root>

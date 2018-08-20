@@ -50,6 +50,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Const AD_DEFAULTDOMAIN As String = "AD_DefaultDomain"
         Public Const AD_SEARCHBOTS As String = "AD_SearchBots"
         Public Const AD_SYNCPHOTO As String = "AD_SyncPhoto"
+        Public Const AD_ENABLEAUTOLOGIN As String = "AD_ENABLEAUTOLOGIN"
 
 
         Private mPortalId As Integer
@@ -73,6 +74,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         'WorkItems 4766 and 4077
         Private mBots As String = ""
         Private mPhoto As Boolean = False
+        Private mEnableAutoLogin As Boolean = False
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -154,6 +156,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     End If
                     If CambrianSettings.ContainsKey(AD_SYNCPHOTO) Then
                         mPhoto = CType(Null.GetNull(CambrianSettings(AD_SYNCPHOTO), mPhoto), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_ENABLEAUTOLOGIN) Then
+                        mEnableAutoLogin = CType(Null.GetNull(CambrianSettings(AD_ENABLEAUTOLOGIN), mEnableAutoLogin), Boolean)
                     End If
                 End If
             Catch ex As Exception
@@ -245,7 +250,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                                         ByVal DefaultDomain As String,
                                         ByVal AutoCreateUsers As Boolean,
                                         ByVal Bots As String,
-                                       ByVal Photo As Boolean)
+                                       ByVal Photo As Boolean,
+                                       ByVal EnableAutoLogin As Boolean)
 
             Dim objSecurity As New PortalSecurity
             'Item 8512
@@ -267,6 +273,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             'WorkItems 4766 and 4077
             PortalController.UpdatePortalSetting(PortalID, AD_SEARCHBOTS, If(String.IsNullOrEmpty(Bots), "", Bots))
             PortalController.UpdatePortalSetting(PortalID, AD_SYNCPHOTO, Photo.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_ENABLEAUTOLOGIN, EnableAutoLogin.ToString)
             'Only update password if it has been changed
             If AuthenticationPassword.Length > 0 Then
                 PortalController.UpdatePortalSetting(PortalID, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, AuthenticationPassword)))
@@ -612,6 +619,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public ReadOnly Property Photo() As String
             Get
                 Return mPhoto
+            End Get
+        End Property
+        ''' -------------------------------------------------------------------
+        ''' <summary>
+        ''' </summary>
+        ''' <remarks>
+        ''' </remarks>
+        ''' <history>
+        '''     [sawest]	01/02/2017	Created 
+        ''' </history>
+        ''' -------------------------------------------------------------------
+        Public ReadOnly Property EnableAutoLogin() As String
+            Get
+                Return mEnableAutoLogin
             End Get
         End Property
 
