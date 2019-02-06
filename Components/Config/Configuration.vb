@@ -51,6 +51,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Const AD_SEARCHBOTS As String = "AD_SearchBots"
         Public Const AD_SYNCPHOTO As String = "AD_SyncPhoto"
         Public Const AD_ENABLEAUTOLOGIN As String = "AD_ENABLEAUTOLOGIN"
+        Public Const AD_ENABLEDEBUGMODE As String = "AD_ENABLEDEBUGMODE"
 
 
         Private mPortalId As Integer
@@ -75,6 +76,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private mBots As String = ""
         Private mPhoto As Boolean = False
         Private mEnableAutoLogin As Boolean = False
+        Private mEnableDebugMode As Boolean = False
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -92,6 +94,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [sawest]    12/16/2016  Added if contain statements.  If a key was missing, an error was thrown in the try block and the rest of the settings did not load.  
         '''     [sawest]    12/16/2016  Switched to using constants for setting names
         '''     [sawest]    01/02/2017  Added photo setting and constant
+        '''     [sawest]    02/06/2019  Added debug mode setting and constant
         ''' </history>
         ''' -------------------------------------------------------------------        
         Sub New()
@@ -159,6 +162,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     End If
                     If CambrianSettings.ContainsKey(AD_ENABLEAUTOLOGIN) Then
                         mEnableAutoLogin = CType(Null.GetNull(CambrianSettings(AD_ENABLEAUTOLOGIN), mEnableAutoLogin), Boolean)
+                    End If
+                    If CambrianSettings.ContainsKey(AD_ENABLEDEBUGMODE) Then
+                        mEnableDebugMode = CType(Null.GetNull(CambrianSettings(AD_ENABLEDEBUGMODE), mEnableDebugMode), Boolean)
                     End If
                 End If
             Catch ex As Exception
@@ -251,7 +257,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                                         ByVal AutoCreateUsers As Boolean,
                                         ByVal Bots As String,
                                        ByVal Photo As Boolean,
-                                       ByVal EnableAutoLogin As Boolean)
+                                       ByVal EnableAutoLogin As Boolean,
+                                       ByVal EnableDebugMode As Boolean)
 
             Dim objSecurity As New PortalSecurity
             'Item 8512
@@ -274,6 +281,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             PortalController.UpdatePortalSetting(PortalID, AD_SEARCHBOTS, If(String.IsNullOrEmpty(Bots), "", Bots))
             PortalController.UpdatePortalSetting(PortalID, AD_SYNCPHOTO, Photo.ToString)
             PortalController.UpdatePortalSetting(PortalID, AD_ENABLEAUTOLOGIN, EnableAutoLogin.ToString)
+            PortalController.UpdatePortalSetting(PortalID, AD_ENABLEDEBUGMODE, EnableDebugMode.ToString)
             'Only update password if it has been changed
             If AuthenticationPassword.Length > 0 Then
                 PortalController.UpdatePortalSetting(PortalID, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, AuthenticationPassword)))
@@ -633,6 +641,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public ReadOnly Property EnableAutoLogin() As String
             Get
                 Return mEnableAutoLogin
+            End Get
+        End Property
+        ''' -------------------------------------------------------------------
+        ''' <summary>
+        ''' </summary>
+        ''' <remarks>
+        ''' </remarks>
+        ''' <history>
+        '''     [sawest]	02/06/2019	Created 
+        ''' </history>
+        ''' -------------------------------------------------------------------
+        Public ReadOnly Property EnableDebugMode() As String
+            Get
+                Return mEnableDebugMode
             End Get
         End Property
 

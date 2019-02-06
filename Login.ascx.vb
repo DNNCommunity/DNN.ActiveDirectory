@@ -110,61 +110,64 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                 Dim theUser As String = String.Empty
                 Dim strDomain As String = String.Empty
-                Dim userinfo As String()
+                'Dim userinfo As String()
                 If Not String.IsNullOrEmpty(txtUsername.Text) Then
 
-                    'If UPN username provided, strip domain, translate to netBiOS
-                    If txtUsername.Text.Contains("@") Then
+                    'Changing code for long UPN ability issue #56 sawest 2-6-2019
+                    'needs to be cleaned up and removed in later version
 
-                        '***Changed Steven A West 1-11-2018 Bug fix #12 & #24
-                        theUser = ADSI.Utilities.UPNToLogonName0(txtUsername.Text.ToLower)
+                    ''If UPN username provided, strip domain, translate to netBiOS
+                    'If txtUsername.Text.Contains("@") Then
 
-                        '***Commented Out Steven A West 1-11-2018 Bug fix #12 & #24**************
-                        ' userinfo = Split(txtUsername.Text, "@")
-                        '  theUser = userinfo(0)
-                        'theUser = Left(txtUsername.Text, txtUsername.Text.IndexOf("@")) ***Changed Steven A West 2-25-2017  Bug fix #12
-                        ' strDomain = UCase(userinfo(1))
+                    '    '***Changed Steven A West 1-11-2018 Bug fix #12 & #24
+                    '    theUser = ADSI.Utilities.UPNToLogonName0(txtUsername.Text.ToLower)
 
-                        '***Changed Steven A West 2-25-2017 Bug fix #12
-                        'strDomain = Right(txtUsername.Text, Len(txtUsername.Text) - (Len(theUser) + 1)).ToUpper 
-                        '***Changed Steven A West 8-29-2017 Bug fix #12
-                        'If strDomain.Contains(sDefaultDomain) Then
-                        '    theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & theUser
-                        'Else
-                        '    theUser = strDomain & "\" & theUser
-                        'End If
-                        'If Not String.IsNullOrEmpty(sDefaultDomain) Then
-                        '    If strDomain.Contains(sDefaultDomain) Then
-                        '        theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & theUser
-                        '    Else
-                        '        theUser = strDomain & "\" & theUser
-                        '    End If
-                        'End If
+                    '    '***Commented Out Steven A West 1-11-2018 Bug fix #12 & #24**************
+                    '    ' userinfo = Split(txtUsername.Text, "@")
+                    '    '  theUser = userinfo(0)
+                    '    'theUser = Left(txtUsername.Text, txtUsername.Text.IndexOf("@")) ***Changed Steven A West 2-25-2017  Bug fix #12
+                    '    ' strDomain = UCase(userinfo(1))
 
-                        '****************************************************************************
+                    '    '***Changed Steven A West 2-25-2017 Bug fix #12
+                    '    'strDomain = Right(txtUsername.Text, Len(txtUsername.Text) - (Len(theUser) + 1)).ToUpper 
+                    '    '***Changed Steven A West 8-29-2017 Bug fix #12
+                    '    'If strDomain.Contains(sDefaultDomain) Then
+                    '    '    theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & theUser
+                    '    'Else
+                    '    '    theUser = strDomain & "\" & theUser
+                    '    'End If
+                    '    'If Not String.IsNullOrEmpty(sDefaultDomain) Then
+                    '    '    If strDomain.Contains(sDefaultDomain) Then
+                    '    '        theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & theUser
+                    '    '    Else
+                    '    '        theUser = strDomain & "\" & theUser
+                    '    '    End If
+                    '    'End If
+
+                    '    '****************************************************************************
+                    'Else
+
+                    'If username doesn't contain the DOMAIN\ already and config uses Default Domain
+                    'Then prepend default domain as prefix
+                    If (Not txtUsername.Text.Contains("\")) And (sDefaultDomain <> "" And Not txtUsername.Text.Contains("@")) Then
+                        theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & txtUsername.Text
                     Else
-                        'If username doesn't contain the DOMAIN\ already and config uses Default Domain
-                        'Then append default domain as prefix
-                        If (Not txtUsername.Text.Contains("\")) And (sDefaultDomain <> "") Then
-                            theUser = Trim(sDefaultDomain).Replace("\", "") & "\" & txtUsername.Text
-                        Else
-                            'if username contains domain\ then check if domain provided is canonical and translate
-                            If txtUsername.Text.Contains("\") Then
+                        'if username contains domain\ then check if domain provided is canonical and translate
+                        If txtUsername.Text.Contains("\") And Not txtUsername.Text.Contains("@") Then
 
-                                '***Changed Steven A West 1-11-2018 Bug fix #12 & #24
-                                strDomain = UCase(Split(txtUsername.Text, "\")(0))
-                                theUser = UCase(Split(txtUsername.Text, "\")(1))
-                                If strDomain.Contains(".") Then 'canonical domain provided, translate
-                                    strDomain = ADSI.Utilities.CanonicalToNetBIOS(strDomain.ToLower)
-                                End If
-                                If Not String.IsNullOrEmpty(strDomain) Then
-                                    theUser = strDomain & "\" & theUser
-                                End If
-                                '********
-                            Else
-                                'no domain provided and no default domain set
-                                theUser = txtUsername.Text
+                            '***Changed Steven A West 1-11-2018 Bug fix #12 & #24
+                            strDomain = UCase(Split(txtUsername.Text, "\")(0))
+                            theUser = UCase(Split(txtUsername.Text, "\")(1))
+                            If strDomain.Contains(".") Then 'canonical domain provided, translate
+                                strDomain = ADSI.Utilities.CanonicalToNetBIOS(strDomain.ToLower)
                             End If
+                            If Not String.IsNullOrEmpty(strDomain) Then
+                                theUser = strDomain & "\" & theUser
+                            End If
+                            '********
+                        Else
+                            'no domain provided and no default domain set or UPN given
+                            theUser = txtUsername.Text
                         End If
                     End If
                 End If
@@ -277,9 +280,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Dim loginStatus As UserLoginStatus = UserLoginStatus.LOGIN_FAILURE
                 Dim objAuthentication As New AuthenticationController
                 Dim objUser As DNNUserInfo = Nothing
-                If UserName.Contains("\") Then
-                    objUser = objAuthentication.ManualLogon(UserName, txtPassword.Text, loginStatus, IPAddress)
-                End If
+                ' If UserName.Contains("\") Then
+                objUser = objAuthentication.ManualLogon(UserName, txtPassword.Text, loginStatus, IPAddress)
+                'End If
                 Dim authenticated As Boolean = Null.NullBoolean
                 Dim message As String = Null.NullString
                 authenticated = (loginStatus <> UserLoginStatus.LOGIN_FAILURE)

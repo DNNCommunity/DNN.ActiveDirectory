@@ -39,6 +39,10 @@
                     <td class="SubHead" width="200"><dnn:label id="plAutoCreate" runat="server" controlname="chkAutoCreate" text="Automatically Create Users?" /></td>
                     <td valign="top" nowrap="nowrap"><asp:CheckBox ID="chkAutoCreate" runat="server" CssClass="NormalTextBox" /></td>
                 </tr>
+                 <tr id="Tr1" runat="server">
+                    <td class="SubHead" width="200"><dnn:label id="plDebugMode" runat="server" controlname="chkDebugMode" text="Enable Debug Mode?" /></td>
+                    <td valign="top" nowrap="nowrap"><asp:CheckBox ID="chkDebugMode" runat="server" CssClass="NormalTextBox" /></td>
+                </tr>
                 <tr>
                     <td class="SubHead" width="200"><dnn:label id="plStripDomainName" runat="server" controlname="chkStripDomainName" text="Strip Domain?" visible="false" /></td>
                     <td valign="top"><asp:CheckBox ID="chkStripDomainName" runat="server" CssClass="NormalTextBox" Visible="false" /></td>

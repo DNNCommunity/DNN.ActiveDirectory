@@ -36,6 +36,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         Private ReadOnly _mProviderTypeName As String = ""
         Private ReadOnly _portalSettings As PortalSettings
+        Private _config As Configuration = Configuration.GetConfig()
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -47,9 +48,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Sub New()
-            Dim config As Configuration = Configuration.GetConfig()
+
             _portalSettings = PortalController.Instance.GetCurrentPortalSettings
-            _mProviderTypeName = config.ProviderTypeName
+            _mProviderTypeName = _config.ProviderTypeName
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -136,7 +137,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                             End If
                         End If
                     End If
+                    'debug logging issue #54 steven west 2/6/2019
+                    If _config.EnableDebugMode Then
+                        Utilities.objEventLog.AddLog("Description", "@AUTHENTICATIONLOGON:Dumping redirect url: URL:" & strUrl, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                    End If
                     HttpContext.Current.Response.Redirect(strUrl, True)
+                Else
+                    'added error issue #54 steven west 2/6/2019
+                    LogException(New Exception("There was an error trying to create user account: " & loggedOnUserName))
                 End If
             Else
                 ' Not Windows Authentication
@@ -156,6 +164,41 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Function ManualLogon(ByVal userName As String, ByVal strPassword As String,
+                                     ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
+            Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
+            Dim _config As Configuration = Configuration.GetConfig()
+            Dim objUser As UserInfo = Nothing
+            Dim objReturnUser As UserInfo = Nothing
+
+            If (userName.Length > 0) And (objAuthUser IsNot Nothing) Then
+                If _config.StripDomainName Then
+                    userName = Utilities.TrimUserDomainName(userName)
+                End If
+                objAuthUser.Username = userName
+                objUser = DNNUserController.GetUserByName(_portalSettings.PortalId, userName)
+
+                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
+                If Not (objReturnUser Is Nothing) Then
+                    objAuthUser.LastIPAddress = ipAddress
+                    UpdateDNNUser(objReturnUser, objAuthUser)
+                End If
+            End If
+
+            Return objReturnUser
+
+        End Function
+
+        ''' -------------------------------------------------------------------
+        ''' <summary>
+        ''' </summary>
+        ''' <remarks>
+        ''' </remarks>
+        ''' <history>
+        '''     [sawest]	02/06/2019	Created for issue #56 long upn names
+        '''
+        ''' </history>
+        ''' -------------------------------------------------------------------
+        Public Function UPNManualLogon(ByVal userName As String, ByVal strPassword As String,
                                      ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
             Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
             Dim _config As Configuration = Configuration.GetConfig()
@@ -383,6 +426,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             OnUserCreateCompleted(args)
 
             'Item 7703
+
+            'debug logging issue #54 steven west 2/6/2019
+            If _config.EnableDebugMode Then
+                Utilities.AddEventLog(_portalSettings, "@CREATEUSER:Dumping create status: CreateStatus: " & createStatus.ToString)
+            End If
+
             If createStatus = UserCreateStatus.Success Or createStatus = UserCreateStatus.UserAlreadyRegistered Then
                 loginStatus = UserLoginStatus.LOGIN_SUCCESS
             Else
@@ -525,9 +574,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             If config.WindowsAuthentication Then
                 Dim userName As String = loggedOnUserName
 
-                If config.StripDomainName Then
-                    userName = Utilities.TrimUserDomainName(userName)
-                End If
+                'If config.StripDomainName Then
+                '    userName = Utilities.TrimUserDomainName(userName)
+                'End If
 
                 Dim objAuthUser As ADUserInfo = objAuthUserController.GetUser(userName, loggedOnPassword)
                 Return objAuthUser
