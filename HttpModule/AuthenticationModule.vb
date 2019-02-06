@@ -35,7 +35,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
         End Sub
 
         Public Sub OnAuthenticateRequest(ByVal s As Object, ByVal e As EventArgs)
-
             Dim request As HttpRequest = HttpContext.Current.Request
             Dim response As HttpResponse = HttpContext.Current.Response
 
@@ -91,47 +90,63 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             If (config.WindowsAuthentication Or config.HideWindowsLogin) Then
                 Dim authStatus As AuthenticationStatus = AuthenticationController.GetStatus(portalSettings.PortalId)
                 Dim _
-                    blnWinLogon As Boolean = _
+                    blnWinLogon As Boolean =
                         (request.RawUrl.ToLower.IndexOf((Configuration.AUTHENTICATION_LOGON_PAGE).ToLower) > -1)
                 Dim blnWinLogoff As Boolean = (authStatus = AuthenticationStatus.WinLogon) _
-                                              AndAlso _
-                                              (request.RawUrl.ToLower.IndexOf( _
+                                              AndAlso
+                                              (request.RawUrl.ToLower.IndexOf(
                                                                                (Configuration.AUTHENTICATION_LOGOFF_PAGE) _
                                                                                   .ToLower) > -1)
                 Dim blnWinProcess As Boolean = (authStatus = AuthenticationStatus.WinProcess) AndAlso (Not (blnWinLogon OrElse blnWinLogoff))
-                                    
+
                 SetDnnReturnToCookie(request, response, portalSettings)
                 If (authStatus = AuthenticationStatus.Undefined) OrElse (blnWinProcess) Then
                     AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
                     Dim url As String = request.RawUrl
                     Dim arrAutoIp() = config.AutoIP.Split(";")
+
                     'ACD-7664
                     Dim strClientIp As String = Utilities.GetIP4Address(request.UserHostAddress)
-                    For intCount As Integer = 0 To arrAutoIp.Length - 1
-                        Dim strAutoIp As String = arrAutoIp(intCount)
-                        If (InStr(strAutoIp, "-")) Then
-                            Dim arrIpRange() = strAutoIp.Split("-")
-                            Dim lClientIp As Long = IPAddressToLong(strClientIp)
-                            If _
-                                lClientIp >= IPAddressToLong(Utilities.GetIP4Address(Trim(arrIpRange(0)))) And _
-                                lClientIp <= IPAddressToLong(Utilities.GetIP4Address(Trim(arrIpRange(1)))) Then
-                                url = GetRedirectUrl(request)
-                                Exit For
-                            End If
-                        ElseIf _
-                            (Not InStr(Left(strClientIp.ToString, strAutoIp.Length), strAutoIp) = 0) Or _
+
+                    'Issue: 47 
+                    'Check new settings feature enable auto login
+                    'Steven A West 8/14/2018 check for no ip addresses, no ip addresses = all clients get windows authentication
+                    Dim redirect As Boolean = False
+                    If CBool(config.EnableAutoLogin) Then
+                        If arrAutoIp.Length > 0 Then
+                            For intCount As Integer = 0 To arrAutoIp.Length - 1
+                                Dim strAutoIp As String = arrAutoIp(intCount)
+                                If (InStr(strAutoIp, "-")) Then
+                                    Dim arrIpRange() = strAutoIp.Split("-")
+                                    Dim lClientIp As Long = IpAddressToLong(strClientIp)
+                                    If _
+                                lClientIp >= IpAddressToLong(Utilities.GetIP4Address(Trim(arrIpRange(0)))) And
+                                lClientIp <= IpAddressToLong(Utilities.GetIP4Address(Trim(arrIpRange(1)))) Then
+                                        url = GetRedirectUrl(request)
+                                        redirect = True
+                                        Exit For
+                                    End If
+                                ElseIf _
+                            (Not InStr(Left(strClientIp.ToString, strAutoIp.Length), strAutoIp) = 0) Or
                             (strAutoIp = "") Then
+                                    url = GetRedirectUrl(request)
+                                    redirect = True
+                                    Exit For
+                                End If
+                            Next
+                        Else
                             url = GetRedirectUrl(request)
-                            Exit For
+                            redirect = True
                         End If
-                    Next
-                    'WorkItem: 8571 
-                    response.Redirect(url & "?portalid=" & portalSettings.PortalId)
-                ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
-                    Dim objAuthentication As New AuthenticationController
-                    objAuthentication.AuthenticationLogoff()
-                ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
-                    AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
+                    End If
+                    If redirect Then 'prevents infinite redirects issue: 47
+                            response.Redirect(url & "?portalid=" & portalSettings.PortalId)
+                        End If
+                    ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
+                        Dim objAuthentication As New AuthenticationController
+                        objAuthentication.AuthenticationLogoff()
+                    ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
+                        AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
                     response.Redirect(request.RawUrl)
                 End If
 
@@ -150,19 +165,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                     Configuration.AUTHENTICATION_PATH & Configuration.AUTHENTICATION_LOGON_PAGE
             Else
                 Return _
-                    request.ApplicationPath & Configuration.AUTHENTICATION_PATH & _
+                    request.ApplicationPath & Configuration.AUTHENTICATION_PATH &
                         Configuration.AUTHENTICATION_LOGON_PAGE
             End If
         End Function
 
-        Private Shared Sub SetDnnReturnToCookie(ByVal request As HttpRequest, ByVal response As HttpResponse, _
+        Private Shared Sub SetDnnReturnToCookie(ByVal request As HttpRequest, ByVal response As HttpResponse,
                                           ByVal portalSettings As PortalSettings)
             Try
                 Dim refUrl As String = request.RawUrl
                 response.Clear()
                 response.Cookies("DNNReturnTo").Value = refUrl
                 response.Cookies("DNNReturnTo").Path = "/"
-                response.Cookies("DNNReturnTo").Expires = _
+                response.Cookies("DNNReturnTo").Expires =
                     DateTime.Now.AddMinutes(5)
             Catch
             End Try
@@ -176,17 +191,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             Dim num As Integer
             Dim lConvertToLong As Long = 0
 
-            If UBound(Split(strPassedIP, ".")) = 3 Then
+            If UBound(Split(strPassedIp, ".")) = 3 Then
 
                 ' On Error Resume Next
 
                 For x = 1 To 4
 
-                    pos = InStr(prevPos + 1, strPassedIP, ".", 1)
+                    pos = InStr(prevPos + 1, strPassedIp, ".", 1)
 
-                    If x = 4 Then pos = Len(strPassedIP) + 1
+                    If x = 4 Then pos = Len(strPassedIp) + 1
 
-                    num = Int(Mid(strPassedIP, prevPos + 1, pos - prevPos - 1))
+                    num = Int(Mid(strPassedIp, prevPos + 1, pos - prevPos - 1))
 
                     If num > 255 Then
 

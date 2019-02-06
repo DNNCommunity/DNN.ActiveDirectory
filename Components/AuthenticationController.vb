@@ -121,25 +121,28 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                     objEventLog.AddLog(objEventLogInfo)
 
+
+                    'Updated to redirect to querrystring passed in prior to authentication
+                    Dim querystringparams As String = "logon=" & DateTime.Now.Ticks.ToString()
+                    Dim strUrl As String = NavigateURL(_portalSettings.ActiveTab.TabID, String.Empty, querystringparams)
+
+                    If Not HttpContext.Current.Request.Cookies("DNNReturnTo") Is Nothing Then
+                        querystringparams = HttpContext.Current.Request.Cookies("DNNReturnTo").Value
+                        'ACD-8445
+                        If querystringparams <> String.Empty Then
+                            querystringparams = querystringparams.ToLower
+                            If querystringparams.IndexOf("windowssignin.aspx") < 0 Then
+                                strUrl = querystringparams
+                            End If
+                        End If
+                    End If
+                    HttpContext.Current.Response.Redirect(strUrl, True)
                 End If
             Else
                 ' Not Windows Authentication
             End If
 
-            'Updated to redirect to querrystring passed in prior to authentication
-            Dim querystringparams As String = "logon=" & DateTime.Now.Ticks.ToString()
-            Dim strUrl As String = NavigateURL(_portalSettings.ActiveTab.TabID, String.Empty, querystringparams)
 
-            If Not HttpContext.Current.Request.Cookies("DNNReturnTo") Is Nothing _
-                Then
-                querystringparams =
-                    HttpContext.Current.Request.Cookies("DNNReturnTo").Value
-                'ACD-8445
-                If querystringparams <> String.Empty Then querystringparams = querystringparams.ToLower
-                If querystringparams <> String.Empty And querystringparams.IndexOf("windowssignin.aspx") < 0 Then _
-                    strUrl = querystringparams
-            End If
-            HttpContext.Current.Response.Redirect(strUrl, True)
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -239,7 +242,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 If Not _config.AutoCreateUsers = True Then
                     'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
                     objUser = DNNUserController.GetUserByName(Null.NullInteger, objAuthUser.Username)
-                    'objAuthUser.Membership.Password = Utilities.GetRandomPassword()
                     If objUser Is Nothing Then 'User doesn't exist in any portal
                         'Item 6365
                         objAuthUser.Membership.Password = Utilities.GetRandomPassword()
@@ -261,9 +263,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         objDnnUserInfo.Username = objAuthUser.Username
                         CreateUser(objDnnUserInfo, loginStatus)
                     Else 'user exists in another portal
-                        'No need to use randomizepassword here useing getrandompassword instead 
-                        'password set above - Steven A West 1/11/2018 regarding #23
-                        objAuthUser.Membership.Password = RandomizePassword(objUser, "")
+                        'Issue: 36 8/16/18 Steven A West
+                        'If user exists in other portal, password must match to create in different portal
+                        'This will reset all instances of this user's password to the same random password across all portals
+                        objAuthUser.Membership.Password = RandomizeAndNormalizePassword(objUser, objAuthUser)
                         objAuthUser.UserID = objUser.UserID
                         CreateUser(CType(objAuthUser, UserInfo), loginStatus)
                     End If
@@ -409,12 +412,34 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
             If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
                 Dim strRandomPassword As String = Utilities.GetRandomPassword()
-                DNNUserController.ResetPasswordToken(objUser, 2)
-                DNNUserController.ChangePasswordByToken(PortalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
+                DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
+                'DNNUserController.ResetPasswordToken(objUser, 2)
+                ' DNNUserController.ChangePasswordByToken(PortalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
                 Return strRandomPassword
             Else
                 Return strStoredPassword
             End If
+        End Function
+        ''' -----------------------------------------------------------------------------
+        ''' <summary>
+        ''' RandomizeAndNormalizePassword = Creates a random password and sets all existing userobj in all portals to that password.
+        ''' </summary>
+        ''' <param name="objUser">DNN User Object</param>
+        ''' <history>
+        '''     [sawest]   8/14/2018 - Created
+        ''' </history>
+        ''' -----------------------------------------------------------------------------
+        Private Function RandomizeAndNormalizePassword(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo) As String
+            Dim myPortalController As New DotNetNuke.Entities.Portals.PortalController
+            Dim myPortals As ArrayList = myPortalController.GetPortals
+            Dim strRandomPassword As String = Utilities.GetRandomPassword()
+            For Each prtl As PortalInfo In myPortals
+                objUser = DNNUserController.GetUserByName(prtl.PortalID, objAuthUser.Username)
+                If Not objUser Is Nothing Then
+                    DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
+                End If
+            Next
+            Return strRandomPassword
         End Function
         ''' <summary>
         ''' RandomizePassword = Creates a random password to be stored in the database

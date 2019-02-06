@@ -66,7 +66,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAuthentication As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plAuthentication As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkAuthentication control.
@@ -84,7 +84,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plHidden As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plHidden As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkHidden control.
@@ -102,7 +102,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plSynchronizeRole As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plSynchronizeRole As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkSynchronizeRole control.
@@ -120,7 +120,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plSynchronizePhoto As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plSynchronizePhoto As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkSynchronizePhoto control.
@@ -130,6 +130,24 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
         Protected WithEvents chkSynchronizePhoto As Global.System.Web.UI.WebControls.CheckBox
+        
+        '''<summary>
+        '''plAutoLogin control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents plAutoLogin As Global.System.Web.UI.UserControl
+        
+        '''<summary>
+        '''chkAutoLogin control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents chkAutoLogin As Global.System.Web.UI.WebControls.CheckBox
         
         '''<summary>
         '''rowSynchornizePassword control.
@@ -147,7 +165,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plSynchornizePassword As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plSynchornizePassword As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkSynchronizePassword control.
@@ -174,7 +192,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAutoCreate As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plAutoCreate As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkAutoCreate control.
@@ -192,7 +210,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plStripDomainName As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plStripDomainName As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''chkStripDomainName control.
@@ -210,7 +228,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plProvider As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plProvider As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''cboProviders control.
@@ -228,7 +246,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAuthenticationType As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plAuthenticationType As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''cboAuthenticationType control.
@@ -255,7 +273,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plRootDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plRootDomain As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtRootDomain control.
@@ -282,7 +300,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plUserName As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plUserName As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtUserName control.
@@ -309,7 +327,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plPassword As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plPassword As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtPassword control.
@@ -336,7 +354,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plConfirm As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plConfirm As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtConfirm control.
@@ -372,7 +390,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plEmailDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plEmailDomain As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtEmailDomain control.
@@ -399,7 +417,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plDefaultDomain As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plDefaultDomain As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtDefaultDomain control.
@@ -426,7 +444,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plAutoIP As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plAutoIP As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtAutoIP control.
@@ -453,7 +471,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''Auto-generated field.
         '''To modify move field declaration from designer file to code-behind file.
         '''</remarks>
-        Protected WithEvents plBots As Global.DotNetNuke.UI.UserControls.LabelControl
+        Protected WithEvents plBots As Global.System.Web.UI.UserControl
         
         '''<summary>
         '''txtBots control.
