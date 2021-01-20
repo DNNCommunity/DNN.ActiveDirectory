@@ -204,6 +204,33 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Protected WithEvents chkAutoCreate As Global.System.Web.UI.WebControls.CheckBox
         
         '''<summary>
+        '''Tr1 control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents Tr1 As Global.System.Web.UI.HtmlControls.HtmlTableRow
+        
+        '''<summary>
+        '''plDebugMode control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents plDebugMode As Global.System.Web.UI.UserControl
+        
+        '''<summary>
+        '''chkDebugMode control.
+        '''</summary>
+        '''<remarks>
+        '''Auto-generated field.
+        '''To modify move field declaration from designer file to code-behind file.
+        '''</remarks>
+        Protected WithEvents chkDebugMode As Global.System.Web.UI.WebControls.CheckBox
+        
+        '''<summary>
         '''plStripDomainName control.
         '''</summary>
         '''<remarks>

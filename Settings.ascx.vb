@@ -135,7 +135,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 'Code Cleanup
                 If Not chkAuthentication.Checked Then
                     Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False,
-                                                False, "", "", "", "", False, "", False, False)
+                                                False, "", "", "", "", False, "", False, False, False)
                     Configuration.ResetConfig()
                 Else
                     Dim providerTypeName As String = cboProviders.SelectedItem.Value
@@ -154,14 +154,16 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                                                     txtPassword.Text, chkSynchronizeRole.Checked,
                                                     chkSynchronizePassword.Checked, chkStripDomainName.Checked,
                                                     providerTypeName, authenticationType, txtAutoIP.Text,
-                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text, chkSynchronizePhoto.Checked, chkAutoLogin.Checked)
+                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
+                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
                     Else
                         Configuration.UpdateConfig(_portalSettings.PortalId, False, chkHidden.Checked,
                                                     txtRootDomain.Text, txtEmailDomain.Text,
                                                     txtUserName.Text, txtPassword.Text, chkSynchronizeRole.Checked,
                                                     chkSynchronizePassword.Checked,
                                                     chkStripDomainName.Checked, providerTypeName, authenticationType,
-                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text, chkSynchronizePhoto.Checked, chkAutoLogin.Checked)
+                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
+                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
                     End If
                     Configuration.ResetConfig()
                     Dim objAuthenticationController As New AuthenticationController
@@ -258,6 +260,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         txtDefaultDomain.Text = config.DefaultDomain
                         'ACD-4259
                         chkAutoCreate.Checked = config.AutoCreateUsers
+                        chkAutoLogin.Checked = config.EnableAutoLogin
+                        chkDebugMode.Checked = config.EnableDebugMode
+
                         'WorkItems 4766 and 4077
                         txtBots.Text = config.Bots
                         If (txtBots.Text = "") Then

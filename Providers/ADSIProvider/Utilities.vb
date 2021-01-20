@@ -255,7 +255,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Shared Function GetUserEntryByName(ByVal Name As String) As DirectoryEntry
             ' Create search object then assign required params to get user entry in Active Directory
             Dim objSearch As New Search(GetRootDomain)
-            Dim userEntries As ArrayList
+            Dim userEntries As New ArrayList
             Dim userEntry As DirectoryEntry
             Dim userDomain As Domain
 
@@ -263,7 +263,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 .AddFilter(Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.person.ToString)
                 .AddFilter(Configuration.ADSI_ACCOUNTNAME, CompareOperator.Is, TrimUserDomainName(Name))
 
-                userEntries = .GetEntries
+                For Each _entry In .GetEntries
+                    userEntries.Add(_entry)
+                Next
+
+                'add ability to search by UPN for long usernames
+                .SearchFilters.Clear()
+                .AddFilter(Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.person.ToString)
+                .AddFilter(Configuration.ADSI_UPN, CompareOperator.Is, Name)
+
+                For Each _entry In .GetEntries
+                    userEntries.Add(_entry)
+                Next
+
                 Select Case userEntries.Count
                     Case 0
                         'Found no entry, return nothing

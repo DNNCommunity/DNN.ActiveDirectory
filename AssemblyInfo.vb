@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyConfiguration("")>
 <Assembly: AssemblyCompany("")>
 <Assembly: AssemblyProduct("")>
-<Assembly: AssemblyCopyright("2018 DotNetNuke Corporation")>
+<Assembly: AssemblyCopyright("2019 DotNetNuke Corporation")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
@@ -29,7 +29,7 @@ Imports System.Runtime.InteropServices
 '
 ' You can specify all the values or you can default the Build and Revision Numbers 
 ' by using the '*' as shown below:
-' <Assembly: AssemblyVersion("06.01.02.19")> 
+' <Assembly: AssemblyVersion("07.00.00.13")> 
 
-<Assembly: AssemblyVersion("06.01.02.19")>
-<Assembly: AssemblyFileVersion("06.01.02.19")>
+<Assembly: AssemblyVersion("07.00.00.13")>
+<Assembly: AssemblyFileVersion("07.00.00.13")>

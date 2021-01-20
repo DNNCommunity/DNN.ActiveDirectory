@@ -223,7 +223,30 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             End If
 
             Try
+                'debug logging issue #54 steven west 2/6/2019
+                If _config.EnableDebugMode Then
+                    Utilities.objEventLog.AddLog("Description", "@GETUSER:Getting ready to getUserEntryByName.  LoggedOnUserName: " & LoggedOnUserName, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                End If
                 Dim entry As DirectoryEntry = Utilities.GetUserEntryByName(LoggedOnUserName)
+
+                'debug logging issue #54 steven west 2/6/2019
+                If _config.EnableDebugMode Then
+                    If Not entry Is Nothing Then
+                        Dim key As String
+                        Dim entryStr As New StringBuilder
+                        For Each key In entry.Properties.PropertyNames
+                            Dim sPropertyValues As String = ""
+                            For Each value As Object In entry.Properties(key)
+                                sPropertyValues += Convert.ToString(value) + ";"
+                            Next
+                            sPropertyValues = sPropertyValues.Substring(0, sPropertyValues.Length - 1)
+                            entryStr.AppendLine(key + "=" + sPropertyValues)
+                        Next
+                        Utilities.objEventLog.AddLog("Description", "@GETUSER:Successfully retrieved user entry by name.  Username: " & LoggedOnUserName & " Entry object: " & entryStr.ToString, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                    Else
+                        Utilities.objEventLog.AddLog("Description", "@GETUSER:Could not retrieve user entry by name.  Username: " & LoggedOnUserName, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                    End If
+                End If
 #If DEBUG Then
                 Dim key As String
                 For Each key In entry.Properties.PropertyNames
@@ -235,8 +258,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     Debug.Print(key + "=" + sPropertyValues)
                 Next
 #End If
-                'Check authenticated
-                Dim path As String
+                    'Check authenticated
+                    Dim path As String
                 If Not entry Is Nothing Then
                     path = entry.Path
                 Else
@@ -264,9 +287,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
                 FillUserInfo(entry, objAuthUser)
 
+                'debug logging issue #54 steven west 2/6/2019
+                If _config.EnableDebugMode Then
+                    Utilities.objEventLog.AddLog("Description", "@GETUSER:Successfully filled objAuthUser object.  objAuthUser object JSON: " & Json.Serialize(Of ADUserInfo)(objAuthUser).ToString(), _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                End If
+
                 Return objAuthUser
 
             Catch exc As Exception
+                'debug logging issue #54 steven west 2/6/2019
+                If _config.EnableDebugMode Then
+                    Utilities.objEventLog.AddLog("Description", "@GETUSER:ERROR:" & exc.Message, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                End If
                 LogException(exc)
                 Return Nothing
             End Try
