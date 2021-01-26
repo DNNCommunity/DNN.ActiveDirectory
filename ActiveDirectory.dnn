@@ -16,7 +16,7 @@
 
       <dependencies>
 		<dependency type="Permission">AspNetHostingPermission</dependency>
-        <dependency type="CoreVersion">07.00.00</dependency>
+        <dependency type="CoreVersion">08.00.00</dependency>
       </dependencies>
 
       <components>
