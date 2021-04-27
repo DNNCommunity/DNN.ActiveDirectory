@@ -18,7 +18,6 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports System.DirectoryServices
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class Domain
@@ -34,7 +33,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Private mCanonicalName As String = ""
         Private mLevel As Integer
         Private mChildPopulate As Boolean = False
-
+        Private serviceProvider As serviceProvider
+        Private config As Configuration
+        Private utilities As Utilities
         ''' -------------------------------------------------------------------
         ''' <summary>
         ''' </summary>
@@ -44,8 +45,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
+        Sub New(serviceProvider As serviceProvider)
             MyBase.New()
+            Me.serviceProvider = serviceProvider
+            Me.config = New Configuration(Me.serviceProvider).GetConfig
+            Me.utilities = New Utilities(Me.serviceProvider)
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -91,7 +95,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Private Sub PopulateInfo()
-            Dim config As Configuration = Configuration.GetConfig()
+            'Dim config As Configuration = Configuration.GetConfig()
 
             mDistinguishedName = CType (MyBase.Properties (Configuration.ADSI_DISTINGUISHEDNAME).Value, String)
             mCanonicalName = Utilities.ConvertToCanonical (mDistinguishedName, False)

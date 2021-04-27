@@ -19,10 +19,15 @@
 '
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Entities.Portals
+Imports Microsoft.Extensions.DependencyInjection
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
     Public Class AuthenticationModule
-        Implements IHttpModule
+        '        Implements IHttpModule' Steven West - inherit for portalmodulebase for access to dependencyprovider
+        Inherits DotNetNuke.Entities.Modules.PortalModuleBase
+
+        Friend authenticationService As AuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Friend config As Configuration = New Configuration(authenticationService.serviceProvider).GetConfig
 
         Public ReadOnly Property ModuleName() As String
             Get
@@ -30,7 +35,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             End Get
         End Property
 
-        Public Sub Init(ByVal application As HttpApplication) Implements IHttpModule.Init
+        Public Shadows Sub Init(ByVal application As HttpApplication) 'Implements IHttpModule.Init
             AddHandler application.AuthenticateRequest, AddressOf OnAuthenticateRequest
         End Sub
 
@@ -56,7 +61,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
             'Moved the following statement from the top to correct ACD-9746
             Dim portalSettings As PortalSettings = GetPortalSettings()
 
-            Dim config As Configuration = Configuration.GetConfig()
+            'Dim config As Configuration = Configuration.GetConfig()
 
             If config Is Nothing Then
                 Exit Sub
@@ -101,7 +106,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
 
                 SetDnnReturnToCookie(request, response, portalSettings)
                 If (authStatus = AuthenticationStatus.Undefined) OrElse (blnWinProcess) Then
-                    AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
+                    authenticationService.SetStatus(portalSettings.PortalId, AuthenticationStatus.WinProcess)
                     Dim url As String = request.RawUrl
                     Dim arrAutoIp() = config.AutoIP.Split(";")
 
@@ -140,20 +145,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                         End If
                     End If
                     If redirect Then 'prevents infinite redirects issue: 47
-                            response.Redirect(url & "?portalid=" & portalSettings.PortalId)
-                        End If
-                    ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
-                        Dim objAuthentication As New AuthenticationController
-                        objAuthentication.AuthenticationLogoff()
-                    ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
-                        AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
+                        response.Redirect(url & "?portalid=" & portalSettings.PortalId)
+                    End If
+                ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
+                    'Dim objAuthentication As New AuthenticationController use new service provider
+                    AuthenticationService.AuthenticationLogoff()
+                ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
+                    authenticationService.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
                     response.Redirect(request.RawUrl)
                 End If
 
             End If
         End Sub
 
-        Public Sub Dispose() Implements IHttpModule.Dispose
+        Public Shadows Sub Dispose() ' Implements IHttpModule.Dispose
             ' Should check to see why this routine is never called
         End Sub
 

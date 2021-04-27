@@ -24,7 +24,9 @@ Imports DotNetNuke.Security.Membership
 Imports DotNetNuke.Services.Log.EventLog
 Imports System.Security.Permissions
 Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
-
+Imports Microsoft.Extensions.DependencyInjection
+Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
+Imports DotNetNuke.Abstractions.Logging
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Login
@@ -34,6 +36,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region "Private Members"
 
         Private memberProvider As MembershipProvider = MembershipProvider.Instance()
+        Private authenticationService As AuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Private eventLogService As IEventLogger = DependencyProvider.GetRequiredService(Of EventLogController)
+        Private config As Configuration
+        Private utilities As Utilities
 
 #End Region
 
@@ -47,28 +53,32 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   10/12/2009  Added writing to the eventlog on login failure. Codeplex Work Item:3050
         ''' </history>
         ''' -----------------------------------------------------------------------------
-
-            Private Shared Sub AddEventLog (ByVal portalId As Integer, ByVal username As String, ByVal userId As Integer, _
-                                            ByVal portalName As String, ByVal Ip As String, _
+        Public Sub New()
+            Me.config = New Configuration(authenticationService.serviceProvider).GetConfig
+            Me.utilities = New Utilities(Me.authenticationService.serviceProvider)
+        End Sub
+        Private Sub AddEventLog(ByVal portalId As Integer, ByVal username As String, ByVal userId As Integer,
+                                            ByVal portalName As String, ByVal Ip As String,
                                             ByVal loginStatus As UserLoginStatus)
 
-            Dim objEventLog As New EventLogController
+            Dim objEventLog As IEventLogger = eventLogService
 
             ' initialize log record
-            Dim objEventLogInfo As New LogInfo
+            Dim objEventLogInfo As New Authentication.ActiveDirectory.LogInfo
             Dim objSecurity As New PortalSecurity
-            objEventLogInfo.AddProperty ("IP", Ip)
-            objEventLogInfo.LogPortalID = portalId
+            objEventLogInfo.AddProperty("IP", Ip)
+            objEventLogInfo.LogPortalId = portalId
             objEventLogInfo.LogPortalName = portalName
-            objEventLogInfo.LogUserName = _
-                objSecurity.InputFilter (username, _
-                                         PortalSecurity.FilterFlag.NoScripting Or _
+            objEventLogInfo.LogUserName =
+                objSecurity.InputFilter(username,
+                                         PortalSecurity.FilterFlag.NoScripting Or
                                          PortalSecurity.FilterFlag.NoAngleBrackets Or PortalSecurity.FilterFlag.NoMarkup)
-            objEventLogInfo.LogUserID = userId
+            objEventLogInfo.LogUserId = userId
 
             ' create log record
             objEventLogInfo.LogTypeKey = loginStatus.ToString
-            objEventLog.AddLog (objEventLogInfo)
+            objEventLog.AddLog(objEventLogInfo)
+
 
         End Sub
 
@@ -85,8 +95,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -----------------------------------------------------------------------------
         Protected ReadOnly Property UseCaptcha() As Boolean
             Get
-                Dim setting As Object = GetSetting (PortalId, "Security_CaptchaLogin")
-                Return CType (setting, Boolean)
+                Dim setting As Object = GetSetting(PortalId, "Security_CaptchaLogin")
+                Return CType(setting, Boolean)
             End Get
         End Property
 
@@ -102,22 +112,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -----------------------------------------------------------------------------
 
-            Protected Property UserName() As String
+        Protected Property UserName() As String
             Get
-                Dim config As Configuration = Configuration.GetConfig()
+                'Dim config As Configuration = Configuration.GetConfig()
                 'Check to see if ADAuth config has a "default domain prefix"
                 Dim sDefaultDomain As String = config.DefaultDomain
 
                 Dim theUser As String = String.Empty
                 Dim strDomain As String = String.Empty
-                Dim userinfo As String()
+                'Dim userinfo As String()
                 If Not String.IsNullOrEmpty(txtUsername.Text) Then
 
                     'If UPN username provided, strip domain, translate to netBiOS
                     If txtUsername.Text.Contains("@") Then
 
                         '***Changed Steven A West 1-11-2018 Bug fix #12 & #24
-                        theUser = ADSI.Utilities.UPNToLogonName0(txtUsername.Text.ToLower)
+                        theUser = utilities.UPNToLogonName0(txtUsername.Text.ToLower)
 
                         '***Commented Out Steven A West 1-11-2018 Bug fix #12 & #24**************
                         ' userinfo = Split(txtUsername.Text, "@")
@@ -155,7 +165,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                                 strDomain = UCase(Split(txtUsername.Text, "\")(0))
                                 theUser = UCase(Split(txtUsername.Text, "\")(1))
                                 If strDomain.Contains(".") Then 'canonical domain provided, translate
-                                    strDomain = ADSI.Utilities.CanonicalToNetBIOS(strDomain.ToLower)
+                                    strDomain = utilities.CanonicalToNetBIOS(strDomain.ToLower)
                                 End If
                                 If Not String.IsNullOrEmpty(strDomain) Then
                                     theUser = strDomain & "\" & theUser
@@ -171,7 +181,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                 Return theUser
             End Get
-            Set (ByVal value As String)
+            Set(ByVal value As String)
                 txtUsername.Text = value
             End Set
         End Property
@@ -193,11 +203,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Try
                     'Make sure app is running at full trust
-                    Dim HostingPermissions As New AspNetHostingPermission (PermissionState.Unrestricted)
+                    Dim HostingPermissions As New AspNetHostingPermission(PermissionState.Unrestricted)
                     HostingPermissions.Demand()
 
                     'Check if Windows Auth is enabled for the portal
-                    Return Configuration.GetConfig().WindowsAuthentication
+                    Return config.WindowsAuthentication
                 Catch ex As Exception
                     Return False
                 End Try
@@ -220,25 +230,25 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   07/30/2007  Cleaned out unneeded legacy code
         ''' </history>
         ''' -----------------------------------------------------------------------------
-        Private Sub Page_Load (ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
+        Private Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             If Not Request.IsAuthenticated Then
                 If Page.IsPostBack = False Then
                     Try
-                        If Not Request.QueryString ("username") Is Nothing Then
-                            txtUsername.Text = Request.QueryString ("username")
+                        If Not Request.QueryString("username") Is Nothing Then
+                            txtUsername.Text = Request.QueryString("username")
                         End If
                     Catch
                         'control not there 
                     End Try
                 End If
 
-                txtPassword.Attributes.Add ("value", txtPassword.Text)
+                txtPassword.Attributes.Add("value", txtPassword.Text)
 
                 Try
-                    If String.IsNullOrEmpty (txtUsername.Text) Then
-                        SetFormFocus (txtUsername)
+                    If String.IsNullOrEmpty(txtUsername.Text) Then
+                        SetFormFocus(txtUsername)
                     Else
-                        SetFormFocus (txtPassword)
+                        SetFormFocus(txtPassword)
                     End If
                 Catch
                     'Not sure why this Try/Catch may be necessary, logic was there in old setFormFocus location stating the following
@@ -250,8 +260,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             divCaptcha2.Visible = UseCaptcha
 
             If UseCaptcha Then
-                ctlCaptcha.ErrorMessage = Localization.GetString ("InvalidCaptcha", Localization.SharedResourceFile)
-                ctlCaptcha.Text = Localization.GetString ("CaptchaText", Localization.SharedResourceFile)
+                ctlCaptcha.ErrorMessage = Localization.GetString("InvalidCaptcha", Localization.SharedResourceFile)
+                ctlCaptcha.Text = Localization.GetString("CaptchaText", Localization.SharedResourceFile)
             End If
 
         End Sub
@@ -271,14 +281,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   10/12/2009  Added writing to the eventlog on login failure. Codeplex Work Item:3050
         ''' </history>
         ''' -----------------------------------------------------------------------------
-        Private Sub cmdLogin_Click (ByVal sender As Object, ByVal e As EventArgs) Handles cmdLogin.Click
+        Private Sub cmdLogin_Click(ByVal sender As Object, ByVal e As EventArgs) Handles cmdLogin.Click
             If (UseCaptcha And ctlCaptcha.IsValid) OrElse (Not UseCaptcha) Then
 
                 Dim loginStatus As UserLoginStatus = UserLoginStatus.LOGIN_FAILURE
-                Dim objAuthentication As New AuthenticationController
+                'Dim objAuthentication As New AuthenticationController use new depinj
                 Dim objUser As DNNUserInfo = Nothing
                 If UserName.Contains("\") Then
-                    objUser = objAuthentication.ManualLogon(UserName, txtPassword.Text, loginStatus, IPAddress)
+                    objUser = authenticationService.ManualLogon(UserName, txtPassword.Text, loginStatus, IPAddress)
                 End If
                 Dim authenticated As Boolean = Null.NullBoolean
                 Dim message As String = Null.NullString

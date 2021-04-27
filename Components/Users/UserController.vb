@@ -31,12 +31,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private mProviderTypeName As String = ""
         Private Shared dataProvider As DataProvider = dataProvider.Instance()
         Private Shared mRoleName As String = ""
-
+        Private serviceProvider As serviceProvider
+        Private config As Configuration
+        Private groupService As GroupController
+        Private utilities As Utilities
 #End Region
 
-        Sub New()
-            Dim _config As Configuration = Configuration.GetConfig()
-            mProviderTypeName = _config.ProviderTypeName
+        Sub New(serviceProvider As serviceProvider)
+            Me.serviceProvider = serviceProvider
+            config = New Configuration(serviceProvider).GetConfig()
+            Me.groupService = New GroupController(Me.serviceProvider)
+            Me.utilities = New Utilities(Me.serviceProvider)
+            mProviderTypeName = config.ProviderTypeName
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -168,7 +174,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
 
-        Public Overloads Shared Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo)
+        Public Overloads Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo)
             Try
                 Dim objPortals As New PortalController
                 Dim objPortal As PortalInfo = objPortals.GetPortal(PortalID)
@@ -227,7 +233,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     If Not (objRoleInfo.AutoAssignment) Then
                         If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
                             If arrADGroupOnly.Contains(objRoleInfo.RoleName) Then
-                                objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, objRoleInfo.RoleID, Date.Today, _
+                                objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, objRoleInfo.RoleID, Date.Today,
                                                            Null.NullDate)
                             End If
                         End If
@@ -235,8 +241,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Next
 
                 'Check the portal roles the user belongs to only and see if there's an Active Directory group that matches
-                Dim objGroupController As New GroupController
-                Dim arrADGroups As ArrayList = objGroupController.GetGroups(arrRolesOnly)
+                'Dim objGroupController As New GroupController use new depinj
+                Dim arrADGroups As ArrayList = groupService.GetGroups(arrRolesOnly)
                 For Each objRoleInfo In arrADGroups
                     If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
                         RoleController.DeleteUserRole(AuthenticationUser, objRoleInfo, objPortalSettings, False)

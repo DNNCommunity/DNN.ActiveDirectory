@@ -19,15 +19,19 @@
 '
 
 Imports DotNetNuke.Entities.Portals
+Imports Microsoft.Extensions.DependencyInjection
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class WindowsSignin
-        Inherits Page
+        'Inherits Page
+        Inherits DotNetNuke.Entities.Modules.PortalModuleBase
 
+        Private authenticationService As AuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Private config As Configuration = New Configuration(authenticationService.serviceProvider).GetConfig
 #Region " Web Form Designer Generated Code "
 
         'This call is required by the Web Form Designer.
-        <DebuggerStepThrough()> _
+        <DebuggerStepThrough()>
         Private Sub InitializeComponent()
 
         End Sub
@@ -36,18 +40,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         'Do not delete or move it.
         Private designerPlaceholderDeclaration As Object
 
-        Private Sub Page_Init (ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Init
+        Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Init
             'CODEGEN: This method call is required by the Web Form Designer
             'Do not modify it using the code editor.
             InitializeComponent()
 
             If Request.ServerVariables("LOGON_USER").Length > 0 Then
-                Dim objAuthentication As New AuthenticationController
+                'Dim objAuthentication As New AuthenticationController use new depinj
                 ' Reset config
-                Configuration.ResetConfig()
-                Dim config As Configuration = Configuration.GetConfig()
+                config.ResetConfig()
+                'Dim config As Configuration = Configuration.GetConfig() use new depinj
                 If (config.WindowsAuthentication Or config.HideWindowsLogin) Then
-                    objAuthentication.AuthenticationLogon()
+                    authenticationService.AuthenticationLogon()
                 Else
                     Me.plNoAuthentication.Visible = True
                     Me.plSetIIS.Visible = False
@@ -58,7 +62,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
 #End Region
 
-        Private Sub Page_Load (ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
+        Private Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             'Put user code to initialize the page here        
         End Sub
     End Class

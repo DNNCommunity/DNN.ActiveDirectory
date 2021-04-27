@@ -21,7 +21,8 @@
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class GroupController
         Private mProviderTypeName As String = ""
-
+        Private serviceProvider As serviceProvider
+        Private config As Configuration
         ''' -------------------------------------------------------------------
         ''' <summary>
         ''' </summary>
@@ -31,9 +32,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
-            Dim _config As Configuration = Configuration.GetConfig()
-            mProviderTypeName = _config.ProviderTypeName
+        Sub New(serviceProvider As serviceProvider)
+            Me.serviceProvider = serviceProvider
+            config = New Configuration(serviceProvider).GetConfig()
+            mProviderTypeName = config.ProviderTypeName
         End Sub
 
         ''' -------------------------------------------------------------------

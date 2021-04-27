@@ -17,10 +17,9 @@
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
 '
+Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
-Imports DotNetNuke.Security
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class Configuration
@@ -76,6 +75,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private mPhoto As Boolean = False
         Private mEnableAutoLogin As Boolean = False
 
+        Private serviceProvider As serviceProvider
         ''' -------------------------------------------------------------------
         ''' <summary>
         ''' - Obtain Authentication settings from database
@@ -94,10 +94,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [sawest]    01/02/2017  Added photo setting and constant
         ''' </history>
         ''' -------------------------------------------------------------------        
-        Sub New()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+        Sub New(serviceProvider As serviceProvider)
+            Me.serviceProvider = serviceProvider
+            Dim _portalSettings As PortalSettings = serviceProvider.portalService.GetCurrentSettings
             Dim _providerConfiguration As ProviderConfiguration = ProviderConfiguration.GetProviderConfiguration(AUTHENTICATION_KEY)
             Dim objSecurity As New PortalSecurity
+            Dim utilities As New Utilities(serviceProvider)
 
             Try
                 If _providerConfiguration.DefaultProvider Is Nothing Then
@@ -163,7 +165,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 End If
             Catch ex As Exception
                 'Log the exception
-                ADSI.Utilities.AddEventLog(_portalSettings, "There was a problem loading the settings for the AD Authentication Provider.  Error: " & ex.Message)
+                utilities.AddEventLog(_portalSettings, "There was a problem loading the settings for the AD Authentication Provider.  Error: " & ex.Message)
             End Try
 
         End Sub
@@ -182,16 +184,16 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''             been initialized yet.
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetConfig() As Configuration
+        Public Function GetConfig() As Configuration
             Dim config As Configuration = Nothing
             Try
-                Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                Dim _portalSettings As PortalSettings = serviceProvider.portalService.GetCurrentSettings
                 Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
 
                 config = CType(DataCache.GetCache(strKey), Configuration)
 
                 If config Is Nothing Then
-                    config = New Configuration
+                    config = New Configuration(serviceProvider)
                     DataCache.SetCache(strKey, config)
                 End If
 
@@ -213,8 +215,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]     15/10/2007  -Fixed ACD-3084
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Sub ResetConfig()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+        Public Sub ResetConfig()
+            Dim _portalSettings As PortalSettings = serviceProvider.portalService.GetCurrentSettings
             Dim strKey As String = AUTHENTICATION_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
             DataCache.RemoveCache(strKey)
             strKey = "AuthenticationProvider" & CStr(_portalSettings.PortalId)
@@ -321,9 +323,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared ReadOnly Property DefaultEmailDomain() As String
+        Public ReadOnly Property DefaultEmailDomain() As String
             Get
-                Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                Dim _portalSettings As PortalSettings = serviceProvider.portalService.GetCurrentSettings
                 Dim _portalEmail As String = _portalSettings.Email
                 Dim sRet As String = ""
                 If Not String.IsNullOrEmpty(_portalEmail) Then

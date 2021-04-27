@@ -19,9 +19,7 @@
 '
 Imports System.DirectoryServices
 Imports System.Runtime.InteropServices
-Imports DotNetNuke.Services.Exceptions
 Imports DotNetNuke.Entities.Portals
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
@@ -203,6 +201,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         ' For Domain Reference Configuration
         Private mRefCollection As CrossReferenceCollection
+        Private serviceProvider As serviceProvider
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -214,8 +213,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
-            Dim authConfig As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
+        Sub New(serviceProvider As serviceProvider)
+            Me.serviceProvider = serviceProvider
+            Dim authConfig As ActiveDirectory.Configuration = New ActiveDirectory.Configuration(Me.serviceProvider).GetConfig()
             mPortalId = authConfig.PortalId
 
             Try
@@ -224,13 +224,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 mDefaultEmailDomain = authConfig.EmailDomain
                 mUserName = authConfig.UserName
                 mPassword = authConfig.Password
-                mAuthenticationType = _
-                    CType ([Enum].Parse (GetType (AuthenticationTypes), authConfig.AuthenticationType), _
+                mAuthenticationType =
+                    CType([Enum].Parse(GetType(AuthenticationTypes), authConfig.AuthenticationType),
                         AuthenticationTypes)
                 ' IMPORTANT: Remove ADSIPath, to be added later depends on accessing method
 
-                mRootDomainPath = Utilities.ValidateDomainPath (mConfigDomainPath)
-                mRootDomainPath = Right (mRootDomainPath, mRootDomainPath.Length - mRootDomainPath.IndexOf ("DC="))
+                mRootDomainPath = Utilities.ValidateDomainPath(mConfigDomainPath)
+                mRootDomainPath = Right(mRootDomainPath, mRootDomainPath.Length - mRootDomainPath.IndexOf("DC="))
 
             Catch exc As Exception
                 mProcessLog += exc.Message & "<br>"
@@ -239,21 +239,21 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             ' Also check if Authentication implemented in this Windows Network
             Dim gc As New DirectoryEntry
             Try
-                If DirectoryEntry.Exists ("GC://rootDSE") Then
+                If DirectoryEntry.Exists("GC://rootDSE") Then
                     Dim rootGC As DirectoryEntry
                     'If (mUserName.Length > 0) AndAlso (mPassword.Length > 0) Then
                     'rootGC = New DirectoryEntry("GC://rootDSE", mUserName, mPassword, mAuthenticationType)
                     'Else
-                        rootGC = New DirectoryEntry ("GC://rootDSE")
+                    rootGC = New DirectoryEntry("GC://rootDSE")
                     'End If
-                    mConfigurationPath = rootGC.Properties (ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
+                    mConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
                     mADSINetwork = True
                 End If
             Catch exc As COMException
                 mADSINetwork = False
                 mLDAPAccesible = False
                 mProcessLog += exc.Message & "<br>"
-                LogException (exc)
+                LogException(exc)
                 ' Nothing to do if we could not access Global Catalog, so return
                 'Return
             End Try
@@ -261,14 +261,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             ' Also check if LDAP fully accessible
             Dim ldap As New DirectoryEntry
             Try
-                If DirectoryEntry.Exists ("LDAP://rootDSE") Then
+                If DirectoryEntry.Exists("LDAP://rootDSE") Then
                     mLDAPAccesible = True
-                    mRefCollection = New CrossReferenceCollection (mUserName, mPassword, mAuthenticationType)
+                    mRefCollection = New CrossReferenceCollection(mUserName, mPassword, mAuthenticationType)
                 End If
             Catch exc As COMException
                 mLDAPAccesible = False
                 mProcessLog += exc.Message & "<br>"
-                LogException (exc)
+                LogException(exc)
             End Try
 
         End Sub
@@ -285,14 +285,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetConfig() As Configuration
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
+        Public Function GetConfig() As Configuration
+            Dim _portalSettings As PortalSettings = Me.serviceProvider.portalService.GetCurrentSettings
+            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
 
-            Dim config As Configuration = CType (DataCache.GetCache (strKey), Configuration)
+            Dim config As Configuration = CType(DataCache.GetCache(strKey), Configuration)
             If config Is Nothing Then
-                config = New Configuration
-                DataCache.SetCache (strKey, config)
+                config = New Configuration(Me.serviceProvider)
+                DataCache.SetCache(strKey, config)
             End If
 
             Return config
@@ -309,10 +309,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Sub ResetConfig()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
-            DataCache.RemoveCache (strKey)
+        Public Sub ResetConfig()
+            Dim _portalSettings As PortalSettings = Me.serviceProvider.portalService.GetCurrentSettings
+            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
+            DataCache.RemoveCache(strKey)
 
         End Sub
 

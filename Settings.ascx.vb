@@ -23,7 +23,7 @@ Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
-
+Imports Microsoft.Extensions.DependencyInjection
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings
@@ -32,11 +32,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region "Private Members"
 
         Private _strError As String = Null.NullString
-
+        Friend authenticationService As AuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Private config As Configuration
 #End Region
+        Public Sub New()
+            Me.config = New Configuration(authenticationService.serviceProvider).GetConfig
+        End Sub
 
 #Region "Private Methods"
-
         Private Sub DisplayIpError(ByVal strInvalidIP As String)
             Dim _
                 strError As String = strInvalidIP & " " &
@@ -136,7 +139,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 If Not chkAuthentication.Checked Then
                     Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False,
                                                 False, "", "", "", "", False, "", False, False)
-                    Configuration.ResetConfig()
+                    config.ResetConfig()
                 Else
                     Dim providerTypeName As String = cboProviders.SelectedItem.Value
                     Dim authenticationType As String = cboAuthenticationType.SelectedItem.Value
@@ -163,9 +166,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                                                     chkStripDomainName.Checked, providerTypeName, authenticationType,
                                                     txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text, chkSynchronizePhoto.Checked, chkAutoLogin.Checked)
                     End If
-                    Configuration.ResetConfig()
-                    Dim objAuthenticationController As New AuthenticationController
-                    Dim statusMessage As String = objAuthenticationController.NetworkStatus
+                    config.ResetConfig()
+                    'Dim objAuthenticationController As New AuthenticationController use new deping
+                    Dim statusMessage As String = authenticationService.NetworkStatus
                     If statusMessage.ToLower.IndexOf("fail") > -1 Then
                         MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
                                                                                                                      statusMessage),
@@ -190,7 +193,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region "Event Handlers"
 
         Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Init
-            Dim objAuthenticationController As New AuthenticationController
+            'Dim objAuthenticationController As New AuthenticationController use new depinj
             Dim _
                 objProviderConfiguration As ProviderConfiguration =
                     ProviderConfiguration.GetProviderConfiguration(Configuration.AUTHENTICATION_KEY)
@@ -206,7 +209,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
             ' Bind AuthenticationTypes list, on first configure, it could obtains only from default authentication provider
             Try
-                Me.cboAuthenticationType.DataSource = objAuthenticationController.AuthenticationTypes
+                Me.cboAuthenticationType.DataSource = authenticationService.AuthenticationTypes
             Catch exc As TypeInitializationException
                 _strError = Localization.GetString("AuthProviderError", Me.LocalResourceFile)
             End Try
@@ -223,11 +226,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Response.Redirect("~/DesktopModules/AuthenticationServices/ActiveDirectory/trusterror.htm", True)
                 Else
                     ' Obtain PortalSettings from Current Context
-                    Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                    Dim _portalSettings As PortalSettings = authenticationService.serviceProvider.portalService.GetCurrentSettings
 
                     ' Reset config
-                    Configuration.ResetConfig()
-                    Dim config As Configuration = Configuration.GetConfig()
+                    config.ResetConfig()
+                    '  Dim config As Configuration = Configuration.GetConfig() use new depinj
 
                     If UserInfo.Username.IndexOf("\") > 0 Then
                         Dim strDomain As String = GetUserDomainName(UserInfo.Username)

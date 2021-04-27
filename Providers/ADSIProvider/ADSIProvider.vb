@@ -27,11 +27,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class ADSIProvider
         Inherits AuthenticationProvider
 
-        Private _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-        Private _adsiConfig As Configuration = Configuration.GetConfig()
-        Private _config As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
-
 #Region "Private Methods"
+
+        Sub New(serviceProvider As serviceProvider)
+            MyBase.New(serviceProvider)
+
+        End Sub
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -48,7 +49,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Dim objAuthUser As New ADUserInfo
 
             With objAuthUser
-                .PortalID = _portalSettings.PortalId
+                .PortalID = portalSettings.PortalId
                 .IsNotSimplyUser = False
                 .Username = UserName
                 .FirstName = Utilities.TrimUserDomainName(UserName)
@@ -56,7 +57,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 .IsSuperUser = False
                 .DistinguishedName = Utilities.ConvertToDistinguished(UserName)
 
-                Dim strEmail As String = _adsiConfig.DefaultEmailDomain
+                Dim strEmail As String = adsiConfig.DefaultEmailDomain
                 If Not strEmail.Length = 0 Then
                     If strEmail.IndexOf("@") = -1 Then
                         strEmail = "@" & strEmail
@@ -84,9 +85,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 'Moved to private global for access from other functions - sawest
                 'Dim _config As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
-                If _config.StripDomainName Then
+                If config.StripDomainName Then
                     Dim crossRef As CrossReferenceCollection.CrossReference
-                    For Each crossRef In Configuration.GetConfig.RefCollection
+                    For Each crossRef In adsiConfig.RefCollection
                         UserName = crossRef.NetBIOSName & "\" & UserName
                     Next
                 End If
@@ -187,7 +188,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         .Profile.Website =
                             Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_WEBSITE).Value)
                     End If
-                    If _config.Photo Then
+                    If config.Photo Then
                         'sync photo from AD if checked in settings
                         If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_PHOTO).Value) = "") Then
                             .Profile.Photo =
@@ -196,8 +197,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     End If
                 End If
 
-                    If .Email = "" Then
-                    .Email = Utilities.TrimUserDomainName(UserInfo.Username) & _adsiConfig.DefaultEmailDomain
+                If .Email = "" Then
+                    .Email = Utilities.TrimUserDomainName(UserInfo.Username) & adsiConfig.DefaultEmailDomain
                 End If
                 If .DisplayName = "" Then
                     .DisplayName = .CName
@@ -218,12 +219,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             As ADUserInfo
             Dim objAuthUser As ADUserInfo
 
-            If Not _adsiConfig.ADSINetwork Then
+            If Not adsiConfig.ADSINetwork Then
                 Return Nothing
             End If
 
             Try
-                Dim entry As DirectoryEntry = Utilities.GetUserEntryByName(LoggedOnUserName)
+                Dim entry As DirectoryEntry = utilities.GetUserEntryByName(LoggedOnUserName)
 #If DEBUG Then
                 Dim key As String
                 For Each key In entry.Properties.PropertyNames
@@ -240,7 +241,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 If Not entry Is Nothing Then
                     path = entry.Path
                 Else
-                    path = _adsiConfig.RootDomainPath
+                    path = adsiConfig.RootDomainPath
                 End If
                 If Not IsAuthenticated(path, LoggedOnUserName, LoggedOnPassword) Then
                     Return Nothing
@@ -252,11 +253,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 InitializeUser(objAuthUser)
                 Dim location As String = Utilities.GetEntryLocation(entry)
                 If location.Length = 0 Then
-                    location = _adsiConfig.ConfigDomainPath
+                    location = adsiConfig.ConfigDomainPath
                 End If
 
                 With objAuthUser
-                    .PortalID = _portalSettings.PortalId
+                    .PortalID = portalSettings.PortalId
                     .IsNotSimplyUser = True
                     .Username = LoggedOnUserName
                     .Membership.Password = LoggedOnPassword
@@ -275,10 +276,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Overloads Overrides Function GetUser(ByVal LoggedOnUserName As String) As ADUserInfo
             Dim objAuthUser As ADUserInfo
             Try
-                If _adsiConfig.ADSINetwork Then
+                If adsiConfig.ADSINetwork Then
                     Dim entry As DirectoryEntry
 
-                    entry = Utilities.GetUserEntryByName(LoggedOnUserName)
+                    entry = utilities.GetUserEntryByName(LoggedOnUserName)
 #If DEBUG Then
                     Dim key As String
                     For Each key In entry.Properties.PropertyNames
@@ -297,11 +298,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         InitializeUser(objAuthUser)
                         Dim location As String = Utilities.GetEntryLocation(entry)
                         If location.Length = 0 Then
-                            location = _adsiConfig.ConfigDomainPath
+                            location = adsiConfig.ConfigDomainPath
                         End If
 
                         With objAuthUser
-                            .PortalID = _portalSettings.PortalId
+                            .PortalID = portalSettings.PortalId
                             .IsNotSimplyUser = True
                             .Username = LoggedOnUserName
                             .Membership.Password = Utilities.GetRandomPassword()
@@ -331,9 +332,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 Dim colGroup As New ArrayList
                 Dim objRoleController As New RoleController
-                Dim lstRoles As List(Of RoleInfo) = objRoleController.GetRoles(_portalSettings.PortalId)
+                Dim lstRoles As List(Of RoleInfo) = objRoleController.GetRoles(portalSettings.PortalId)
                 Dim objRole As RoleInfo
-                Dim AllAdGroupNames As ArrayList = Utilities.GetAllGroupnames
+                Dim AllAdGroupNames As ArrayList = utilities.GetAllGroupnames
 
                 For Each objRole In lstRoles
                     ' Auto assignment roles have been added by DNN, so don't need to get them
@@ -380,7 +381,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Try
                 Dim colGroup As New ArrayList
                 'Dim objRoleController As New RoleController
-                'Dim lstRoles As ArrayList = objRoleController.GetPortalRoles(_portalSettings.PortalId)
+                'Dim lstRoles As ArrayList = objRoleController.GetPortalRoles(portalSettings.PortalId)
                 Dim objRole As RoleInfo
                 'Dim AllAdGroupNames As ArrayList = Utilities.GetAllGroupnames
 
@@ -391,7 +392,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         ' It's possible in multiple domains network that search result return more than one group with the same name (i.e Administrators)
                         ' We better check them all
                         Dim entry As DirectoryEntry
-                        For Each entry In Utilities.GetGroupEntriesByName(objRole.RoleName)
+                        For Each entry In utilities.GetGroupEntriesByName(objRole.RoleName)
                             Dim group As New GroupInfo
 
                             With group
@@ -430,12 +431,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Overrides Function GetNetworkStatus() As String
             Dim sb As New StringBuilder
             ' Refresh settings cache first
-            Configuration.ResetConfig()
-            _adsiConfig = Configuration.GetConfig
+            adsiConfig.ResetConfig()
+            adsiConfig = New Configuration(Me.serviceProvider).GetConfig
 
             sb.Append("<b>[Global Catalog Status]</b>" & "<br>")
             Try
-                If _adsiConfig.ADSINetwork Then
+                If adsiConfig.ADSINetwork Then
                     sb.Append("OK<br>")
                 Else
                     sb.Append("FAIL<br>")
@@ -447,7 +448,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
             sb.Append("<b>[Root Domain Status]</b><br>")
             Try
-                If Not Utilities.GetRootEntry() Is Nothing Then
+                If Not utilities.GetRootEntry() Is Nothing Then
                     sb.Append("OK<br>")
                 Else
                     sb.Append("FAIL<br>")
@@ -459,7 +460,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
             sb.Append("<b>[LDAP Status]</b><br>")
             Try
-                If _adsiConfig.LDAPAccesible Then
+                If adsiConfig.LDAPAccesible Then
                     sb.Append("OK<br>")
                 Else
                     sb.Append("FAIL<br>")
@@ -471,19 +472,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
             sb.Append("<b>[Network Domains Status]</b><br>")
             Try
-                If Not _adsiConfig.RefCollection Is Nothing AndAlso _adsiConfig.RefCollection.Count > 0 Then
-                    sb.Append(_adsiConfig.RefCollection.Count.ToString)
+                If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
+                    sb.Append(adsiConfig.RefCollection.Count.ToString)
                     sb.Append(" Domain(s):<br>")
                     Dim crossRef As CrossReferenceCollection.CrossReference
-                    For Each crossRef In _adsiConfig.RefCollection
+                    For Each crossRef In adsiConfig.RefCollection
                         sb.Append(crossRef.CanonicalName)
                         sb.Append(" (")
                         sb.Append(crossRef.NetBIOSName)
                         sb.Append(")<br>")
                     Next
 
-                    If _adsiConfig.RefCollection.ProcesssLog.Length > 0 Then
-                        sb.Append(_adsiConfig.RefCollection.ProcesssLog & "<br>")
+                    If adsiConfig.RefCollection.ProcesssLog.Length > 0 Then
+                        sb.Append(adsiConfig.RefCollection.ProcesssLog & "<br>")
                     End If
 
                 Else
@@ -494,8 +495,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 sb.Append(ex.Message & "<br>")
             End Try
 
-            If _adsiConfig.ProcessLog.Length > 0 Then
-                sb.Append(_adsiConfig.ProcessLog & "<br>")
+            If adsiConfig.ProcessLog.Length > 0 Then
+                sb.Append(adsiConfig.ProcessLog & "<br>")
             End If
 
             Return sb.ToString
@@ -518,11 +519,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' -------------------------------------------------------------------
 
         Private Sub InitializeUser(ByVal objUser As ADUserInfo)
-            objUser.Profile.InitialiseProfile(_portalSettings.PortalId)
+            objUser.Profile.InitialiseProfile(portalSettings.PortalId)
 
             'ACD-9442
-            objUser.Profile.PreferredLocale = _portalSettings.DefaultLanguage
-            objUser.Profile.PreferredTimeZone = _portalSettings.TimeZone
+            objUser.Profile.PreferredLocale = portalSettings.DefaultLanguage
+            objUser.Profile.PreferredTimeZone = portalSettings.TimeZone
         End Sub
     End Class
 End Namespace

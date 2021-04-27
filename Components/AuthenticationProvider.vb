@@ -28,7 +28,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         ' singleton reference to the instantiated object 
         Private Shared objProvider As AuthenticationProvider = Nothing
-
+        Friend serviceProvider As serviceProvider
+        Friend portalSettings As PortalSettings
+        Friend config As Configuration
+        Friend adsiConfig As ADSI.Configuration
+        Friend utilities As ADSI.Utilities
         ''' -------------------------------------------------------------------
         ''' <summary>
         ''' </summary>
@@ -38,12 +42,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Shared Sub New()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim _config As Configuration = Configuration.GetConfig()
-            Dim strKey As String = "AuthenticationProvider" & _portalSettings.PortalId.ToString
+        Sub New(serviceProvider As serviceProvider)
+            Me.serviceProvider = serviceProvider
+            Me.config = New Configuration(Me.serviceProvider).GetConfig()
+            Me.portalSettings = Me.serviceProvider.portalService.GetCurrentSettings
+            Me.adsiConfig = New ADSI.Configuration(Me.serviceProvider).GetConfig()
+            Me.utilities = New ADSI.Utilities(Me.serviceProvider)
+            Dim strKey As String = "AuthenticationProvider" & portalSettings.PortalId.ToString
 
-            objProvider = CType (Reflection.CreateObject (_config.ProviderTypeName, strKey), AuthenticationProvider)
+            objProvider = CType(Reflection.CreateObject(config.ProviderTypeName, strKey), AuthenticationProvider)
 
         End Sub
 
@@ -58,7 +65,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Public Shared Shadows Function Instance (ByVal AuthenticationTypeName As String) As AuthenticationProvider
             'CreateProvider()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentSettings
             Dim strKey As String = "AuthenticationProvider" & _portalSettings.PortalId.ToString
             objProvider = CType (Reflection.CreateObject (AuthenticationTypeName, strKey), AuthenticationProvider)
             Return objProvider
