@@ -237,25 +237,30 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Public Function AuthenticateUser(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo,
                                      ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
-            Dim _config As Configuration = Configuration.GetConfig()
+            'Dim _config As Configuration = Configuration.GetConfig()
             Dim objReturnUser As UserInfo = Nothing
 
             If Not (objUser Is Nothing) Then
-                Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
-                Dim strPassword As String
-
-                If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
-                    strPassword = RandomizePassword(aspNetUser, objUser, aspNetUser.GetPassword())
-                Else
-                    strPassword = RandomizePassword(aspNetUser, objUser, "")
-                End If
+                'Stop resetting password and stop validating user against DNN. ISSUE #79 - Steven A West 4/27/2021
+                'Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
+                'Dim strPassword As String
+                'If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
+                ' strPassword = RandomizePassword(aspNetUser, objUser, aspNetUser.GetPassword())
+                ' Else
+                '    strPassword = RandomizePassword(aspNetUser, objUser, "")
+                'End If
 
                 If (objUser.IsDeleted = False) Then
 
-                    objReturnUser =
-                            DNNUserController.ValidateUser(_portalSettings.PortalId, objUser.Username, strPassword,
-                                                            "Active Directory", _portalSettings.PortalName, ipAddress,
-                                                            loginStatus)
+                    'ISSUE #79 - Steven A West 4/27/2021
+                    '    objReturnUser =
+                    '   DNNUserController.ValidateUser(_portalSettings.PortalId, objUser.Username, strPassword,
+                    '                                          "Active Directory", _portalSettings.PortalName, ipAddress,
+                    '                                          loginStatus)
+
+                    loginStatus = UserLoginStatus.LOGIN_SUCCESS
+                    objReturnUser = DNNUserController.GetUserByName(_portalSettings.PortalId, objAuthUser.Username)
+
                     ' Synchronize role membership if it's required in settings
                     If _config.SynchronizeRole Then
                         SynchronizeRoles(objReturnUser)
@@ -267,7 +272,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     If Not _config.AutoCreateUsers = True Then
                         objUser.IsDeleted = False
                         objUser.Membership.IsDeleted = False
-                        objUser.Membership.Password = strPassword
+                        objUser.Membership.Password = Utilities.GetRandomPassword()
                         DNNUserController.UpdateUser(_portalSettings.PortalId, objUser)
                         CreateUser(objUser, loginStatus)
                         If loginStatus = UserLoginStatus.LOGIN_SUCCESS Then
@@ -284,7 +289,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 'ACD-4259
                 If Not _config.AutoCreateUsers = True Then
                     'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
-                    objUser = DNNUserController.GetUserByName(Null.NullInteger, objAuthUser.Username)
+                    objUser = DNNUserController.GetUserByName(objAuthUser.Username)
                     If objUser Is Nothing Then 'User doesn't exist in any portal
                         'Item 6365
                         objAuthUser.Membership.Password = Utilities.GetRandomPassword()
