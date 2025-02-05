@@ -133,44 +133,47 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         Public Overrides Sub UpdateSettings()
             Dim _portalSettings As PortalSettings = CType(HttpContext.Current.Items("PortalSettings"), PortalSettings)
-            Try
+            Dim config As New ConfigInfo
+            Dim statusMessage As String
 
-                'Code Cleanup
-                If Not chkAuthentication.Checked Then
-                    Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False,
-                                                False, "", "", "", "", False, "", False, False, False)
-                    Configuration.ResetConfig()
-                Else
-                    Dim providerTypeName As String = cboProviders.SelectedItem.Value
-                    Dim authenticationType As String = cboAuthenticationType.SelectedItem.Value
+            config.PortalId = _portalSettings.PortalId
+
+            Try
+                If chkAuthentication.Checked Then
+
                     If Not (txtAutoIP.Text = String.Empty) Then
                         If Not (CheckEnteredIPAddr()) Then
                             Exit Sub
                         End If
                     End If
-                    'ACD-5585
-                    'WorkItems 4766 and 4077
-                    If chkAuthentication.Checked And Not chkHidden.Checked Then
-                        Configuration.UpdateConfig(_portalSettings.PortalId, chkAuthentication.Checked,
-                                                    chkHidden.Checked,
-                                                    txtRootDomain.Text, txtEmailDomain.Text, txtUserName.Text,
-                                                    txtPassword.Text, chkSynchronizeRole.Checked,
-                                                    chkSynchronizePassword.Checked, chkStripDomainName.Checked,
-                                                    providerTypeName, authenticationType, txtAutoIP.Text,
-                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
-                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
-                    Else
-                        Configuration.UpdateConfig(_portalSettings.PortalId, False, chkHidden.Checked,
-                                                    txtRootDomain.Text, txtEmailDomain.Text,
-                                                    txtUserName.Text, txtPassword.Text, chkSynchronizeRole.Checked,
-                                                    chkSynchronizePassword.Checked,
-                                                    chkStripDomainName.Checked, providerTypeName, authenticationType,
-                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
-                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
-                    End If
-                    Configuration.ResetConfig()
-                    Dim objAuthenticationController As New AuthenticationController
-                    Dim statusMessage As String = objAuthenticationController.NetworkStatus
+
+                    config.PortalId = _portalSettings.PortalId
+                    config.WindowsAuthentication = chkAuthentication.Checked
+                    config.HideWindowsLogin = chkHidden.Checked
+                    config.RootDomain = txtRootDomain.Text
+                    config.EmailDomain = txtEmailDomain.Text
+                    config.UserName = txtUserName.Text
+                    config.Password = txtPassword.Text
+                    config.SynchronizePassword = chkSynchronizeRole.Checked
+                    config.SynchronizePassword = chkSynchronizePassword.Checked
+                    config.StripDomainName = chkStripDomainName.Checked
+                    config.ProviderTypeName = cboProviders.SelectedItem.Value
+                    config.AuthenticationType = cboAuthenticationType.SelectedItem.Value
+                    config.AutoIP = txtAutoIP.Text
+                    config.DefaultDomain = txtDefaultDomain.Text
+                    config.AutoCreateUsers = chkAutoCreate.Checked
+                    config.Bots = txtBots.Text
+                    config.Photo = chkSynchronizePhoto.Checked
+                    config.EnableAutoLogin = chkAutoLogin.Checked
+                    config.EnableDebugMode = chkDebugMode.Checked
+                End If
+
+                configuration.UpdateConfig(config)
+                configuration.ResetConfig()
+
+                If chkAuthentication.Checked Then
+                    statusMessage = objAuthenticationController.NetworkStatus
+
                     If statusMessage.ToLower.IndexOf("fail") > -1 Then
                         MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
                                                                                                                      statusMessage),
