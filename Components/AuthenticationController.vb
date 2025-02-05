@@ -82,7 +82,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 objAuthUser = objAuthUserController.GetUser(loggedOnUserName)
                 objUser = DNNUserController.GetUserByName(portalSettings.PortalId, loggedOnUserName)
 
-                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
+                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus)
 
 
                 If Not (objReturnUser Is Nothing) Then
@@ -164,7 +164,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                 objAuthUser.Username = userName
                 objUser = DNNUserController.GetUserByName(portalSettings.PortalId, userName)
-                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
+                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus)
 
                 If Not (objReturnUser Is Nothing) Then
                     objAuthUser.LastIPAddress = ipAddress
@@ -363,7 +363,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     .Profile.Photo = objAuthUser.Profile.Photo
                 End If
             End With
-            Dim objAuthUserController As New UserController
             objAuthUserController.UpdateDnnUser(objReturnUser)
         End Sub
 
