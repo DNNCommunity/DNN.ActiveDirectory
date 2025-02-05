@@ -16,11 +16,12 @@
 ' THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
-' 
+'
 Imports DotNetNuke.Entities.Users
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Interface IUserController
+        Sub AddUserRoles(PortalID As Integer, AuthenticationUser As ADUserInfo)
         Function GetUser(LoggedOnUserName As String) As ADUserInfo
         Function GetUser(LoggedOnUserName As String, LoggedOnPassword As String) As ADUserInfo
         Function UpdateDnnUser(authenticationUser As UserInfo) As Boolean
