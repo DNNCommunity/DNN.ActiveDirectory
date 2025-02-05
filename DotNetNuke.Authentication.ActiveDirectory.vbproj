@@ -11,6 +11,8 @@
     <UseGlobalApplicationHostFile />
     <TargetFrameworkProfile />
     <Use64BitIISExpress />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <PropertyGroup>
@@ -33,7 +35,7 @@
     <OptionInfer>On</OptionInfer>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -142,8 +144,9 @@
     <Compile Include="Components\Interfaces\IAuthenticationObjectBase.vb" />
     <Compile Include="Components\Interfaces\IAuthenticationProvider.vb" />
     <Compile Include="Components\Interfaces\IGroupController.vb" />
+    <Compile Include="Components\Interfaces\IUserController.vb" />
     <Compile Include="Components\Users\UserController.vb" />
-    <Compile Include="Components\Users\UserInfo.vb" />
+    <Compile Include="Components\Users\ADUserInfo.vb" />
     <Compile Include="HttpModule\AuthenticationModule.vb" />
     <Compile Include="Login.ascx.designer.vb">
       <DependentUpon>Login.ascx</DependentUpon>
@@ -158,6 +161,9 @@
     <Compile Include="Providers\ADSIProvider\Domain.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Providers\ADSIProvider\ConfigInfo.vb" />
+    <Compile Include="Providers\ADSIProvider\Interfaces\IConfiguration.vb" />
+    <Compile Include="Providers\ADSIProvider\Interfaces\IUtilities.vb" />
     <Compile Include="Providers\ADSIProvider\Search.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -185,6 +191,14 @@
     <None Include="App_LocalResources\Settings.ascx.resx" />
     <None Include="BuildScripts\ModulePackage.targets" />
     <None Include="BuildScripts\MSBuild.Community.Tasks.Targets" />
+    <None Include="packages.config" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\Documentation.css" />
@@ -239,5 +253,12 @@
   <Target Name="BeforeBuild" DependsOnTargets="VersionInfo">
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="PackageModule">
+  </Target>
+  <Import Project="packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
 </Project>

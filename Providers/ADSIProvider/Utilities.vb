@@ -29,6 +29,7 @@ Imports DotNetNuke.Entities.Users
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class Utilities
+        Implements IUtilities
 
         Public Const AD_IMAGE_FOLDER_PATH As String = "Images/AD Photos"
         Private adsiConfig As ConfigInfo
@@ -39,7 +40,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Sub
 
-        Public Overloads Function GetRootDomain(ByVal ADSIPath As Configuration.Path) As Domain
+        Public Overloads Function GetRootDomain(ByVal ADSIPath As Configuration.Path) As Domain Implements IUtilities.GetRootDomain
             Try
                 Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath, ADSIPath)
                 Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
@@ -51,7 +52,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Public Overloads Function GetRootDomain() As Domain
+        Public Overloads Function GetRootDomain() As Domain Implements IUtilities.GetRootDomain
             Try
                 Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath)
                 Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
@@ -63,7 +64,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Public Function GetDomainByBIOSName(ByVal Name As String) As Domain
+        Public Function GetDomainByBIOSName(ByVal Name As String) As Domain Implements IUtilities.GetDomainByBIOSName
 
             ' Only access CrossRefCollection if LDAP is accessible
             If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
@@ -77,11 +78,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Public Overloads Shared Function GetRootEntry() As DirectoryEntry
+        Public Overloads Function GetRootEntry() As DirectoryEntry Implements IUtilities.GetRootEntry
             Return GetRootEntry(Configuration.Path.GC)
         End Function
 
-        Public Overloads Function GetRootEntry(ByVal ADSIPath As Configuration.Path) As DirectoryEntry
+        Public Overloads Function GetRootEntry(ByVal ADSIPath As Configuration.Path) As DirectoryEntry Implements IUtilities.GetRootEntry
             Try
                 Dim entry As DirectoryEntry = Nothing
                 If Not adsiConfig Is Nothing Then
@@ -114,7 +115,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetDirectoryEntry(ByVal Path As String) As DirectoryEntry
+        Public Function GetDirectoryEntry(ByVal Path As String) As DirectoryEntry Implements IUtilities.GetDirectoryEntry
             Dim returnEntry As DirectoryEntry
 
             If (adsiConfig.UserName.Length > 0) AndAlso (adsiConfig.Password.Length > 0) Then
@@ -185,7 +186,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
 
-        Public Function GetAllGroupnames() As ArrayList
+        Public Function GetAllGroupnames() As ArrayList Implements IUtilities.GetAllGroupnames
             Dim RootDomain As Domain = GetRootDomain()
             Dim objSearch As New Search(RootDomain)
 
@@ -208,7 +209,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetUserEntryByName(ByVal Name As String) As DirectoryEntry
+        Public Function GetUserEntryByName(ByVal Name As String) As DirectoryEntry Implements IUtilities.GetUserEntryByName
             ' Create search object then assign required params to get user entry in Active Directory
             Dim objSearch As New Search(GetRootDomain)
             Dim userEntries As New ArrayList
@@ -277,7 +278,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function CanonicalToNetBIOS(ByVal CanonicalName As String) As String
+        Public Function CanonicalToNetBIOS(ByVal CanonicalName As String) As String Implements IUtilities.CanonicalToNetBIOS
 
             ' Only access CrossRefCollection if LDAP is accessible
             If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
@@ -304,7 +305,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function UPNToLogonName0(ByVal UserPrincipalName As String) As String
+        Public Function UPNToLogonName0(ByVal UserPrincipalName As String) As String Implements IUtilities.UPNToLogonName0
             Dim userName As String = UserPrincipalName
 
             If adsiConfig.LDAPAccesible Then
@@ -538,7 +539,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         'ACD-7422 - Role Synchronization Not Working On W2K Domain Controllers
         'By using TokenGroups it should work with W2K.
-        Public Function GetADGroups(ByVal Name As String) As ArrayList
+        Public Function GetADGroups(ByVal Name As String) As ArrayList Implements IUtilities.GetADGroups
             Dim user As DirectoryEntry = GetUserEntryByName(Name)
             Dim irc As IdentityReferenceCollection = ExpandTokenGroups(user).Translate(GetType(NTAccount))
             Dim arrAccounts As New ArrayList
@@ -637,7 +638,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetGroupEntriesByName(ByVal GroupName As String) As ArrayList
+        Public Function GetGroupEntriesByName(ByVal GroupName As String) As ArrayList Implements IUtilities.GetGroupEntriesByName
             Dim RootDomain As ADSI.Domain = GetRootDomain()
             Dim objSearch As New Search(RootDomain)
 

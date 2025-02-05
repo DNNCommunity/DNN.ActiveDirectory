@@ -24,6 +24,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class WindowsSignin
         Inherits Page
 
+        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of Configuration)
+
 #Region " Web Form Designer Generated Code "
 
         'This call is required by the Web Form Designer.
