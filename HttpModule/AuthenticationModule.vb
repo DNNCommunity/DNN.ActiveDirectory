@@ -24,6 +24,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
     Public Class AuthenticationModule
         Implements IHttpModule
 
+        Private config As ConfigInfo
+        Private objAuthentication As IAuthenticationController
+
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal objauthentication As IAuthenticationController)
+            Me.config = configuration.GetConfig
+            Me.objAuthentication = objauthentication
+        End Sub
         Public ReadOnly Property ModuleName() As String
             Get
                 Return "AuthenticationModule"
@@ -37,6 +45,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
         Public Sub OnAuthenticateRequest(ByVal s As Object, ByVal e As EventArgs)
             Dim request As HttpRequest = HttpContext.Current.Request
             Dim response As HttpResponse = HttpContext.Current.Response
+            Dim portalSettings As PortalSettings
 
             ''check if we are upgrading/installing/using a web service/rss feeds (ACD-7748)
             'Abort if NOT Default.aspx
@@ -45,7 +54,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                 Exit Sub
             End If
             'Check that Host/Admin user is not already logged into the site. 
-            'If so then bypass authentication (ACD-2592)
             If Not (Users.UserController.Instance.GetCurrentUserInfo().Username = String.Empty) Then
                 Dim bHost As Boolean = Users.UserController.Instance.GetCurrentUserInfo().IsSuperUser
                 Dim _
@@ -53,16 +61,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                 If bAdmin Or bHost Then Exit Sub
             End If
 
-            'Moved the following statement from the top to correct ACD-9746
-            Dim portalSettings As PortalSettings = GetPortalSettings()
-
-            Dim config As Configuration = Configuration.GetConfig()
+            portalSettings = GetPortalSettings()
 
             If config Is Nothing Then
                 Exit Sub
             End If
 
-            'ACD-8846, WorkItems 6416,4766, 4077, 7805
             Dim strRequest As String = UCase(request.ServerVariables("HTTP_USER_AGENT"))
             If strRequest Is Nothing Then
                 Exit Sub
@@ -143,9 +147,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                             response.Redirect(url & "?portalid=" & portalSettings.PortalId)
                         End If
                     ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
-                        Dim objAuthentication As New AuthenticationController
-                        objAuthentication.AuthenticationLogoff()
-                    ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
+                    objAuthentication.AuthenticationLogoff()
+                ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
                         AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
                     response.Redirect(request.RawUrl)
                 End If
