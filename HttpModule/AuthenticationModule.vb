@@ -22,6 +22,7 @@ Imports DotNetNuke.Entities.Portals
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
     Public Class AuthenticationModule
+        Inherits Services.Authentication.AuthenticationLoginBase
         Implements IHttpModule
 
         Private config As ConfigInfo
@@ -37,6 +38,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                 Return "AuthenticationModule"
             End Get
         End Property
+        Public Overrides ReadOnly Property Enabled As Boolean
 
         Public Sub Init(ByVal application As HttpApplication) Implements IHttpModule.Init
             AddHandler application.AuthenticateRequest, AddressOf OnAuthenticateRequest
@@ -144,12 +146,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                         End If
                     End If
                     If redirect Then 'prevents infinite redirects issue: 47
-                            response.Redirect(url & "?portalid=" & portalSettings.PortalId)
-                        End If
-                    ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
+                        response.Redirect(url & "?portalid=" & portalSettings.PortalId)
+                    End If
+                ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
                     objAuthentication.AuthenticationLogoff()
                 ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
-                        AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
+                    AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
                     response.Redirect(request.RawUrl)
                 End If
 

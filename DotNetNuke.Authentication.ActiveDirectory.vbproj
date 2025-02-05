@@ -147,7 +147,9 @@
     <Compile Include="Components\Interfaces\IUserController.vb" />
     <Compile Include="Components\Users\UserController.vb" />
     <Compile Include="Components\Users\ADUserInfo.vb" />
-    <Compile Include="HttpModule\AuthenticationModule.vb" />
+    <Compile Include="HttpModule\AuthenticationModule.vb">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Login.ascx.designer.vb">
       <DependentUpon>Login.ascx</DependentUpon>
     </Compile>
@@ -192,13 +194,6 @@
     <None Include="BuildScripts\ModulePackage.targets" />
     <None Include="BuildScripts\MSBuild.Community.Tasks.Targets" />
     <None Include="packages.config" />
-    <Content Include="web.config" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\Documentation.css" />
