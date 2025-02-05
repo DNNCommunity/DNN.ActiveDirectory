@@ -25,6 +25,7 @@ Imports DotNetNuke.Entities.Users
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class UserController
+        Implements IUserController
 
 #Region "Private Shared Members"
 
@@ -62,7 +63,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetUser (ByVal LoggedOnUserName As String) As ADUserInfo
+        Public Function GetUser(ByVal LoggedOnUserName As String) As ADUserInfo Implements IUserController.GetUser
             Return authenticationProvider.GetUser(LoggedOnUserName)
         End Function
 
@@ -76,7 +77,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetUser (ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) As ADUserInfo
+        Public Function GetUser(ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) As ADUserInfo Implements IUserController.GetUser
             Return authenticationProvider.GetUser(LoggedOnUserName, LoggedOnPassword)
         End Function
 
@@ -181,7 +182,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
 
-        Public Overloads Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo)
+        Public Overloads Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo) Implements IUserController.AddUserRoles
             Try
                 Dim objPortal As PortalInfo = portalController.GetPortal(PortalID)
                 Dim objRoleInfo As New RoleInfo
@@ -267,7 +268,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]     30/11/2008  Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Private Shared Function RolesExists (ByVal s As String) _
+        Private Shared Function RolesExists(ByVal s As String) _
             As Boolean
 
             ' AndAlso prevents evaluation of the second Boolean
@@ -291,7 +292,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   02/17/2012 User's profile was getting blanked when getting updated - Item 7739
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function UpdateDnnUser(ByVal authenticationUser As UserInfo) As Boolean
+        Public Function UpdateDnnUser(ByVal authenticationUser As UserInfo) As Boolean Implements IUserController.UpdateDnnUser
             'Updating user information
             Users.UserController.UpdateUser(authenticationUser.PortalID, authenticationUser)
             Return True
