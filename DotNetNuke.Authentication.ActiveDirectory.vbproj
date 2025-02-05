@@ -142,7 +142,6 @@
     <Compile Include="Components\Interfaces\IAuthenticationObjectBase.vb" />
     <Compile Include="Components\Interfaces\IAuthenticationProvider.vb" />
     <Compile Include="Components\Interfaces\IGroupController.vb" />
-    <Compile Include="Components\Interfaces\IUserController.vb" />
     <Compile Include="Components\Users\UserController.vb" />
     <Compile Include="Components\Users\UserInfo.vb" />
     <Compile Include="HttpModule\AuthenticationModule.vb" />
