@@ -130,15 +130,19 @@
     <Compile Include="Components\AuthenticationController.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Components\AuthenticationProvider.vb" />
     <Compile Include="Components\Common\AuthenticationMode.vb" />
     <Compile Include="Components\Common\AuthenticationStatus.vb" />
     <Compile Include="Components\Common\ObjectClass.vb" />
-    <Compile Include="Components\Config\ApplicationPool.vb" />
+    <Compile Include="Components\Config\ConfigInfo.vb" />
     <Compile Include="Components\Config\Configuration.vb" />
+    <Compile Include="Components\Interfaces\IConfiguration.vb" />
     <Compile Include="Components\Groups\GroupController.vb" />
     <Compile Include="Components\Groups\GroupInfo.vb" />
-    <Compile Include="Components\IAuthenticationObjectBase.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationController.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationObjectBase.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationProvider.vb" />
+    <Compile Include="Components\Interfaces\IGroupController.vb" />
+    <Compile Include="Components\Interfaces\IUserController.vb" />
     <Compile Include="Components\Users\UserController.vb" />
     <Compile Include="Components\Users\UserInfo.vb" />
     <Compile Include="HttpModule\AuthenticationModule.vb" />

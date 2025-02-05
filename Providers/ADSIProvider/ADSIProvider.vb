@@ -25,7 +25,7 @@ Imports DotNetNuke.Security.Roles
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class ADSIProvider
-        Inherits AuthenticationProvider
+        Implements IAuthenticationProvider
 
         Private _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
         Private _adsiConfig As Configuration = Configuration.GetConfig()
@@ -556,5 +556,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             objUser.Profile.PreferredLocale = _portalSettings.DefaultLanguage
             objUser.Profile.PreferredTimeZone = _portalSettings.TimeZone
         End Sub
+
+
     End Class
 End Namespace

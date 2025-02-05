@@ -34,9 +34,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class AuthenticationController
         Inherits UserUserControlBase
 
-        Private ReadOnly _mProviderTypeName As String = ""
-        Private ReadOnly _portalSettings As PortalSettings
-        Private _config As Configuration = Configuration.GetConfig()
+        Private ReadOnly Property mProviderTypeName As String
+            Get
+                Return config.ProviderTypeName
+            End Get
+        End Property
+        Private ReadOnly portalSettings As PortalSettings
+        Private config As ConfigInfo
+        Private objAuthUserController As IUserController
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -47,10 +52,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
-
-            _portalSettings = PortalController.Instance.GetCurrentPortalSettings
-            _mProviderTypeName = _config.ProviderTypeName
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal portalController As IPortalController,
+                ByVal userController As IUserController)
+            Me.config = configuration.GetConfig()
+            Me.portalSettings = portalController.GetCurrentSettings
+            Me.objAuthUserController = userController
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -64,7 +71,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Sub AuthenticationLogon()
-            Dim objAuthUserController As New UserController
             Dim objReturnUser As UserInfo
             Dim loggedOnUserName As String = HttpContext.Current.Request.ServerVariables(Configuration.LOGON_USER_VARIABLE)
             Dim loginStatus As UserLoginStatus = UserLoginStatus.LOGIN_FAILURE
