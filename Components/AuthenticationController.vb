@@ -49,6 +49,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private navigationManager As Abstractions.INavigationManager
         Private portalController As IPortalController
         Private adsiProvider As IAuthenticationProvider
+        Private userController As IUserController
 
         Sub New(ByVal configuration As IConfiguration,
                 ByVal portalController As IPortalController,
@@ -63,6 +64,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Me.objEventLog = eventLogger
             Me.navigationManager = navigationManager
             Me.adsiProvider = adsiProvider
+            Me.userController = userController
         End Sub
 
         Public Sub AuthenticationLogon()
