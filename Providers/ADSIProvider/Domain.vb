@@ -34,6 +34,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Private mCanonicalName As String = ""
         Private mLevel As Integer
         Private mChildPopulate As Boolean = False
+        Private config As ConfigInfo
+        Private utilities As IUtilities
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -44,8 +46,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal utilities As IUtilities)
             MyBase.New()
+            Me.config = configuration.GetConfig
+            Me.utilities = utilities
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -91,10 +96,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Private Sub PopulateInfo()
-            Dim config As Configuration = Configuration.GetConfig()
 
             mDistinguishedName = CType (MyBase.Properties (Configuration.ADSI_DISTINGUISHEDNAME).Value, String)
-            mCanonicalName = Utilities.ConvertToCanonical (mDistinguishedName, False)
+            mCanonicalName = ADSI.Utilities.ConvertToCanonical(mDistinguishedName, False)
 
             ' Note that this property will be null string if LDAP is unaccessible
             mNetBIOSName = Utilities.CanonicalToNetBIOS (mCanonicalName)

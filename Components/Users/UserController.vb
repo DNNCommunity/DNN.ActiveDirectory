@@ -37,6 +37,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private roleController As IRoleController
         Private groupController As IGroupController
         Private portalSettings As PortalSettings
+        Private utilities As IUtilities
 #End Region
 
         Sub New(ByVal configuration As IConfiguration,
@@ -44,13 +45,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 ByVal portalController As IPortalController,
                 ByVal roleController As IRoleController,
                 ByVal groupController As IGroupController,
-                )
+                ByVal utilities As IUtilities)
+
             Me.config = configuration.GetConfig()
             Me.authenticationProvider = authenticationProvider
             Me.portalController = portalController
             Me.roleController = roleController
             Me.groupController = groupController
             Me.portalSettings = Me.portalController.GetCurrentSettings
+            Me.utilities = utilities
         End Sub
 
         ''' -------------------------------------------------------------------
