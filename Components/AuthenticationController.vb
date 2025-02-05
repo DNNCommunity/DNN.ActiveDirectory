@@ -620,19 +620,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' 
-        ''' </summary>
-        ''' <remarks>
-        '''		[mhorton] Created to prevent duplicate code on role synchronization.
-        ''' </remarks>
-        ''' <history>
-        '''     [mhorton]	12/18/2006	Created
-        '''     [mhorton]	10/05/2009	Changed to use IsNotSimplyUser instead of GUID - WorkItem:2943
-        '''     [mhorton]   29/05/2011  Fixed code for Item 6735
-        ''' </history>
-        ''' -------------------------------------------------------------------
         '<Obsolete("procedure obsoleted in 5.0.3 - user SynchronizeRoles(ByVal objUser As UserInfo) instead")>
         'Public Sub SynchronizeRoles(ByVal loggedOnUserName As String, ByVal intUserId As Integer)
         '    Dim objAuthUserController As New UserController

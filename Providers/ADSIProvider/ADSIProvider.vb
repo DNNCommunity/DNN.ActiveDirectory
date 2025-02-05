@@ -32,18 +32,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Private config As ActiveDirectory.ConfigInfo
         Private objEventLog As Abstractions.Logging.IEventLogger
         Private adsiConfiguration As IConfiguration
+        Private utilities As Utilities
 
         Sub New(ByVal configuration As ActiveDirectory.IConfiguration,
                 ByVal portalController As IPortalController,
                 ByVal adsiConfiguration As IConfiguration,
-                ByVal eventLog As Abstractions.Logging.IEventLogger)
+                ByVal eventLog As Abstractions.Logging.IEventLogger,
+                ByVal utilities As IUtilities)
 
             Me.config = configuration.GetConfig
             Me.adsiConfiguration = adsiConfiguration
             Me.adsiConfig = Me.adsiConfiguration.GetConfig
             Me.portalSettings = portalController.GetCurrentSettings
             Me.objEventLog = eventLog
-
+            Me.utilities = utilities
         End Sub
 #Region "Private Methods"
 
@@ -511,7 +513,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             sb.Append("<b>[Network Domains Status]</b><br>")
             Try
                 If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
-                    sb.Append(_adsiConfig.RefCollection.Count.ToString)
+                    sb.Append(adsiConfig.RefCollection.Count.ToString)
                     sb.Append(" Domain(s):<br>")
                     Dim crossRef As CrossReferenceCollection.CrossReference
                     For Each crossRef In adsiConfig.RefCollection
