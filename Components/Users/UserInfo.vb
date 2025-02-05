@@ -24,19 +24,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Inherits UserInfo
         Implements IAuthenticationObjectBase
 
-        Private mGUID As String = ""
-        Private mLocation As String = ""
+        ' Private mGUID As String = ""
+        'Private mLocation As String = ""
         Private mCName As String = ""
-        Private mPrincipalName As String = ""
+        'Private mPrincipalName As String = ""
         Private mDistinguishedName As String = ""
         Private msAMAccountName As String = ""
         Private mIsAuthenticated As Boolean
         Private mAuthenticationExists As Boolean = False
         ' Additional properties which are not provided by MemberRole
-        Private mDepartment As String
-        Private mManager As String
-        Private mHomePhone As String
-        Private mAssistant As String
+        'Private mDepartment As String
+        'Private mManager As String
+        'Private mHomePhone As String
+        'Private mAssistant As String
 
         ''' -------------------------------------------------------------------
         ''' <summary>
