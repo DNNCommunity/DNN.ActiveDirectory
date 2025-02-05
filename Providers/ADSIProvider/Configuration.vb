@@ -36,12 +36,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     '''     [tamttt]	08/01/2004	Created
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Enum Path
-        GC
-        LDAP
-        ADs
-        WinNT
-    End Enum
+
 
     ''' -------------------------------------------------------------------
     ''' <summary>
@@ -52,7 +47,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     '''     [tamttt]	08/01/2004	Created
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Enum CompareOperator As Integer
+    Public Enum CompareOperator As Integer
         [Is]
         [IsNot]
         [StartsWith]
@@ -141,6 +136,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     ''' </history>
     ''' -------------------------------------------------------------------
     Public Class Configuration
+        Public Enum Path
+            GC
+            LDAP
+            ADs
+            WinNT
+        End Enum
+
         Public Const ADSI_CONFIGURATIONNAMIMGCONTEXT As String = "configurationNamingContext"
         Public Const ADSI_DEFAULTNAMIMGCONTEXT As String = "defaultNamingContext"
         Public Const ADSI_ROOTDOMAINNAMIMGCONTEXT As String = "rootDomainNamingContext"
@@ -181,29 +183,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         Private Const ADSI_CONFIG_CACHE_PREFIX As String = "ADSI.Configuration"
 
-        Private mPortalId As Integer
-        Private mSettingModuleId As Integer
 
-        ' mRootDomainPath will be stored in DC=ttt,DC=com,DC=vn format (without ADSIPath)
-        ' ADSIPath to be added depends on Authentication accessing method
-        Private mADSINetwork As Boolean = False
-        Private mLDAPAccesible As Boolean = False
-        Private mConfigDomainPath As String = ""
-        ' Row value user input in site settings
-        Private mDefaultEmailDomain As String = ""
-        ' Row value user input in site settings - without @
-        Private mRootDomainPath As String = ""
-        Private mConfigurationPath As String = ""
-        Private mAuthenticationType As AuthenticationTypes = AuthenticationTypes.Delegation
-        Private mUserName As String = ""
-        Private mPassword As String = ""
-        Private mSearchPageSize As Integer = 1000
-        Private mADSIPath As Path = Path.GC
-        Private mProcessLog As String = ""
-
-        ' For Domain Reference Configuration
-        Private mRefCollection As CrossReferenceCollection
-
+        Private config As ActiveDirectory.ConfigInfo
+        Private portalSettings As PortalSettings
         ''' -------------------------------------------------------------------
         ''' <summary>
         '''     Obtain Authentication settings from database
@@ -214,23 +196,24 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
-            Dim authConfig As ActiveDirectory.Configuration = ActiveDirectory.Configuration.GetConfig()
-            mPortalId = authConfig.PortalId
+        Sub New(ByVal configuration As ActiveDirectory.IConfiguration,
+                ByVal portalController As IPortalController)
+
+            Me.config = configuration.GetConfig()
+            Me.mPortalId = config.PortalId
+            Me.portalSettings = portalController.GetCurrentSettings
 
             Try
                 'Temporary fix this setting as TRUE for design, to be removed when release
-                mConfigDomainPath = authConfig.RootDomain
-                mDefaultEmailDomain = authConfig.EmailDomain
-                mUserName = authConfig.UserName
-                mPassword = authConfig.Password
-                mAuthenticationType = _
-                    CType ([Enum].Parse (GetType (AuthenticationTypes), authConfig.AuthenticationType), _
-                        AuthenticationTypes)
+                mConfigDomainPath = config.RootDomain
+                mDefaultEmailDomain = config.EmailDomain
+                mUserName = config.UserName
+                mPassword = config.Password
+                mAuthenticationType = CType([Enum].Parse(GetType(AuthenticationTypes), config.AuthenticationType), AuthenticationTypes)
                 ' IMPORTANT: Remove ADSIPath, to be added later depends on accessing method
 
-                mRootDomainPath = Utilities.ValidateDomainPath (mConfigDomainPath)
-                mRootDomainPath = Right (mRootDomainPath, mRootDomainPath.Length - mRootDomainPath.IndexOf ("DC="))
+                mRootDomainPath = Utilities.ValidateDomainPath(mConfigDomainPath)
+                mRootDomainPath = Right(mRootDomainPath, mRootDomainPath.Length - mRootDomainPath.IndexOf("DC="))
 
             Catch exc As Exception
                 mProcessLog += exc.Message & "<br>"
@@ -239,21 +222,16 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             ' Also check if Authentication implemented in this Windows Network
             Dim gc As New DirectoryEntry
             Try
-                If DirectoryEntry.Exists ("GC://rootDSE") Then
-                    Dim rootGC As DirectoryEntry
-                    'If (mUserName.Length > 0) AndAlso (mPassword.Length > 0) Then
-                    'rootGC = New DirectoryEntry("GC://rootDSE", mUserName, mPassword, mAuthenticationType)
-                    'Else
-                        rootGC = New DirectoryEntry ("GC://rootDSE")
-                    'End If
-                    mConfigurationPath = rootGC.Properties (ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
+                If DirectoryEntry.Exists("GC://rootDSE") Then
+                    Dim rootGC As New DirectoryEntry("GC://rootDSE")
+                    mConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
                     mADSINetwork = True
                 End If
             Catch exc As COMException
                 mADSINetwork = False
                 mLDAPAccesible = False
                 mProcessLog += exc.Message & "<br>"
-                LogException (exc)
+                LogException(exc)
                 ' Nothing to do if we could not access Global Catalog, so return
                 'Return
             End Try
@@ -261,14 +239,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             ' Also check if LDAP fully accessible
             Dim ldap As New DirectoryEntry
             Try
-                If DirectoryEntry.Exists ("LDAP://rootDSE") Then
+                If DirectoryEntry.Exists("LDAP://rootDSE") Then
                     mLDAPAccesible = True
-                    mRefCollection = New CrossReferenceCollection (mUserName, mPassword, mAuthenticationType)
+                    mRefCollection = New CrossReferenceCollection(mUserName, mPassword, mAuthenticationType)
                 End If
             Catch exc As COMException
                 mLDAPAccesible = False
                 mProcessLog += exc.Message & "<br>"
-                LogException (exc)
+                LogException(exc)
             End Try
 
         End Sub
@@ -287,12 +265,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' -------------------------------------------------------------------
         Public Shared Function GetConfig() As Configuration
             Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
+            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
 
-            Dim config As Configuration = CType (DataCache.GetCache (strKey), Configuration)
+            Dim config As Configuration = CType(DataCache.GetCache(strKey), Configuration)
             If config Is Nothing Then
                 config = New Configuration
-                DataCache.SetCache (strKey, config)
+                DataCache.SetCache(strKey, config)
             End If
 
             Return config
@@ -311,8 +289,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' -------------------------------------------------------------------
         Public Shared Sub ResetConfig()
             Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr (_portalSettings.PortalId)
-            DataCache.RemoveCache (strKey)
+            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
+            DataCache.RemoveCache(strKey)
 
         End Sub
 
@@ -325,7 +303,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Sub SetSecurity (ByVal Entry As DirectoryEntry)
+        Public Sub SetSecurity(ByVal Entry As DirectoryEntry)
             Try
                 Entry.AuthenticationType = mAuthenticationType
                 If (mUserName.Length > 0) AndAlso (mPassword.Length > 0) Then
@@ -334,207 +312,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 End If
 
             Catch ex As COMException
-                LogException (ex)
+                LogException(ex)
             End Try
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property PortalId() As Integer
-            Get
-                Return mPortalId
-            End Get
-        End Property
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property UserName() As String
-            Get
-                Return mUserName
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property Password() As String
-            Get
-                Return mPassword
-            End Get
-        End Property
-
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property RefCollection() As CrossReferenceCollection
-            Get
-                Return mRefCollection
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property AuthenticationType() As AuthenticationTypes
-            Get
-                Return mAuthenticationType
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property RootDomainPath() As String
-            Get
-                Return mRootDomainPath
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property ConfigDomainPath() As String
-            Get
-                Return mConfigDomainPath
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property ConfigurationPath() As String
-            Get
-                Return mConfigurationPath
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property DefaultEmailDomain() As String
-            Get
-                Return mDefaultEmailDomain
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property ADSINetwork() As Boolean
-            Get
-                Return mADSINetwork
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property LDAPAccesible() As Boolean
-            Get
-                Return mLDAPAccesible
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public ReadOnly Property ProcessLog() As String
-            Get
-                Return mProcessLog
-            End Get
-        End Property
-
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        '''     Used to determine if a valid input is provided, if not, return default value
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Private Function GetValue (ByVal Input As Object, ByVal DefaultValue As String) As String
-            If Input Is Nothing Then
-                Return DefaultValue
-            Else
-                Return CStr (Input)
-            End If
-        End Function
     End Class
 End Namespace
