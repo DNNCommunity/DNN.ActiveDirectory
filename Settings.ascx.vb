@@ -23,12 +23,15 @@ Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
-
+Imports Microsoft.Extensions.DependencyInjection
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings
         Inherits AuthenticationSettingsBase
 
+        Public objAuthenticationController As IAuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of Configuration)
+        Public portalController As IPortalController = DependencyProvider.GetRequiredService(Of PortalController)
 #Region "Private Members"
 
         Private _strError As String = Null.NullString
@@ -192,10 +195,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region "Event Handlers"
 
         Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Init
-            Dim objAuthenticationController As New AuthenticationController
             Dim _
                 objProviderConfiguration As ProviderConfiguration =
-                    ProviderConfiguration.GetProviderConfiguration(Configuration.AUTHENTICATION_KEY)
+                    ProviderConfiguration.GetProviderConfiguration(ActiveDirectory.Configuration.AUTHENTICATION_KEY)
             Dim _Provider As Object
             ' Bind Authentication provider list, this allows each portal could use different provider for authentication
             For Each _Provider In objProviderConfiguration.Providers
@@ -225,11 +227,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Response.Redirect("~/DesktopModules/AuthenticationServices/ActiveDirectory/trusterror.htm", True)
                 Else
                     ' Obtain PortalSettings from Current Context
-                    Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                    Dim _portalSettings As PortalSettings = portalController.GetCurrentSettings
 
                     ' Reset config
-                    Configuration.ResetConfig()
-                    Dim config As Configuration = Configuration.GetConfig()
+                    configuration.ResetConfig()
+                    Dim config As ConfigInfo = configuration.GetConfig()
 
                     If UserInfo.Username.IndexOf("\") > 0 Then
                         Dim strDomain As String = GetUserDomainName(UserInfo.Username)
