@@ -91,6 +91,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 #End Region
 
     Public Class Configuration
+        Implements IConfiguration
+
         Public Enum Path
             GC
             LDAP
@@ -158,8 +160,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Me.portalSettings = portalController.GetCurrentSettings
 
         End Sub
-        Public Function getConfigInfo() As ConfigInfo
-
+        Public Function getConfigInfo() As ConfigInfo Implements IConfiguration.getConfigInfo
             Dim adsiConfig As New ConfigInfo
             Dim gc As New DirectoryEntry
             Dim ldap As New DirectoryEntry
@@ -220,7 +221,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetConfig() As ConfigInfo
+        Public Function GetConfig() As ConfigInfo Implements IConfiguration.GetConfig
             Dim strKey As String = $"{ADSI_CONFIG_CACHE_PREFIX}.{CStr(portalSettings.PortalId)}"
 
             Dim config As ConfigInfo = CType(DataCache.GetCache(strKey), ConfigInfo)
@@ -233,12 +234,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Public Sub ResetConfig()
+        Public Sub ResetConfig() Implements IConfiguration.ResetConfig
             Dim strKey As String = $"{ADSI_CONFIG_CACHE_PREFIX}.{CStr(portalSettings.PortalId)}"
             DataCache.RemoveCache(strKey)
         End Sub
 
-        Public Sub SetSecurity(ByVal Entry As DirectoryEntry, config As ConfigInfo)
+        Public Sub SetSecurity(ByVal Entry As DirectoryEntry, config As ConfigInfo) Implements IConfiguration.SetSecurity
             Try
                 Entry.AuthenticationType = config.AuthenticationType
                 If (config.UserName.Length > 0) AndAlso (config.Password.Length > 0) Then
