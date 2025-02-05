@@ -27,26 +27,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
 #Region "Enum"
 
-    ''' -------------------------------------------------------------------
-    ''' <summary>
-    ''' </summary>
-    ''' <remarks>
-    ''' </remarks>
-    ''' <history>
-    '''     [tamttt]	08/01/2004	Created
-    ''' </history>
-    ''' -------------------------------------------------------------------
-
-
-    ''' -------------------------------------------------------------------
-    ''' <summary>
-    ''' </summary>
-    ''' <remarks>
-    ''' </remarks>
-    ''' <history>
-    '''     [tamttt]	08/01/2004	Created
-    ''' </history>
-    ''' -------------------------------------------------------------------
     Public Enum CompareOperator As Integer
         [Is]
         [IsNot]
@@ -56,30 +36,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         [NotPresent]
     End Enum
 
-    ''' -------------------------------------------------------------------
-    ''' <summary>
-    ''' </summary>
-    ''' <remarks>
-    ''' </remarks>
-    ''' <history>
-    '''     [tamttt]	08/01/2004	Created
-    ''' </history>
-    ''' -------------------------------------------------------------------
-        Public Enum GroupType
-        UNIVERSAL_GROUP = - 2147483640
-        GLOBAL_GROUP = - 2147483646
-        DOMAIN_LOCAL_GROUP = - 2147483644
+    Public Enum GroupType
+        UNIVERSAL_GROUP = -2147483640
+        GLOBAL_GROUP = -2147483646
+        DOMAIN_LOCAL_GROUP = -2147483644
     End Enum
 
-    ''' -------------------------------------------------------------------
-    ''' <summary>
-    ''' </summary>
-    ''' <remarks>
-    ''' </remarks>
-    ''' <history>
-    '''     [tamttt]	08/01/2004	Created
-    ''' </history>
-    ''' -------------------------------------------------------------------
+
     Public Enum UserFlag
         ADS_UF_SCRIPTADS_UF_SCRIPT = 1
         '0x1 The logon script is executed. This flag does not work for the ADSI LDAP provider on either read or write operations. For the  ADSI WinNT provider, this flag is  read-only data, and it cannot be set for user objects. = 1    
@@ -126,15 +89,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     End Enum
 
 #End Region
-    ''' -------------------------------------------------------------------
-    ''' <summary>
-    ''' </summary>
-    ''' <remarks>
-    ''' </remarks>
-    ''' <history>
-    '''     [sawest]    12/16/2016  Added photo constant
-    ''' </history>
-    ''' -------------------------------------------------------------------
+
     Public Class Configuration
         Public Enum Path
             GC
@@ -200,56 +155,58 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 ByVal portalController As IPortalController)
 
             Me.config = configuration.GetConfig()
-            Me.mPortalId = config.PortalId
             Me.portalSettings = portalController.GetCurrentSettings
+
+        End Sub
+        Public Function getConfigInfo() As ConfigInfo
+
+            Dim adsiConfig As New ConfigInfo
+            Dim gc As New DirectoryEntry
+            Dim ldap As New DirectoryEntry
 
             Try
                 'Temporary fix this setting as TRUE for design, to be removed when release
-                mConfigDomainPath = config.RootDomain
-                mDefaultEmailDomain = config.EmailDomain
-                mUserName = config.UserName
-                mPassword = config.Password
-                mAuthenticationType = CType([Enum].Parse(GetType(AuthenticationTypes), config.AuthenticationType), AuthenticationTypes)
-                ' IMPORTANT: Remove ADSIPath, to be added later depends on accessing method
-
-                mRootDomainPath = Utilities.ValidateDomainPath(mConfigDomainPath)
-                mRootDomainPath = Right(mRootDomainPath, mRootDomainPath.Length - mRootDomainPath.IndexOf("DC="))
+                adsiConfig.PortalId = config.PortalId
+                adsiConfig.ConfigDomainPath = config.RootDomain
+                adsiConfig.DefaultEmailDomain = config.EmailDomain
+                adsiConfig.UserName = config.UserName
+                adsiConfig.Password = config.Password
+                adsiConfig.AuthenticationType = CType([Enum].Parse(GetType(AuthenticationTypes), config.AuthenticationType), AuthenticationTypes)
+                adsiConfig.RootDomainPath = Utilities.ValidateDomainPath(adsiConfig.ConfigDomainPath)
+                adsiConfig.RootDomainPath = Right(adsiConfig.RootDomainPath, adsiConfig.RootDomainPath.Length - adsiConfig.RootDomainPath.IndexOf("DC="))
 
             Catch exc As Exception
-                mProcessLog += exc.Message & "<br>"
+                adsiConfig.ProcessLog += exc.Message & "<br>"
             End Try
 
-            ' Also check if Authentication implemented in this Windows Network
-            Dim gc As New DirectoryEntry
             Try
                 If DirectoryEntry.Exists("GC://rootDSE") Then
                     Dim rootGC As New DirectoryEntry("GC://rootDSE")
-                    mConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
-                    mADSINetwork = True
+                    adsiConfig.ConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
+                    adsiConfig.ADSINetwork = True
                 End If
             Catch exc As COMException
-                mADSINetwork = False
-                mLDAPAccesible = False
-                mProcessLog += exc.Message & "<br>"
+                adsiConfig.ADSINetwork = False
+                adsiConfig.LDAPAccesible = False
+                adsiConfig.ProcessLog += exc.Message & "<br>"
                 LogException(exc)
-                ' Nothing to do if we could not access Global Catalog, so return
-                'Return
             End Try
 
             ' Also check if LDAP fully accessible
-            Dim ldap As New DirectoryEntry
             Try
                 If DirectoryEntry.Exists("LDAP://rootDSE") Then
-                    mLDAPAccesible = True
-                    mRefCollection = New CrossReferenceCollection(mUserName, mPassword, mAuthenticationType)
+                    adsiConfig.LDAPAccesible = True
+                    adsiConfig.RefCollection = New CrossReferenceCollection(adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
                 End If
             Catch exc As COMException
-                mLDAPAccesible = False
-                mProcessLog += exc.Message & "<br>"
+                adsiConfig.LDAPAccesible = False
+                adsiConfig.ProcessLog += exc.Message & "<br>"
                 LogException(exc)
             End Try
 
-        End Sub
+            Return adsiConfig
+
+        End Function
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -263,13 +220,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetConfig() As Configuration
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
+        Public Function GetConfig() As ConfigInfo
+            Dim strKey As String = $"{ADSI_CONFIG_CACHE_PREFIX}.{CStr(portalSettings.PortalId)}"
 
-            Dim config As Configuration = CType(DataCache.GetCache(strKey), Configuration)
+            Dim config As ConfigInfo = CType(DataCache.GetCache(strKey), ConfigInfo)
             If config Is Nothing Then
-                config = New Configuration
+                config = getConfigInfo()
                 DataCache.SetCache(strKey, config)
             End If
 
@@ -277,38 +233,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' 
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Shared Sub ResetConfig()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim strKey As String = ADSI_CONFIG_CACHE_PREFIX & "." & CStr(_portalSettings.PortalId)
+        Public Sub ResetConfig()
+            Dim strKey As String = $"{ADSI_CONFIG_CACHE_PREFIX}.{CStr(portalSettings.PortalId)}"
             DataCache.RemoveCache(strKey)
-
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Sub SetSecurity(ByVal Entry As DirectoryEntry)
+        Public Sub SetSecurity(ByVal Entry As DirectoryEntry, config As ConfigInfo)
             Try
-                Entry.AuthenticationType = mAuthenticationType
-                If (mUserName.Length > 0) AndAlso (mPassword.Length > 0) Then
-                    Entry.Username = mUserName
-                    Entry.Password = mPassword
+                Entry.AuthenticationType = config.AuthenticationType
+                If (config.UserName.Length > 0) AndAlso (config.Password.Length > 0) Then
+                    Entry.Username = config.UserName
+                    Entry.Password = config.Password
                 End If
 
             Catch ex As COMException
