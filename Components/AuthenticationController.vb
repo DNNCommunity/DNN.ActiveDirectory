@@ -39,37 +39,32 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Return config.ProviderTypeName
             End Get
         End Property
-        Private ReadOnly portalSettings As PortalSettings
+
+        Private Shadows ReadOnly portalSettings As PortalSettings
         Private config As ConfigInfo
         Private objAuthUserController As IUserController
+        Private objEventLog As Abstractions.Logging.IEventLogger
+        Private Const COOKIE_PERSIST_TIMEOUT_SETTING As String = "PersistentCookieTimeout"
+        Private objEventLogInfo As Abstractions.Logging.ILogInfo
+        Private navigationManager As Abstractions.INavigationManager
+        Private portalController As IPortalController
+        Private adsiProvider As IAuthenticationProvider
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
         Sub New(ByVal configuration As IConfiguration,
                 ByVal portalController As IPortalController,
-                ByVal userController As IUserController)
+                ByVal userController As IUserController,
+                ByVal eventLogger As Abstractions.Logging.IEventLogger,
+                ByVal navigationManager As Abstractions.INavigationManager,
+                ByVal adsiProvider As IAuthenticationProvider)
+            Me.portalController = portalController
             Me.config = configuration.GetConfig()
-            Me.portalSettings = portalController.GetCurrentSettings
+            Me.portalSettings = Me.portalController.GetCurrentSettings
             Me.objAuthUserController = userController
+            Me.objEventLog = eventLogger
+            Me.navigationManager = navigationManager
+            Me.adsiProvider = adsiProvider
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        '''     [mhorton]     12/07/2008  ACD-7488
-        ''' </history>
-        ''' -------------------------------------------------------------------
         Public Sub AuthenticationLogon()
             Dim objReturnUser As UserInfo
             Dim loggedOnUserName As String = HttpContext.Current.Request.ServerVariables(Configuration.LOGON_USER_VARIABLE)
@@ -85,7 +80,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Dim objUser As UserInfo
                 Dim objAuthUser As ADUserInfo
                 objAuthUser = objAuthUserController.GetUser(loggedOnUserName)
-                objUser = DNNUserController.GetUserByName(_portalSettings.PortalId, loggedOnUserName)
+                objUser = DNNUserController.GetUserByName(portalSettings.PortalId, loggedOnUserName)
 
                 objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
 
@@ -97,12 +92,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
                     FormsAuthentication.SetAuthCookie(Convert.ToString(loggedOnUserName), True)
 
-                    SetStatus(_portalSettings.PortalId, AuthenticationStatus.WinLogon)
+                    SetStatus(portalSettings.PortalId, AuthenticationStatus.WinLogon)
 
                     'check if user has supplied custom value for expiration
                     Dim persistentCookieTimeout As Integer
-                    If Not Config.GetSetting("PersistentCookieTimeout") Is Nothing Then
-                        persistentCookieTimeout = Integer.Parse(Config.GetSetting("PersistentCookieTimeout"))
+                    If Not Common.Utilities.Config.GetSetting(COOKIE_PERSIST_TIMEOUT_SETTING) Is Nothing Then
+                        persistentCookieTimeout = Integer.Parse(Common.Utilities.Config.GetSetting(COOKIE_PERSIST_TIMEOUT_SETTING))
                         'only use if non-zero, otherwise leave as asp.net value
                         If persistentCookieTimeout <> 0 Then
                             'locate and update cookie
@@ -116,22 +111,19 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         End If
                     End If
 
-                    Dim objEventLog As New EventLogController
-                    Dim objEventLogInfo As New LogInfo
+                    objEventLogInfo = New LogInfo
                     objEventLogInfo.AddProperty("IP", ipAddress)
-                    objEventLogInfo.LogPortalID = _portalSettings.PortalId
-                    objEventLogInfo.LogPortalName = _portalSettings.PortalName
-                    objEventLogInfo.LogUserID = objReturnUser.UserID
+                    objEventLogInfo.LogPortalId = portalSettings.PortalId
+                    objEventLogInfo.LogPortalName = portalSettings.PortalName
+                    objEventLogInfo.LogUserId = objReturnUser.UserID
                     objEventLogInfo.LogUserName = loggedOnUserName
                     objEventLogInfo.AddProperty("WindowsAuthentication", "True")
                     objEventLogInfo.LogTypeKey = "LOGIN_SUCCESS"
-
                     objEventLog.AddLog(objEventLogInfo)
-
 
                     'Updated to redirect to querrystring passed in prior to authentication
                     Dim querystringparams As String = "logon=" & DateTime.Now.Ticks.ToString()
-                    Dim strUrl As String = NavigateURL(_portalSettings.ActiveTab.TabID, String.Empty, querystringparams)
+                    Dim strUrl As String = navigationManager.NavigateURL(portalSettings.ActiveTab.TabID, String.Empty, querystringparams)
 
                     If Not HttpContext.Current.Request.Cookies("DNNReturnTo") Is Nothing Then
                         querystringparams = HttpContext.Current.Request.Cookies("DNNReturnTo").Value
@@ -144,90 +136,72 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         End If
                     End If
                     'debug logging issue #54 steven west 2/6/2019
-                    If _config.EnableDebugMode Then
-                        Utilities.objEventLog.AddLog("Description", "@AUTHENTICATIONLOGON:Dumping redirect url: URL:" & strUrl, _portalSettings, -1, Log.EventLog.EventLogController.EventLogType.ADMIN_ALERT)
+                    If config.EnableDebugMode Then
+                        objEventLog.AddLog("Description", $"@AUTHENTICATIONLOGON:Dumping redirect url: URL:{strUrl}", portalSettings, -1, Abstractions.Logging.EventLogType.ADMIN_ALERT)
                     End If
                     HttpContext.Current.Response.Redirect(strUrl, True)
                 Else
                     'added error issue #54 steven west 2/6/2019
-                    LogException(New Exception("There was an error trying to create user account: " & loggedOnUserName))
+                    LogException(New Exception($"There was an error trying to create user account: {loggedOnUserName}"))
                 End If
             Else
                 ' Not Windows Authentication
             End If
 
-
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [mhorton]	05/23/2009	Created
-        '''     [mhorton]	03/22/2011	Fixed Item 6365
-        ''' </history>
-        ''' -------------------------------------------------------------------
         Public Function ManualLogon(ByVal userName As String, ByVal strPassword As String,
                                      ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
+
             Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
-            Dim _config As Configuration = Configuration.GetConfig()
-            Dim objUser As UserInfo = Nothing
+            Dim objUser As UserInfo
             Dim objReturnUser As UserInfo = Nothing
 
             If (userName.Length > 0) And (objAuthUser IsNot Nothing) Then
-                If _config.StripDomainName Then
+                If config.StripDomainName Then
                     userName = Utilities.TrimUserDomainName(userName)
                 End If
-                objAuthUser.Username = userName
-                objUser = DNNUserController.GetUserByName(_portalSettings.PortalId, userName)
 
+                objAuthUser.Username = userName
+                objUser = DNNUserController.GetUserByName(portalSettings.PortalId, userName)
                 objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
+
                 If Not (objReturnUser Is Nothing) Then
                     objAuthUser.LastIPAddress = ipAddress
                     UpdateDNNUser(objReturnUser, objAuthUser)
                 End If
+
             End If
 
             Return objReturnUser
 
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [sawest]	02/06/2019	Created for issue #56 long upn names
-        '''
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Function UPNManualLogon(ByVal userName As String, ByVal strPassword As String,
-                                     ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
-            Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
-            Dim _config As Configuration = Configuration.GetConfig()
-            Dim objUser As UserInfo = Nothing
-            Dim objReturnUser As UserInfo = Nothing
+        'Public Function UPNManualLogon(ByVal userName As String, ByVal strPassword As String,
+        '                             ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
 
-            If (userName.Length > 0) And (objAuthUser IsNot Nothing) Then
-                If _config.StripDomainName Then
-                    userName = Utilities.TrimUserDomainName(userName)
-                End If
-                objAuthUser.Username = userName
-                objUser = DNNUserController.GetUserByName(_portalSettings.PortalId, userName)
+        '    Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
+        '    Dim objUser As UserInfo
+        '    Dim objReturnUser As New UserInfo
 
-                objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
-                If Not (objReturnUser Is Nothing) Then
-                    objAuthUser.LastIPAddress = ipAddress
-                    UpdateDNNUser(objReturnUser, objAuthUser)
-                End If
-            End If
+        '    If (userName.Length > 0) And (objAuthUser IsNot Nothing) Then
+        '        If config.StripDomainName Then
+        '            userName = Utilities.TrimUserDomainName(userName)
+        '        End If
 
-            Return objReturnUser
+        '        objAuthUser.Username = userName
+        '        objUser = DNNUserController.GetUserByName(portalSettings.PortalId, userName)
+        '        objReturnUser = AuthenticateUser(objUser, objAuthUser, loginStatus, ipAddress)
 
-        End Function
+        '        If Not (objReturnUser Is Nothing) Then
+        '            objAuthUser.LastIPAddress = ipAddress
+        '            UpdateDNNUser(objReturnUser, objAuthUser)
+        '        End If
+        '    End If
+
+        '    Return objReturnUser
+
+        'End Function
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -242,101 +216,83 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Function AuthenticateUser(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo,
-                                     ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
-            'Dim _config As Configuration = Configuration.GetConfig()
+                                     ByRef loginStatus As UserLoginStatus) As UserInfo
+
             Dim objReturnUser As UserInfo = Nothing
+            Dim userExists As Boolean = objUser IsNot Nothing
+            'Dim objDnnUserInfo As UserInfo
 
-            If Not (objUser Is Nothing) Then
-                'Stop resetting password and stop validating user against DNN. ISSUE #79 - Steven A West 4/27/2021
-                'Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
-                'Dim strPassword As String
-                'If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
-                ' strPassword = RandomizePassword(aspNetUser, objUser, aspNetUser.GetPassword())
-                ' Else
-                '    strPassword = RandomizePassword(aspNetUser, objUser, "")
-                'End If
-
-                If (objUser.IsDeleted = False) Then
-
-                    'ISSUE #79 - Steven A West 4/27/2021
-                    '    objReturnUser =
-                    '   DNNUserController.ValidateUser(_portalSettings.PortalId, objUser.Username, strPassword,
-                    '                                          "Active Directory", _portalSettings.PortalName, ipAddress,
-                    '                                          loginStatus)
-
-                    loginStatus = UserLoginStatus.LOGIN_SUCCESS
-                    objReturnUser = DNNUserController.GetUserByName(_portalSettings.PortalId, objAuthUser.Username)
-
-                    ' Synchronize role membership if it's required in settings
-                    If _config.SynchronizeRole Then
-                        SynchronizeRoles(objReturnUser)
-                    End If
-                Else
-                    'Only create user if Allowed to
-                    'ACD-4259
-                    'Item 7703
-                    If Not _config.AutoCreateUsers = True Then
-                        objUser.IsDeleted = False
-                        objUser.Membership.IsDeleted = False
-                        objUser.Membership.Password = Utilities.GetRandomPassword()
-                        DNNUserController.UpdateUser(_portalSettings.PortalId, objUser)
-                        CreateUser(objUser, loginStatus)
-                        If loginStatus = UserLoginStatus.LOGIN_SUCCESS Then
-                            objReturnUser =
-                                    DNNUserController.GetUserByName(_portalSettings.PortalId, objAuthUser.Username)
-                            If _config.SynchronizeRole Then
-                                SynchronizeRoles(objReturnUser)
-                            End If
-                        End If
-                    End If
-                End If
+            If userExists Then
+                UpdateUser(objUser, loginStatus)
             Else
-                'Only create user if Allowed to
-                'ACD-4259
-                If Not _config.AutoCreateUsers = True Then
-                    'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
-                    objUser = DNNUserController.GetUserByName(objAuthUser.Username)
-                    If objUser Is Nothing Then 'User doesn't exist in any portal
-                        'Item 6365
-                        objAuthUser.Membership.Password = Utilities.GetRandomPassword()
-                        Dim objDnnUserInfo As New UserInfo
-                        objDnnUserInfo.AffiliateID = objAuthUser.AffiliateID
-                        objDnnUserInfo.DisplayName = objAuthUser.DisplayName
-                        objDnnUserInfo.Email = objAuthUser.Email
-                        objDnnUserInfo.FirstName = objAuthUser.FirstName
-                        objDnnUserInfo.IsDeleted = objAuthUser.IsDeleted
-                        objDnnUserInfo.IsSuperUser = objAuthUser.IsSuperUser
-                        objDnnUserInfo.LastIPAddress = ipAddress
-                        objDnnUserInfo.LastName = objAuthUser.LastName
-                        objDnnUserInfo.Membership = objAuthUser.Membership
-                        objDnnUserInfo.PortalID = objAuthUser.PortalID
-                        objDnnUserInfo.Profile = objAuthUser.Profile
-                        'Deprecated in DNN 6.2
-                        'objDnnUserInfo.RefreshRoles = objAuthUser.RefreshRoles
-                        objDnnUserInfo.Roles = objAuthUser.Roles
-                        objDnnUserInfo.Username = objAuthUser.Username
-                        CreateUser(objDnnUserInfo, loginStatus)
-                    Else 'user exists in another portal
-                        'Issue: 36 8/16/18 Steven A West
-                        'If user exists in other portal, password must match to create in different portal
-                        'This will reset all instances of this user's password to the same random password across all portals
-                        objAuthUser.Membership.Password = RandomizeAndNormalizePassword(objUser, objAuthUser)
-                        objAuthUser.UserID = objUser.UserID
-                        CreateUser(CType(objAuthUser, UserInfo), loginStatus)
-                    End If
-                    If loginStatus = UserLoginStatus.LOGIN_SUCCESS Then
-                        objReturnUser =
-                            DNNUserController.GetUserByName(_portalSettings.PortalId, objAuthUser.Username)
-                        'intUserId = objReturnUser.UserID
-                        If _config.SynchronizeRole Then
-                            SynchronizeRoles(objReturnUser)
-                        End If
-                    End If
+                CreateUser(objAuthUser, loginStatus)
+            End If
+
+            If loginStatus = UserLoginStatus.LOGIN_SUCCESS Then
+                objReturnUser = DNNUserController.GetUserByName(portalSettings.PortalId, objAuthUser.Username)
+                If config.SynchronizeRole Then
+                    SynchronizeRoles(objReturnUser)
                 End If
             End If
-            Return objReturnUser
-        End Function
 
+            Return objReturnUser
+
+        End Function
+        Private Sub CreateUser(ByVal objAuthUser As ADUserInfo, ByRef loginstatus As UserLoginStatus)
+
+            Dim objUser As UserInfo
+
+            If Not config.AutoCreateUsers Then  'Only create user if Allowed to
+
+                'User doesn't exist in this portal. Make sure user doesn't exist on any other portal
+                objUser = DNNUserController.GetUserByName(objAuthUser.Username)
+
+                If objUser Is Nothing Then 'User doesn't exist in any portal
+                    objAuthUser.Membership.Password = Utilities.GetRandomPassword()
+                    'objDnnUserInfo = New UserInfo
+                    'objDnnUserInfo.AffiliateID = objAuthUser.AffiliateID
+                    'objDnnUserInfo.DisplayName = objAuthUser.DisplayName
+                    'objDnnUserInfo.Email = objAuthUser.Email
+                    'objDnnUserInfo.FirstName = objAuthUser.FirstName
+                    'objDnnUserInfo.IsDeleted = objAuthUser.IsDeleted
+                    'objDnnUserInfo.IsSuperUser = objAuthUser.IsSuperUser
+                    'objDnnUserInfo.LastIPAddress = ipAddress
+                    'objDnnUserInfo.LastName = objAuthUser.LastName
+                    'objDnnUserInfo.Membership = objAuthUser.Membership
+                    'objDnnUserInfo.PortalID = objAuthUser.PortalID
+                    'objDnnUserInfo.Profile = objAuthUser.Profile
+                    'objDnnUserInfo.Roles = objAuthUser.Roles
+                    'objDnnUserInfo.Username = objAuthUser.Username
+                    'CreateUser(objDnnUserInfo, loginStatus)
+
+                Else 'user exists in another portal
+                    'Issue: 36 8/16/18 Steven A West
+                    'If user exists in other portal, password must match to create in different portal
+                    'This will reset all instances of this user's password to the same random password across all portals
+                    objAuthUser.Membership.Password = RandomizeAndNormalizePassword(objUser, objAuthUser)
+                    objAuthUser.UserID = objUser.UserID
+                    ' CreateUser(CType(objAuthUser, UserInfo), loginStatus)
+                End If
+
+                CreateUser(CType(objAuthUser, UserInfo), loginstatus)
+            End If
+
+        End Sub
+        Private Sub UpdateUser(ByVal objUser As UserInfo, ByRef loginStatus As UserLoginStatus)
+
+            If Not objUser.IsDeleted Then
+                loginStatus = UserLoginStatus.LOGIN_SUCCESS
+            Else
+                If Not config.AutoCreateUsers Then 'Only create user if configured to
+                    objUser.IsDeleted = False
+                    objUser.Membership.IsDeleted = False
+                    objUser.Membership.Password = Utilities.GetRandomPassword()
+                    DNNUserController.UpdateUser(portalSettings.PortalId, objUser)
+                    CreateUser(objUser, loginStatus)
+                End If
+            End If
+
+        End Sub
         ''' -------------------------------------------------------------------
         ''' <summary>
         '''      Updates the DNN profile with information pulled from the Active Directory
@@ -411,15 +367,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             objAuthUserController.UpdateDnnUser(objReturnUser)
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [mhorton]	22/05/2008	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
         Private Sub CreateUser(ByVal objUser As UserInfo, ByRef loginStatus As UserLoginStatus)
             UpdateDisplayName(objUser)
             objUser.Membership.Approved = True
@@ -436,11 +383,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             OnUserCreated(args)
             OnUserCreateCompleted(args)
 
-            'Item 7703
-
             'debug logging issue #54 steven west 2/6/2019
-            If _config.EnableDebugMode Then
-                Utilities.AddEventLog(_portalSettings, "@CREATEUSER:Dumping create status: CreateStatus: " & createStatus.ToString)
+            If config.EnableDebugMode Then
+                objEventLog.AddLog("Description", $"@CREATEUSER:Dumping create status: CreateStatus: {createStatus.ToString}", portalSettings, -1, Abstractions.Logging.EventLogType.ADMIN_ALERT)
             End If
 
             If createStatus = UserCreateStatus.Success Or createStatus = UserCreateStatus.UserAlreadyRegistered Then
@@ -448,6 +393,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Else
                 loginStatus = UserLoginStatus.LOGIN_FAILURE
             End If
+
         End Sub
 
         ''' -----------------------------------------------------------------------------
@@ -462,7 +408,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -----------------------------------------------------------------------------
         Private Function RandomizePassword(ByVal objUser As UserInfo, ByRef strPassword As String) As String
-            'ACD-4158 - Make sure password in the DNN database does not match that of the password in the AD.
 
             Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
             Dim strStoredPassword As String = ""
@@ -473,8 +418,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
                 Dim strRandomPassword As String = Utilities.GetRandomPassword()
                 DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
-                'DNNUserController.ResetPasswordToken(objUser, 2)
-                ' DNNUserController.ChangePasswordByToken(PortalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
                 Return strRandomPassword
             Else
                 Return strStoredPassword
@@ -490,12 +433,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -----------------------------------------------------------------------------
         Private Function RandomizeAndNormalizePassword(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo) As String
-            Dim myPortalController As New DotNetNuke.Entities.Portals.PortalController
-            Dim myPortals As ArrayList = myPortalController.GetPortals
+            Dim myPortals As ArrayList = portalController.GetPortals
             Dim strRandomPassword As String = Utilities.GetRandomPassword()
-            For Each prtl As PortalInfo In myPortals
-                objUser = DNNUserController.GetUserByName(prtl.PortalID, objAuthUser.Username)
-                If Not objUser Is Nothing Then
+            For Each prtl As Abstractions.Portals.IPortalInfo In myPortals
+                objUser = DNNUserController.GetUserByName(prtl.PortalId, objAuthUser.Username)
+                If objUser IsNot Nothing Then
                     DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
                 End If
             Next
@@ -539,12 +481,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Sub AuthenticationLogoff()
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
 
             ' Log User Off from Cookie Authentication System
             FormsAuthentication.SignOut()
-            If GetStatus(_portalSettings.PortalId) = AuthenticationStatus.WinLogon Then
-                SetStatus(_portalSettings.PortalId, AuthenticationStatus.WinLogoff)
+            If GetStatus(portalSettings.PortalId) = AuthenticationStatus.WinLogon Then
+                SetStatus(portalSettings.PortalId, AuthenticationStatus.WinLogoff)
             End If
 
             ' expire cookies
@@ -557,120 +498,71 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             HttpContext.Current.Response.Cookies("portalroles").Expires = DateTime.Now.AddYears(-30)
 
             ' Redirect browser back to portal 
-            If _portalSettings.HomeTabId <> -1 Then
-                HttpContext.Current.Response.Redirect(NavigateURL(_portalSettings.HomeTabId), True)
+            If portalSettings.HomeTabId <> -1 Then
+                HttpContext.Current.Response.Redirect(navigationManager.NavigateURL(portalSettings.HomeTabId), True)
             Else
-                'If (_portalSettings.ActiveTab.IsAdminTab) Then
-                '    HttpContext.Current.Response.Redirect("~/" & glbDefaultPage, True)
-                'Else
-                HttpContext.Current.Response.Redirect(NavigateURL(), True)
-                'End If
+
+                HttpContext.Current.Response.Redirect(navigationManager.NavigateURL(), True)
             End If
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Function ProcessFormAuthentication(ByVal loggedOnUserName As String, ByVal loggedOnPassword As String) _
-            As ADUserInfo
-            Dim config As Configuration = Configuration.GetConfig()
-            Dim objAuthUserController As New UserController
+
+        Public Function ProcessFormAuthentication(ByVal loggedOnUserName As String, ByVal loggedOnPassword As String) As ADUserInfo
+
+            Dim username As String
+            Dim objAuthUser As ADUserInfo
 
             If config.WindowsAuthentication Then
-                Dim userName As String = loggedOnUserName
-
-                'If config.StripDomainName Then
-                '    userName = Utilities.TrimUserDomainName(userName)
-                'End If
-
-                Dim objAuthUser As ADUserInfo = objAuthUserController.GetUser(userName, loggedOnPassword)
+                username = loggedOnUserName
+                objAuthUser = objAuthUserController.GetUser(username, loggedOnPassword)
                 Return objAuthUser
             End If
+
             Return Nothing
 
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Function GetDnnUser(ByVal portalId As Integer, ByVal loggedOnUserName As String) As UserInfo
-            Dim config As Configuration = Configuration.GetConfig()
-            Dim objUser As UserInfo
 
-            Dim userName As String = loggedOnUserName
+        'Public Function GetDnnUser(ByVal portalId As Integer, ByVal loggedOnUserName As String) As UserInfo
 
-            If config.StripDomainName Then
-                userName = Utilities.TrimUserDomainName(userName)
-            End If
+        '    Dim objUser As UserInfo
+        '    Dim userName As String = loggedOnUserName
 
-            'TODO: Check the new concept of 3.0 for user in multi portal
-            ' check if this user exists in database for any portal
-            objUser = DNNUserController.GetUserByName(Null.NullInteger, userName)
-            If Not objUser Is Nothing Then
-                ' Check if user exists in this portal
-                If DNNUserController.GetUserByName(portalId, userName) Is Nothing Then
-                    ' The user does not exist in this portal - add them
-                    objUser.PortalID = portalId
-                    DNNUserController.CreateUser(objUser)
-                End If
-                Return objUser
-            Else
-                ' the user does not exist
-                Return Nothing
-            End If
+        '    If config.StripDomainName Then
+        '        userName = Utilities.TrimUserDomainName(userName)
+        '    End If
 
-        End Function
+        '    objUser = DNNUserController.GetUserByName(Null.NullInteger, userName)
+        '    If Not objUser Is Nothing Then
+        '        ' Check if user exists in this portal
+        '        If DNNUserController.GetUserByName(portalId, userName) Is Nothing Then
+        '            ' The user does not exist in this portal - add them
+        '            objUser.PortalID = portalId
+        '            DNNUserController.CreateUser(objUser)
+        '        End If
+        '        Return objUser
+        '    Else
+        '        ' the user does not exist
+        '        Return Nothing
+        '    End If
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
+        'End Function
+
+
         Public Function AuthenticationTypes() As Array
-            Return AuthenticationProvider.Instance(_mProviderTypeName).GetAuthenticationTypes
+            Return adsiProvider.GetAuthenticationTypes
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
+
         Public Function NetworkStatus() As String
-            Return AuthenticationProvider.Instance(_mProviderTypeName).GetNetworkStatus()
+            Return adsiProvider.GetNetworkStatus()
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
+        Private Shared Function GetAuthCookieStr(ByVal portalID As Integer) As String
+            Return $"{Configuration.AUTHENTICATION_STATUS_KEY}.{portalID.ToString}"
+        End Function
         Public Shared Function GetStatus(ByVal portalId As Integer) As AuthenticationStatus
-            'Dim _portalSettings As PortalSettings = PortalController.GetCurrentPortalSettings
-            Dim authCookies As String = Configuration.AUTHENTICATION_STATUS_KEY & "." & portalId.ToString
+            Dim authCookies As String = GetAuthCookieStr(portalId)
             Try
                 If Not HttpContext.Current.Request.Cookies(authCookies) Is Nothing Then
                     ' get Authentication from cookie
@@ -699,7 +591,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Shared Sub SetStatus(ByVal portalId As Integer, ByVal status As AuthenticationStatus)
-            Dim authCookies As String = Configuration.AUTHENTICATION_STATUS_KEY & "." & portalId.ToString
+            Dim authCookies As String = GetAuthCookieStr(portalId)
             Dim request As HttpRequest = HttpContext.Current.Request
             Dim response As HttpResponse = HttpContext.Current.Response
             Dim nTimeOut As Integer = GetAuthCookieTimeout()
@@ -740,21 +632,21 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   29/05/2011  Fixed code for Item 6735
         ''' </history>
         ''' -------------------------------------------------------------------
-        <Obsolete("procedure obsoleted in 5.0.3 - user SynchronizeRoles(ByVal objUser As UserInfo) instead")>
-        Public Sub SynchronizeRoles(ByVal loggedOnUserName As String, ByVal intUserId As Integer)
-            Dim objAuthUserController As New UserController
-            Dim objAuthUser As ADUserInfo
+        '<Obsolete("procedure obsoleted in 5.0.3 - user SynchronizeRoles(ByVal objUser As UserInfo) instead")>
+        'Public Sub SynchronizeRoles(ByVal loggedOnUserName As String, ByVal intUserId As Integer)
+        '    Dim objAuthUserController As New UserController
+        '    Dim objAuthUser As ADUserInfo
 
-            objAuthUser = objAuthUserController.GetUser(loggedOnUserName)
+        '    objAuthUser = objAuthUserController.GetUser(loggedOnUserName)
 
-            ' user object might be in simple version in none active directory network
-            If objAuthUser.IsNotSimplyUser Then
-                objAuthUser.UserID = intUserId
-                UserController.AddUserRoles(_portalSettings.PortalId, objAuthUser)
-                'User exists updating user profile
-                objAuthUserController.UpdateDnnUser(objAuthUser)
-            End If
-        End Sub
+        '    ' user object might be in simple version in none active directory network
+        '    If objAuthUser.IsNotSimplyUser Then
+        '        objAuthUser.UserID = intUserId
+        '        UserController.AddUserRoles(portalSettings.PortalId, objAuthUser)
+        '        'User exists updating user profile
+        '        objAuthUserController.UpdateDnnUser(objAuthUser)
+        '    End If
+        'End Sub
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -771,7 +663,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Sub SynchronizeRoles(ByVal objUser As UserInfo)
-            Dim objAuthUserController As New UserController
             Dim objAuthUser As ADUserInfo
 
             objAuthUser = objAuthUserController.GetUser(objUser.Username)
@@ -779,9 +670,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             ' user object might be in simple version in none active directory network
             If objAuthUser.IsNotSimplyUser Then
                 objAuthUser.UserID = objUser.UserID
-                UserController.AddUserRoles(_portalSettings.PortalId, objAuthUser)
-                ''User exists updating user profile
-                'objAuthUserController.UpdateDNNUser(objUser)
+                UserController.AddUserRoles(portalSettings.PortalId, objAuthUser)
             End If
         End Sub
 
@@ -798,8 +687,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Private Sub UpdateDisplayName(ByVal objDnnUser As UserInfo)
             'Update DisplayName to conform to Format
-            Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
-            Dim setting As Object = GetSetting(_portalSettings.PortalId, "Security_DisplayNameFormat")
+            Dim setting As Object = GetSetting(portalSettings.PortalId, "Security_DisplayNameFormat")
             If (Not setting Is Nothing) AndAlso (Not String.IsNullOrEmpty(Convert.ToString(setting))) Then
                 objDnnUser.UpdateDisplayName(Convert.ToString(setting))
             End If
@@ -820,7 +708,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Shared Function GetAuthCookieTimeout() As Integer
 
             'First check that the script module is installed
-            Dim configDoc As XmlDocument = Config.Load()
+            Dim appStatusInfo As Abstractions.Application.IApplicationStatusInfo = New Application.ApplicationStatusInfo(New Application.Application())
+
+            Dim configDoc As XmlDocument = Common.Utilities.Config.Load(appStatusInfo)
             Dim formsNav As XPathNavigator = configDoc.CreateNavigator.SelectSingleNode("configuration/system.web/authentication/forms")
 
             If formsNav Is Nothing Then
