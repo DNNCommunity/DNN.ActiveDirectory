@@ -499,10 +499,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetRandomPassword() As String
-            Dim rd As New Random
-            Return Convert.ToString(rd.Next)
-        End Function
+        'Public Shared Function GetRandomPassword() As String
+        '    Dim rd As New Random
+        '    Return Convert.ToString(rd.Next)
+        'End Function
 
         ' See http://www.aspalliance.com/bbilbro/viewarticle.aspx?paged_article_id=4
         Public Shared Function ReplaceCaseInsensitive(ByVal text As String, ByVal oldValue As String,

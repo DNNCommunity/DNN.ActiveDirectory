@@ -87,7 +87,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 .Email = strEmail
                 .Membership.Approved = True
                 .Membership.LastLoginDate = Date.Now
-                .Membership.Password = Utilities.GetRandomPassword()
+                .Membership.Password = Users.UserController.GeneratePassword()
                 .AuthenticationExists = False
             End With
 
@@ -347,7 +347,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                             .PortalID = portalSettings.PortalId
                             .IsNotSimplyUser = True
                             .Username = LoggedOnUserName
-                            .Membership.Password = Utilities.GetRandomPassword()
+                            .Membership.Password = Users.UserController.GeneratePassword
                         End With
 
                         FillUserInfo(entry, objAuthUser)

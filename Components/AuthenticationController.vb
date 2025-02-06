@@ -249,7 +249,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 objUser = DNNUserController.GetUserByName(objAuthUser.Username)
 
                 If objUser Is Nothing Then 'User doesn't exist in any portal
-                    objAuthUser.Membership.Password = Utilities.GetRandomPassword()
+                    objAuthUser.Membership.Password = DNNUserController.GeneratePassword()
                     'objDnnUserInfo = New UserInfo
                     'objDnnUserInfo.AffiliateID = objAuthUser.AffiliateID
                     'objDnnUserInfo.DisplayName = objAuthUser.DisplayName
@@ -287,7 +287,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 If Not config.AutoCreateUsers Then 'Only create user if configured to
                     objUser.IsDeleted = False
                     objUser.Membership.IsDeleted = False
-                    objUser.Membership.Password = Utilities.GetRandomPassword()
+                    objUser.Membership.Password = DNNUserController.GeneratePassword()
                     DNNUserController.UpdateUser(portalSettings.PortalId, objUser)
                     CreateUser(objUser, loginStatus)
                 End If
@@ -416,7 +416,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             End If
 
             If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
-                Dim strRandomPassword As String = Utilities.GetRandomPassword()
+                Dim strRandomPassword As String = DNNUserController.GeneratePassword()
                 DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
                 Return strRandomPassword
             Else
@@ -434,7 +434,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -----------------------------------------------------------------------------
         Private Function RandomizeAndNormalizePassword(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo) As String
             Dim myPortals As ArrayList = portalController.GetPortals
-            Dim strRandomPassword As String = Utilities.GetRandomPassword()
+            Dim strRandomPassword As String = DNNUserController.GeneratePassword()
+            'Dim strRandomPassword As String = Utilities.GetRandomPassword() 'switched to DNN generate password so it follows any complexity rules issue #75
             For Each prtl As Abstractions.Portals.IPortalInfo In myPortals
                 objUser = DNNUserController.GetUserByName(prtl.PortalId, objAuthUser.Username)
                 If objUser IsNot Nothing Then
@@ -462,7 +463,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             End If
 
             If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
-                Dim strRandomPassword As String = Utilities.GetRandomPassword()
+                Dim strRandomPassword As String = DNNUserController.GeneratePassword()
                 DNNUserController.ResetPasswordToken(objUser, 2)
                 DNNUserController.ChangePasswordByToken(portalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
                 Return strRandomPassword
