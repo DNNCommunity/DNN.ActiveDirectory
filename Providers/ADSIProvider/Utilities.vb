@@ -494,15 +494,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' 
         ''' </summary>
         ''' <remarks>
+        ''' Removing this method in later versions.
         ''' </remarks>
         ''' <history>
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        'Public Shared Function GetRandomPassword() As String
-        '    Dim rd As New Random
-        '    Return Convert.ToString(rd.Next)
-        'End Function
+        <Obsolete("Use DNNs GeneratePassword method from UserController instead. Will be removed in later versions.")>
+        Public Shared Function GetRandomPassword() As String
+            Dim rd As New Random
+            Return Convert.ToString(rd.Next)
+        End Function
 
         ' See http://www.aspalliance.com/bbilbro/viewarticle.aspx?paged_article_id=4
         Public Shared Function ReplaceCaseInsensitive(ByVal text As String, ByVal oldValue As String,
