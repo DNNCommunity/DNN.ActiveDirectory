@@ -62,19 +62,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotNetNuke">
-      <HintPath>..\..\..\..\bin\DotNetNuke.dll</HintPath>
+      <HintPath>..\..\..\bin\DotNetNuke.dll</HintPath>
     </Reference>
     <Reference Include="DotNetNuke.Abstractions">
-      <HintPath>..\..\..\..\bin\DotNetNuke.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\bin\DotNetNuke.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="DotNetNuke.DependencyInjection">
-      <HintPath>..\..\..\..\bin\DotNetNuke.DependencyInjection.dll</HintPath>
+      <HintPath>..\..\..\bin\DotNetNuke.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection">
-      <HintPath>..\..\..\..\bin\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <HintPath>..\..\..\bin\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
-      <HintPath>..\..\..\..\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
