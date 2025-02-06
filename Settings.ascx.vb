@@ -29,9 +29,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings
         Inherits AuthenticationSettingsBase
 
-        Public objAuthenticationController As IAuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
-        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of Configuration)
-        Public portalController As IPortalController = DependencyProvider.GetRequiredService(Of PortalController)
+        Public objAuthenticationController As IAuthenticationController = DependencyProvider.GetRequiredService(Of IAuthenticationController)
+        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of IConfiguration)
+        Public portalController As IPortalController = DependencyProvider.GetRequiredService(Of IPortalController)
 #Region "Private Members"
 
         Private _strError As String = Null.NullString
@@ -154,7 +154,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     config.EmailDomain = txtEmailDomain.Text
                     config.UserName = txtUserName.Text
                     config.Password = txtPassword.Text
-                    config.SynchronizePassword = chkSynchronizeRole.Checked
+                    config.SynchronizeRole = chkSynchronizeRole.Checked
                     config.SynchronizePassword = chkSynchronizePassword.Checked
                     config.StripDomainName = chkStripDomainName.Checked
                     config.ProviderTypeName = cboProviders.SelectedItem.Value
@@ -247,38 +247,38 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     End If
 
                     If Not Page.IsPostBack Then
+                        If config IsNot Nothing Then
+                            chkAuthentication.Checked = config.WindowsAuthentication
+                            chkHidden.Checked = config.HideWindowsLogin
+                            If chkHidden.Checked Then
+                                chkAuthentication.Checked = True
+                            End If
+                            chkSynchronizeRole.Checked = config.SynchronizeRole
+                            chkSynchronizePhoto.Checked = config.Photo
+                            chkSynchronizePassword.Checked = config.SynchronizePassword
+                            chkStripDomainName.Checked = config.StripDomainName
+                            txtRootDomain.Text = config.RootDomain
+                            txtUserName.Text = config.UserName
+                            txtEmailDomain.Text = config.EmailDomain
+                            txtAutoIP.Text = config.AutoIP
+                            'ACD-5585
+                            txtDefaultDomain.Text = config.DefaultDomain
+                            'ACD-4259
+                            chkAutoCreate.Checked = config.AutoCreateUsers
+                            chkAutoLogin.Checked = config.EnableAutoLogin
+                            chkDebugMode.Checked = config.EnableDebugMode
 
-                        chkAuthentication.Checked = config.WindowsAuthentication
-                        chkHidden.Checked = config.HideWindowsLogin
-                        If chkHidden.Checked Then
-                            chkAuthentication.Checked = True
+                            'WorkItems 4766 and 4077
+                            txtBots.Text = config.Bots
+                            If (txtBots.Text = "") Then
+                                txtBots.Text = "gsa-crawler;MS Search 5.0 Robot"
+                            End If
+
+                            Me.cboAuthenticationType.Items.FindByText(config.AuthenticationType).Selected = True
                         End If
-                        chkSynchronizeRole.Checked = config.SynchronizeRole
-                        chkSynchronizePhoto.Checked = config.Photo
-                        chkSynchronizePassword.Checked = config.SynchronizePassword
-                        chkStripDomainName.Checked = config.StripDomainName
-                        txtRootDomain.Text = config.RootDomain
-                        txtUserName.Text = config.UserName
-                        txtEmailDomain.Text = config.EmailDomain
-                        txtAutoIP.Text = config.AutoIP
-                        'ACD-5585
-                        txtDefaultDomain.Text = config.DefaultDomain
-                        'ACD-4259
-                        chkAutoCreate.Checked = config.AutoCreateUsers
-                        chkAutoLogin.Checked = config.EnableAutoLogin
-                        chkDebugMode.Checked = config.EnableDebugMode
-
-                        'WorkItems 4766 and 4077
-                        txtBots.Text = config.Bots
-                        If (txtBots.Text = "") Then
-                            txtBots.Text = "gsa-crawler;MS Search 5.0 Robot"
-                        End If
-
-                        Me.cboAuthenticationType.Items.FindByText(config.AuthenticationType).Selected = True
-
                     End If
 
-                    valConfirm.ErrorMessage = Localization.GetString("PasswordMatchFailure", Me.LocalResourceFile)
+                        valConfirm.ErrorMessage = Localization.GetString("PasswordMatchFailure", Me.LocalResourceFile)
 
                     If String.IsNullOrEmpty(_strError) Then
                         tblSettings.Visible = True

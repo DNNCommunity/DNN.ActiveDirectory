@@ -161,49 +161,53 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Sub
         Public Function getConfigInfo() As ConfigInfo Implements IConfiguration.getConfigInfo
-            Dim adsiConfig As New ConfigInfo
+
+            Dim adsiConfig As ConfigInfo = Nothing
             Dim gc As New DirectoryEntry
             Dim ldap As New DirectoryEntry
 
-            Try
-                'Temporary fix this setting as TRUE for design, to be removed when release
-                adsiConfig.PortalId = config.PortalId
-                adsiConfig.ConfigDomainPath = config.RootDomain
-                adsiConfig.DefaultEmailDomain = config.EmailDomain
-                adsiConfig.UserName = config.UserName
-                adsiConfig.Password = config.Password
-                adsiConfig.AuthenticationType = CType([Enum].Parse(GetType(AuthenticationTypes), config.AuthenticationType), AuthenticationTypes)
-                adsiConfig.RootDomainPath = Utilities.ValidateDomainPath(adsiConfig.ConfigDomainPath)
-                adsiConfig.RootDomainPath = Right(adsiConfig.RootDomainPath, adsiConfig.RootDomainPath.Length - adsiConfig.RootDomainPath.IndexOf("DC="))
+            If config IsNot Nothing Then
+                adsiConfig = New ConfigInfo
+                Try
+                    'Temporary fix this setting as TRUE for design, to be removed when release
+                    adsiConfig.PortalId = config.PortalId
+                    adsiConfig.ConfigDomainPath = config.RootDomain
+                    adsiConfig.DefaultEmailDomain = config.EmailDomain
+                    adsiConfig.UserName = config.UserName
+                    adsiConfig.Password = config.Password
+                    adsiConfig.AuthenticationType = CType([Enum].Parse(GetType(AuthenticationTypes), config.AuthenticationType), AuthenticationTypes)
+                    adsiConfig.RootDomainPath = Utilities.ValidateDomainPath(adsiConfig.ConfigDomainPath)
+                    adsiConfig.RootDomainPath = Right(adsiConfig.RootDomainPath, adsiConfig.RootDomainPath.Length - adsiConfig.RootDomainPath.IndexOf("DC="))
 
-            Catch exc As Exception
-                adsiConfig.ProcessLog += exc.Message & "<br>"
-            End Try
+                Catch exc As Exception
+                    adsiConfig.ProcessLog += exc.Message & "<br>"
+                End Try
 
-            Try
-                If DirectoryEntry.Exists("GC://rootDSE") Then
-                    Dim rootGC As New DirectoryEntry("GC://rootDSE")
-                    adsiConfig.ConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
-                    adsiConfig.ADSINetwork = True
-                End If
-            Catch exc As COMException
-                adsiConfig.ADSINetwork = False
-                adsiConfig.LDAPAccesible = False
-                adsiConfig.ProcessLog += exc.Message & "<br>"
-                LogException(exc)
-            End Try
+                Try
+                    If DirectoryEntry.Exists("GC://rootDSE") Then
+                        Dim rootGC As New DirectoryEntry("GC://rootDSE")
+                        adsiConfig.ConfigurationPath = rootGC.Properties(ADSI_CONFIGURATIONNAMIMGCONTEXT).Value.ToString
+                        adsiConfig.ADSINetwork = True
+                    End If
+                Catch exc As COMException
+                    adsiConfig.ADSINetwork = False
+                    adsiConfig.LDAPAccesible = False
+                    adsiConfig.ProcessLog += exc.Message & "<br>"
+                    LogException(exc)
+                End Try
 
-            ' Also check if LDAP fully accessible
-            Try
-                If DirectoryEntry.Exists("LDAP://rootDSE") Then
-                    adsiConfig.LDAPAccesible = True
-                    adsiConfig.RefCollection = New CrossReferenceCollection(adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
-                End If
-            Catch exc As COMException
-                adsiConfig.LDAPAccesible = False
-                adsiConfig.ProcessLog += exc.Message & "<br>"
-                LogException(exc)
-            End Try
+                ' Also check if LDAP fully accessible
+                Try
+                    If DirectoryEntry.Exists("LDAP://rootDSE") Then
+                        adsiConfig.LDAPAccesible = True
+                        adsiConfig.RefCollection = New CrossReferenceCollection(adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
+                    End If
+                Catch exc As COMException
+                    adsiConfig.LDAPAccesible = False
+                    adsiConfig.ProcessLog += exc.Message & "<br>"
+                    LogException(exc)
+                End Try
+            End If
 
             Return adsiConfig
 

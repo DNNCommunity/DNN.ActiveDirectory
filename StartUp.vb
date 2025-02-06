@@ -6,13 +6,13 @@ Public Class Startup
     Implements IDnnStartup
 
     Public Sub ConfigureServices(services As IServiceCollection) Implements IDnnStartup.ConfigureServices
-        services.AddScoped(Of Configuration)()
-        services.AddScoped(Of ADSI.Configuration)()
-        services.AddScoped(Of ADSI.Utilities)()
-        services.AddScoped(Of Authentication.AuthenticationController)()
-        services.AddScoped(Of UserController)()
-        services.AddScoped(Of GroupController)()
-        services.AddScoped(Of ADSI.ADSIProvider)()
+        services.AddScoped(Of IConfiguration, Configuration)()
+        services.AddScoped(Of ADSI.IConfiguration, ADSI.Configuration)()
+        services.AddScoped(Of ADSI.IUtilities, ADSI.Utilities)()
+        services.AddScoped(Of Authentication.ActiveDirectory.IAuthenticationController, Authentication.ActiveDirectory.AuthenticationController)()
+        services.AddScoped(Of IUserController, UserController)()
+        services.AddScoped(Of IGroupController, GroupController)()
+        services.AddScoped(Of IAuthenticationProvider, ADSI.ADSIProvider)()
     End Sub
 
 End Class

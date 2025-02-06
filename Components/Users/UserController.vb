@@ -27,8 +27,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class UserController
         Implements IUserController
 
-#Region "Private Shared Members"
-
         Private Shared dataProvider As DataProvider = DataProvider.Instance()
         Private Shared mRoleName As String = ""
         Private config As ConfigInfo
@@ -38,19 +36,17 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Private groupController As IGroupController
         Private portalSettings As PortalSettings
         Private utilities As IUtilities
-#End Region
 
         Sub New(ByVal configuration As IConfiguration,
                 ByVal authenticationProvider As IAuthenticationProvider,
                 ByVal portalController As IPortalController,
-                ByVal roleController As IRoleController,
                 ByVal groupController As IGroupController,
                 ByVal utilities As IUtilities)
 
             Me.config = configuration.GetConfig()
             Me.authenticationProvider = authenticationProvider
             Me.portalController = portalController
-            Me.roleController = roleController
+            Me.roleController = New RoleController 'missing resolution in DNN platform as of 10.0.0
             Me.groupController = groupController
             Me.portalSettings = Me.portalController.GetCurrentSettings
             Me.utilities = utilities

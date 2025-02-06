@@ -132,77 +132,76 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         End Function
         Private Function getConfigInfo() As ConfigInfo
 
-            Dim config = New ConfigInfo
-            Dim CambrianSettings As Dictionary(Of String, String)
+            Dim config As ConfigInfo = Nothing
+            'Dim CambrianSettings As Dictionary(Of String, String)
 
             Try
-                If providerConfiguration.DefaultProvider Is Nothing Then
-                    ' No provider specified, so disable authentication feature
-                    Return Nothing
-                Else
-                    CambrianSettings = portalController.GetPortalSettings(portalSettings.PortalId)
-                    With config
-                        .PortalId = portalSettings.PortalId
-                        If CambrianSettings.ContainsKey(AD_WINDOWSAUTHENTICATION) Then
-                            .WindowsAuthentication = CType(Null.GetNull(CambrianSettings(AD_WINDOWSAUTHENTICATION), .WindowsAuthentication), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_HIDEWINDOWSLOGIN) Then
-                            .HideWindowsLogin = CType(Null.GetNull(CambrianSettings(AD_HIDEWINDOWSLOGIN), .HideWindowsLogin), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_SYNCHRONIZEROLE) Then
-                            .SynchronizeRole = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEROLE), .SynchronizeRole), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_SYNCHRONIZEPASSWORD) Then
-                            .SynchronizePassword = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEPASSWORD), .SynchronizePassword), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_STRIPDOMAINNAME) Then
-                            .StripDomainName = CType(Null.GetNull(CambrianSettings(AD_STRIPDOMAINNAME), .StripDomainName), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_ROOTDOMAIN) Then
-                            .RootDomain = CType(Null.GetNull(CambrianSettings(AD_ROOTDOMAIN), .RootDomain), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_EMAILDOMAIN) Then
-                            .EmailDomain = CType(Null.GetNull(CambrianSettings(AD_EMAILDOMAIN), getDefaultEmailDomain()), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_USERNAME) Then
-                            .UserName = CType(Null.GetNull(CambrianSettings(AD_USERNAME), .UserName), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_PROVIDERTYPENAME) Then
-                            .ProviderTypeName = CType(Null.GetNull(CambrianSettings(AD_PROVIDERTYPENAME), ConfigInfo.DefaultProviderTypeName), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_AUTHENTICATIONTYPE) Then
-                            .AuthenticationType = CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONTYPE), ConfigInfo.DefaultAuthenticationType), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_AUTHENTICATIONPASSWORD) Then
-                            .Password = objSecurity.Decrypt(AUTHENTICATION_KEY, CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONPASSWORD), .Password.ToString), String))
-                        End If
-                        If CambrianSettings.ContainsKey(AD_SUBNET) Then
-                            .AutoIP = CType(Null.GetNull(CambrianSettings(AD_SUBNET), .AutoIP), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_AUTOCREATEUSERS) Then
-                            .AutoCreateUsers = CType(Null.GetNull(CambrianSettings(AD_AUTOCREATEUSERS), .AutoCreateUsers), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_DEFAULTDOMAIN) Then
-                            .DefaultDomain = CType(Null.GetNull(CambrianSettings(AD_DEFAULTDOMAIN), .DefaultDomain), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_SEARCHBOTS) Then
-                            .Bots = CType(Null.GetNull(CambrianSettings(AD_SEARCHBOTS), .Bots), String)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_SYNCPHOTO) Then
-                            .Photo = CType(Null.GetNull(CambrianSettings(AD_SYNCPHOTO), .Photo), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_ENABLEAUTOLOGIN) Then
-                            .EnableAutoLogin = CType(Null.GetNull(CambrianSettings(AD_ENABLEAUTOLOGIN), .EnableAutoLogin), Boolean)
-                        End If
-                        If CambrianSettings.ContainsKey(AD_ENABLEDEBUGMODE) Then
-                            .EnableDebugMode = CType(Null.GetNull(CambrianSettings(AD_ENABLEDEBUGMODE), .EnableDebugMode), Boolean)
-                        End If
-                    End With
+                If providerConfiguration.DefaultProvider IsNot Nothing Then ' No provider specified, so disable authentication feature
+                    'CambrianSettings = portalController.GetPortalSettings(portalSettings.PortalId)
+                    config = New ConfigInfo(portalController.GetPortalSettings(portalSettings.PortalId), portalSettings.PortalId)
+                    'With config
+                    '    .PortalId = portalSettings.PortalId
+                    '    If CambrianSettings.ContainsKey(AD_WINDOWSAUTHENTICATION) Then
+                    '        .WindowsAuthentication = CType(Null.GetNull(CambrianSettings(AD_WINDOWSAUTHENTICATION), .WindowsAuthentication), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_HIDEWINDOWSLOGIN) Then
+                    '        .HideWindowsLogin = CType(Null.GetNull(CambrianSettings(AD_HIDEWINDOWSLOGIN), .HideWindowsLogin), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_SYNCHRONIZEROLE) Then
+                    '        .SynchronizeRole = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEROLE), .SynchronizeRole), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_SYNCHRONIZEPASSWORD) Then
+                    '        .SynchronizePassword = CType(Null.GetNull(CambrianSettings(AD_SYNCHRONIZEPASSWORD), .SynchronizePassword), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_STRIPDOMAINNAME) Then
+                    '        .StripDomainName = CType(Null.GetNull(CambrianSettings(AD_STRIPDOMAINNAME), .StripDomainName), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_ROOTDOMAIN) Then
+                    '        .RootDomain = CType(Null.GetNull(CambrianSettings(AD_ROOTDOMAIN), .RootDomain), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_EMAILDOMAIN) Then
+                    '        .EmailDomain = CType(Null.GetNull(CambrianSettings(AD_EMAILDOMAIN), getDefaultEmailDomain()), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_USERNAME) Then
+                    '        .UserName = CType(Null.GetNull(CambrianSettings(AD_USERNAME), .UserName), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_PROVIDERTYPENAME) Then
+                    '        .ProviderTypeName = CType(Null.GetNull(CambrianSettings(AD_PROVIDERTYPENAME), ConfigInfo.DefaultProviderTypeName), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_AUTHENTICATIONTYPE) Then
+                    '        .AuthenticationType = CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONTYPE), ConfigInfo.DefaultAuthenticationType), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_AUTHENTICATIONPASSWORD) Then
+                    '        .Password = objSecurity.Decrypt(AUTHENTICATION_KEY, CType(Null.GetNull(CambrianSettings(AD_AUTHENTICATIONPASSWORD), .Password.ToString), String))
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_SUBNET) Then
+                    '        .AutoIP = CType(Null.GetNull(CambrianSettings(AD_SUBNET), .AutoIP), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_AUTOCREATEUSERS) Then
+                    '        .AutoCreateUsers = CType(Null.GetNull(CambrianSettings(AD_AUTOCREATEUSERS), .AutoCreateUsers), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_DEFAULTDOMAIN) Then
+                    '        .DefaultDomain = CType(Null.GetNull(CambrianSettings(AD_DEFAULTDOMAIN), .DefaultDomain), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_SEARCHBOTS) Then
+                    '        .Bots = CType(Null.GetNull(CambrianSettings(AD_SEARCHBOTS), .Bots), String)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_SYNCPHOTO) Then
+                    '        .Photo = CType(Null.GetNull(CambrianSettings(AD_SYNCPHOTO), .Photo), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_ENABLEAUTOLOGIN) Then
+                    '        .EnableAutoLogin = CType(Null.GetNull(CambrianSettings(AD_ENABLEAUTOLOGIN), .EnableAutoLogin), Boolean)
+                    '    End If
+                    '    If CambrianSettings.ContainsKey(AD_ENABLEDEBUGMODE) Then
+                    '        .EnableDebugMode = CType(Null.GetNull(CambrianSettings(AD_ENABLEDEBUGMODE), .EnableDebugMode), Boolean)
+                    '    End If
+                    'End With
                 End If
             Catch ex As Exception
                 'Log the exception
                 objEventLog.AddLog("Description", "There was a problem loading the settings for the AD Authentication Provider.  Error: " & ex.Message, portalSettings, -1, Abstractions.Logging.EventLogType.ADMIN_ALERT)
             End Try
+            Return config
         End Function
         Private Function getDefaultEmailDomain() As String
 
@@ -247,27 +246,27 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' -------------------------------------------------------------------
         Public Sub UpdateConfig(config As ConfigInfo) Implements IConfiguration.UpdateConfig
             With config
-                portalController.UpdatePortalSetting(.PortalId, AD_WINDOWSAUTHENTICATION, .WindowsAuthentication.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_HIDEWINDOWSLOGIN, .HideWindowsLogin.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_SYNCHRONIZEROLE, .SynchronizeRole.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_SYNCHRONIZEPASSWORD, .SynchronizePassword.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_STRIPDOMAINNAME, .StripDomainName.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_ROOTDOMAIN, If(String.IsNullOrEmpty(.RootDomain), "", .RootDomain), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_EMAILDOMAIN, If(String.IsNullOrEmpty(.EmailDomain), "", .EmailDomain), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_USERNAME, If(String.IsNullOrEmpty(.UserName), "", .UserName), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_PROVIDERTYPENAME, If(String.IsNullOrEmpty(.ProviderTypeName), "", .ProviderTypeName), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_AUTHENTICATIONTYPE, If(String.IsNullOrEmpty(.AuthenticationType), "", .AuthenticationType), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_SUBNET, If(String.IsNullOrEmpty(.AutoIP), "127.0.0.1", .AutoIP), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_DEFAULTDOMAIN, If(String.IsNullOrEmpty(.DefaultDomain), "", .DefaultDomain), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_AUTOCREATEUSERS, .AutoCreateUsers.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_SEARCHBOTS, If(String.IsNullOrEmpty(.Bots), "", .Bots), True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_SYNCPHOTO, .Photo.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_ENABLEAUTOLOGIN, .EnableAutoLogin.ToString, True, portalSettings.CultureCode, True)
-                portalController.UpdatePortalSetting(.PortalId, AD_ENABLEDEBUGMODE, .EnableDebugMode.ToString, True, portalSettings.CultureCode, True)
+                portalController.UpdatePortalSetting(.PortalId, AD_WINDOWSAUTHENTICATION, .WindowsAuthentication.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_HIDEWINDOWSLOGIN, .HideWindowsLogin.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_SYNCHRONIZEROLE, .SynchronizeRole.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_SYNCHRONIZEPASSWORD, .SynchronizePassword.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_STRIPDOMAINNAME, .StripDomainName.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_ROOTDOMAIN, If(String.IsNullOrEmpty(.RootDomain), "", .RootDomain), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_EMAILDOMAIN, If(String.IsNullOrEmpty(.EmailDomain), "", .EmailDomain), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_USERNAME, If(String.IsNullOrEmpty(.UserName), "", .UserName), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_PROVIDERTYPENAME, If(String.IsNullOrEmpty(.ProviderTypeName), "", .ProviderTypeName), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_AUTHENTICATIONTYPE, If(String.IsNullOrEmpty(.AuthenticationType), "", .AuthenticationType), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_SUBNET, If(String.IsNullOrEmpty(.AutoIP), "127.0.0.1", .AutoIP), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_DEFAULTDOMAIN, If(String.IsNullOrEmpty(.DefaultDomain), "", .DefaultDomain), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_AUTOCREATEUSERS, .AutoCreateUsers.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_SEARCHBOTS, If(String.IsNullOrEmpty(.Bots), "", .Bots), True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_SYNCPHOTO, .Photo.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_ENABLEAUTOLOGIN, .EnableAutoLogin.ToString, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_ENABLEDEBUGMODE, .EnableDebugMode.ToString, True, portalSettings.CultureCode, False)
 
                 'Only update password if it has been changed
                 If .Password.Length > 0 Then
-                    portalController.UpdatePortalSetting(.PortalId, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, .Password)), True, portalSettings.CultureCode, True)
+                    portalController.UpdatePortalSetting(.PortalId, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, .Password)), True, portalSettings.CultureCode, False)
                 End If
             End With
         End Sub

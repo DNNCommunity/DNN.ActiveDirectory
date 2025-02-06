@@ -20,6 +20,7 @@
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class GroupController
+        Implements IGroupController
         Private config As ConfigInfo
         Private authenticationProvider As IAuthenticationProvider
 
@@ -29,11 +30,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Me.authenticationProvider = authenticationProvider
         End Sub
 
-        Public Function GetGroups() As ArrayList
+        Public Function GetGroups() As ArrayList Implements IGroupController.GetGroups
             Return authenticationProvider.GetGroups()
         End Function
 
-        Public Function GetGroups(ByVal arrUserPortalRoles As ArrayList) As ArrayList
+        Public Function GetGroups(ByVal arrUserPortalRoles As ArrayList) As ArrayList Implements IGroupController.GetGroups
             Return authenticationProvider.GetGroups(arrUserPortalRoles)
         End Function
     End Class

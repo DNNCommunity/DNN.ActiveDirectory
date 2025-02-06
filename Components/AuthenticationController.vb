@@ -33,6 +33,7 @@ Imports DNNUserController = DotNetNuke.Entities.Users.UserController
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class AuthenticationController
         Inherits UserUserControlBase
+        Implements IAuthenticationController
 
         Private ReadOnly Property mProviderTypeName As String
             Get
@@ -67,7 +68,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Me.userController = userController
         End Sub
 
-        Public Sub AuthenticationLogon()
+        Public Sub AuthenticationLogon() Implements IAuthenticationController.AuthenticationLogon
             Dim objReturnUser As UserInfo
             Dim loggedOnUserName As String = HttpContext.Current.Request.ServerVariables(Configuration.LOGON_USER_VARIABLE)
             Dim loginStatus As UserLoginStatus = UserLoginStatus.LOGIN_FAILURE
@@ -153,8 +154,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         End Sub
 
         Public Function ManualLogon(ByVal userName As String, ByVal strPassword As String,
-                                     ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo
-
+                                     ByRef loginStatus As UserLoginStatus, ByVal ipAddress As String) As UserInfo Implements IAuthenticationController.ManualLogon
             Dim objAuthUser As ADUserInfo = ProcessFormAuthentication(userName, strPassword)
             Dim objUser As UserInfo
             Dim objReturnUser As UserInfo = Nothing
@@ -218,8 +218,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
         Public Function AuthenticateUser(ByVal objUser As UserInfo, ByVal objAuthUser As ADUserInfo,
-                                     ByRef loginStatus As UserLoginStatus) As UserInfo
-
+                                     ByRef loginStatus As UserLoginStatus) As UserInfo Implements IAuthenticationController.AuthenticateUser
             Dim objReturnUser As UserInfo = Nothing
             Dim userExists As Boolean = objUser IsNot Nothing
             'Dim objDnnUserInfo As UserInfo
@@ -465,51 +464,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
                 Dim strRandomPassword As String = Utilities.GetRandomPassword()
                 DNNUserController.ResetPasswordToken(objUser, 2)
-                DNNUserController.ChangePasswordByToken(PortalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
+                DNNUserController.ChangePasswordByToken(portalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
                 Return strRandomPassword
             Else
                 Return strStoredPassword
             End If
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Sub AuthenticationLogoff()
-
-            ' Log User Off from Cookie Authentication System
-            FormsAuthentication.SignOut()
-            If GetStatus(portalSettings.PortalId) = AuthenticationStatus.WinLogon Then
-                SetStatus(portalSettings.PortalId, AuthenticationStatus.WinLogoff)
-            End If
-
-            ' expire cookies
-            HttpContext.Current.Response.Cookies("portalaliasid").Value = Nothing
-            HttpContext.Current.Response.Cookies("portalaliasid").Path = "/"
-            HttpContext.Current.Response.Cookies("portalaliasid").Expires = DateTime.Now.AddYears(-30)
-
-            HttpContext.Current.Response.Cookies("portalroles").Value = Nothing
-            HttpContext.Current.Response.Cookies("portalroles").Path = "/"
-            HttpContext.Current.Response.Cookies("portalroles").Expires = DateTime.Now.AddYears(-30)
-
-            ' Redirect browser back to portal 
-            If portalSettings.HomeTabId <> -1 Then
-                HttpContext.Current.Response.Redirect(navigationManager.NavigateURL(portalSettings.HomeTabId), True)
-            Else
-
-                HttpContext.Current.Response.Redirect(navigationManager.NavigateURL(), True)
-            End If
-        End Sub
 
 
-        Public Function ProcessFormAuthentication(ByVal loggedOnUserName As String, ByVal loggedOnPassword As String) As ADUserInfo
 
+
+        Public Function ProcessFormAuthentication(ByVal loggedOnUserName As String, ByVal loggedOnPassword As String) As ADUserInfo Implements IAuthenticationController.ProcessFormAuthentication
             Dim username As String
             Dim objAuthUser As ADUserInfo
 
@@ -550,12 +516,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         'End Function
 
 
-        Public Function AuthenticationTypes() As Array
+        Public Function AuthenticationTypes() As Array Implements IAuthenticationController.AuthenticationTypes
             Return adsiProvider.GetAuthenticationTypes
         End Function
 
 
-        Public Function NetworkStatus() As String
+        Public Function NetworkStatus() As String Implements IAuthenticationController.NetworkStatus
             Return adsiProvider.GetNetworkStatus()
         End Function
 
@@ -650,7 +616,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   02/17/2012 User's profile was getting blanked when getting updated - Item 7739
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Sub SynchronizeRoles(ByVal objUser As UserInfo)
+        Public Sub SynchronizeRoles(ByVal objUser As UserInfo) Implements IAuthenticationController.SynchronizeRoles
             Dim objAuthUser As ADUserInfo
 
             objAuthUser = objAuthUserController.GetUser(objUser.Username)
@@ -658,7 +624,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             ' user object might be in simple version in none active directory network
             If objAuthUser.IsNotSimplyUser Then
                 objAuthUser.UserID = objUser.UserID
-                UserController.AddUserRoles(portalSettings.PortalId, objAuthUser)
+                userController.AddUserRoles(portalSettings.PortalId, objAuthUser)
             End If
         End Sub
 

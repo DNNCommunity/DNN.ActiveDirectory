@@ -137,10 +137,10 @@
     <Compile Include="Components\Common\ObjectClass.vb" />
     <Compile Include="Components\Config\ConfigInfo.vb" />
     <Compile Include="Components\Config\Configuration.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationController.vb" />
     <Compile Include="Components\Interfaces\IConfiguration.vb" />
     <Compile Include="Components\Groups\GroupController.vb" />
     <Compile Include="Components\Groups\GroupInfo.vb" />
-    <Compile Include="Components\Interfaces\IAuthenticationController.vb" />
     <Compile Include="Components\Interfaces\IAuthenticationObjectBase.vb" />
     <Compile Include="Components\Interfaces\IAuthenticationProvider.vb" />
     <Compile Include="Components\Interfaces\IGroupController.vb" />

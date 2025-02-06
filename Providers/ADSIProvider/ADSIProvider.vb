@@ -265,14 +265,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     End If
                 End If
 #If DEBUG Then
-                For Each key In entry.Properties.PropertyNames
-                    sPropertyValues = ""
-                    For Each value As Object In entry.Properties(key)
-                        sPropertyValues += Convert.ToString(value) + ";"
-                    Next
-                    sPropertyValues = sPropertyValues.Substring(0, sPropertyValues.Length - 1)
-                    Debug.Print(key + "=" + sPropertyValues)
-                Next
+                'For Each key In entry.Properties.PropertyNames
+                '    sPropertyValues = ""
+                '    For Each value As Object In entry.Properties(key)
+                '        sPropertyValues += Convert.ToString(value) + ";"
+                '    Next
+                '    sPropertyValues = sPropertyValues.Substring(0, sPropertyValues.Length - 1)
+                '    Debug.Print(key + "=" + sPropertyValues)
+                'Next
 #End If
                 'Check authenticated
                 If Not entry Is Nothing Then
@@ -323,15 +323,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
                     entry = Utilities.GetUserEntryByName(LoggedOnUserName)
 #If DEBUG Then
-                    Dim key As String
-                    For Each key In entry.Properties.PropertyNames
-                        Dim sPropertyValues As String = ""
-                        For Each value As Object In entry.Properties(key)
-                            sPropertyValues += Convert.ToString(value) + ";"
-                        Next
-                        sPropertyValues = sPropertyValues.Substring(0, sPropertyValues.Length - 1)
-                        Debug.Print(key + "=" + sPropertyValues)
-                    Next
+                    'Dim key As String
+                    'For Each key In entry.Properties.PropertyNames
+                    '    Dim sPropertyValues As String = ""
+                    '    For Each value As Object In entry.Properties(key)
+                    '        sPropertyValues += Convert.ToString(value) + ";"
+                    '    Next
+                    '    sPropertyValues = sPropertyValues.Substring(0, sPropertyValues.Length - 1)
+                    '    Debug.Print(key + "=" + sPropertyValues)
+                    'Next
 #End If
 
                     If Not entry Is Nothing Then
@@ -474,71 +474,73 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             adsiConfiguration.ResetConfig()
             adsiConfig = adsiConfiguration.GetConfig
 
-            sb.Append("<b>[Global Catalog Status]</b>" & "<br>")
-            Try
-                If adsiConfig.ADSINetwork Then
-                    sb.Append("OK<br>")
-                Else
-                    sb.Append("FAIL<br>")
-                End If
-            Catch ex As COMException
-                sb.Append("FAIL<br>")
-                sb.Append(ex.Message & "<br>")
-            End Try
-
-            sb.Append("<b>[Root Domain Status]</b><br>")
-            Try
-                If Not Utilities.GetRootEntry() Is Nothing Then
-                    sb.Append("OK<br>")
-                Else
-                    sb.Append("FAIL<br>")
-                End If
-            Catch ex As COMException
-                sb.Append("FAIL<br>")
-                sb.Append(ex.Message & "<br>")
-            End Try
-
-            sb.Append("<b>[LDAP Status]</b><br>")
-            Try
-                If adsiConfig.LDAPAccesible Then
-                    sb.Append("OK<br>")
-                Else
-                    sb.Append("FAIL<br>")
-                End If
-            Catch ex As COMException
-                sb.Append("FAIL<br>")
-                sb.Append(ex.Message & "<br>")
-            End Try
-
-            sb.Append("<b>[Network Domains Status]</b><br>")
-            Try
-                If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
-                    sb.Append(adsiConfig.RefCollection.Count.ToString)
-                    sb.Append(" Domain(s):<br>")
-                    Dim crossRef As CrossReferenceCollection.CrossReference
-                    For Each crossRef In adsiConfig.RefCollection
-                        sb.Append(crossRef.CanonicalName)
-                        sb.Append(" (")
-                        sb.Append(crossRef.NetBIOSName)
-                        sb.Append(")<br>")
-                    Next
-
-                    If adsiConfig.RefCollection.ProcesssLog.Length > 0 Then
-                        sb.Append(adsiConfig.RefCollection.ProcesssLog & "<br>")
+            If adsiConfig IsNot Nothing Then
+                sb.Append("<b>[Global Catalog Status]</b>" & "<br>")
+                Try
+                    If adsiConfig.ADSINetwork Then
+                        sb.Append("OK<br>")
+                    Else
+                        sb.Append("FAIL<br>")
                     End If
+                Catch ex As COMException
+                    sb.Append("FAIL<br>")
+                    sb.Append(ex.Message & "<br>")
+                End Try
 
-                Else
+                sb.Append("<b>[Root Domain Status]</b><br>")
+                Try
+                    If Not utilities.GetRootEntry() Is Nothing Then
+                        sb.Append("OK<br>")
+                    Else
+                        sb.Append("FAIL<br>")
+                    End If
+                Catch ex As COMException
+                    sb.Append("FAIL<br>")
+                    sb.Append(ex.Message & "<br>")
+                End Try
+
+                sb.Append("<b>[LDAP Status]</b><br>")
+                Try
+                    If adsiConfig.LDAPAccesible Then
+                        sb.Append("OK<br>")
+                    Else
+                        sb.Append("FAIL<br>")
+                    End If
+                Catch ex As COMException
+                    sb.Append("FAIL<br>")
+                    sb.Append(ex.Message & "<br>")
+                End Try
+
+
+                sb.Append("<b>[Network Domains Status]</b><br>")
+                Try
+                    If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
+                        sb.Append(adsiConfig.RefCollection.Count.ToString)
+                        sb.Append(" Domain(s):<br>")
+                        Dim crossRef As CrossReferenceCollection.CrossReference
+                        For Each crossRef In adsiConfig.RefCollection
+                            sb.Append(crossRef.CanonicalName)
+                            sb.Append(" (")
+                            sb.Append(crossRef.NetBIOSName)
+                            sb.Append(")<br>")
+                        Next
+
+                        If adsiConfig.RefCollection.ProcesssLog.Length > 0 Then
+                            sb.Append(adsiConfig.RefCollection.ProcesssLog & "<br>")
+                        End If
+
+                    Else
+                        sb.Append("[LDAP Error Message]<br>")
+                    End If
+                Catch ex As COMException
                     sb.Append("[LDAP Error Message]<br>")
+                    sb.Append(ex.Message & "<br>")
+                End Try
+
+                If Not String.IsNullOrEmpty(adsiConfig.ProcessLog) Then
+                    sb.Append(adsiConfig.ProcessLog & "<br>")
                 End If
-            Catch ex As COMException
-                sb.Append("[LDAP Error Message]<br>")
-                sb.Append(ex.Message & "<br>")
-            End Try
-
-            If adsiConfig.ProcessLog.Length > 0 Then
-                sb.Append(adsiConfig.ProcessLog & "<br>")
             End If
-
             Return sb.ToString
 
         End Function

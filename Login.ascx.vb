@@ -30,9 +30,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Login
         Inherits AuthenticationLoginBase
 
-        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of Configuration)
-        Public utilities As ADSI.IUtilities = DependencyProvider.GetRequiredService(Of ADSI.Utilities)
-        Public objAuthentication As IAuthenticationController = DependencyProvider.GetRequiredService(Of AuthenticationController)
+        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of IConfiguration)
+        Public utilities As ADSI.IUtilities = DependencyProvider.GetRequiredService(Of ADSI.IUtilities)
+        Public objAuthentication As IAuthenticationController = DependencyProvider.GetRequiredService(Of IAuthenticationController)
         Public objEventLog As Abstractions.Logging.IEventLogger = DependencyProvider.GetRequiredService(Of Abstractions.Logging.IEventLogger)
 
 #Region "Private Members"

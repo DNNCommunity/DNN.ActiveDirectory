@@ -16,22 +16,18 @@
 ' THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
-' 
+'
 Imports DotNetNuke.Entities.Users
 Imports DotNetNuke.Security.Membership
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Interface IAuthenticationController
-        Sub AuthenticationLogoff()
         Sub AuthenticationLogon()
-        Sub SynchronizeRoles(loggedOnUserName As String, intUserId As Integer)
         Sub SynchronizeRoles(objUser As UserInfo)
-        Function AuthenticateUser(objUser As UserInfo, objAuthUser As ADUserInfo, ByRef loginStatus As UserLoginStatus, ipAddress As String) As UserInfo
+        Function AuthenticateUser(objUser As UserInfo, objAuthUser As ADUserInfo, ByRef loginStatus As UserLoginStatus) As UserInfo
         Function AuthenticationTypes() As Array
-        Function GetDnnUser(portalId As Integer, loggedOnUserName As String) As UserInfo
         Function ManualLogon(userName As String, strPassword As String, ByRef loginStatus As UserLoginStatus, ipAddress As String) As UserInfo
         Function NetworkStatus() As String
         Function ProcessFormAuthentication(loggedOnUserName As String, loggedOnPassword As String) As ADUserInfo
-        Function UPNManualLogon(userName As String, strPassword As String, ByRef loginStatus As UserLoginStatus, ipAddress As String) As UserInfo
     End Interface
 End Namespace

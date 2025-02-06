@@ -33,9 +33,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         Public Const AD_IMAGE_FOLDER_PATH As String = "Images/AD Photos"
         Private adsiConfig As ConfigInfo
-
+        Private adsiConfiguration As IConfiguration
         Sub New(adsiConfiguration As IConfiguration)
-
+            Me.adsiConfiguration = adsiConfiguration
             Me.adsiConfig = adsiConfiguration.GetConfig
 
         End Sub
@@ -43,7 +43,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Overloads Function GetRootDomain(ByVal ADSIPath As Configuration.Path) As Domain Implements IUtilities.GetRootDomain
             Try
                 Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath, ADSIPath)
-                Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
+                Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType, adsiConfiguration, Me)
                 Return rootDomainEntry
             Catch exc As COMException
                 LogException(exc)
@@ -55,7 +55,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Public Overloads Function GetRootDomain() As Domain Implements IUtilities.GetRootDomain
             Try
                 Dim rootDomainFullPath As String = AddADSIPath(adsiConfig.RootDomainPath)
-                Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
+                Dim rootDomainEntry As Domain = Domain.GetDomain(rootDomainFullPath, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType, adsiConfiguration, Me)
                 Return rootDomainEntry
             Catch exc As COMException
                 LogException(exc)
@@ -70,7 +70,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             If Not adsiConfig.RefCollection Is Nothing AndAlso adsiConfig.RefCollection.Count > 0 Then
                 Dim refObject As CrossReferenceCollection.CrossReference = adsiConfig.RefCollection.ItemByNetBIOS(Name)
                 Dim path As String = AddADSIPath(refObject.DomainPath)
-                Dim domain As Domain = Domain.GetDomain(path, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType)
+                Dim domain As Domain = Domain.GetDomain(path, adsiConfig.UserName, adsiConfig.Password, adsiConfig.AuthenticationType, adsiConfiguration, Me)
                 Return domain
             Else
                 Return Nothing
