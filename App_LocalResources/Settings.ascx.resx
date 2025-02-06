@@ -127,7 +127,7 @@
     <value>Check to enable Active Directory Authentication for this portal</value>
   </data>
   <data name="chkAuthentication.Text" xml:space="preserve">
-    <value />
+    <value>Enable Active Directory authentication on this site</value>
   </data>
   <data name="plSynchronizeRole.Text" xml:space="preserve">
     <value>Synchronize Role?</value>

@@ -24,6 +24,7 @@ Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
 Imports Microsoft.Extensions.DependencyInjection
+Imports System.Data.SqlClient
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings
@@ -44,9 +45,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Dim _
                 strError As String = strInvalidIP & " " &
                                      Localization.GetString("InValidIPAddress", Me.LocalResourceFile)
-            tblSettings.Visible = True
-            pnlError.Visible = True
-            lblError.Text = strError
+            ' tblSettings.Visible = True
+            MessageCell.Visible = True
+            MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
+            MessageCell.InnerText = strError
         End Sub
 
         Private Function GetUserDomainName(ByVal UserName As String) As String
@@ -175,18 +177,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     statusMessage = objAuthenticationController.NetworkStatus
 
                     If statusMessage.ToLower.IndexOf("fail") > -1 Then
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
-                                                                                                                     statusMessage),
-                                                                                                    ModuleMessage.
-                                                                                                       ModuleMessageType _
-                                                                                                       .RedError))
+                        MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
                     Else
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
-                                                                                                                     statusMessage),
-                                                                                                    ModuleMessage.
-                                                                                                       ModuleMessageType _
-                                                                                                       .GreenSuccess))
+                        MessageCell.Attributes("class") = "dnnFormSuccess dnnFormMessage"
                     End If
+
+                    MessageCell.Visible = True
+                    MessageCell.InnerHtml = LocalizedStatus(statusMessage)
+
                 End If
             Catch exc As Exception 'Module failed to load
                 ProcessModuleLoadException(Me, exc)
@@ -278,15 +276,13 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         End If
                     End If
 
-                        valConfirm.ErrorMessage = Localization.GetString("PasswordMatchFailure", Me.LocalResourceFile)
 
                     If String.IsNullOrEmpty(_strError) Then
-                        tblSettings.Visible = True
-                        pnlError.Visible = False
+                        MessageCell.Visible = False
                     Else
-                        tblSettings.Visible = False
-                        pnlError.Visible = True
-                        lblError.Text = _strError
+                        MessageCell.Visible = True
+                        MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
+                        MessageCell.InnerText = _strError
                     End If
                 End If
             Catch exc As Exception 'Module failed to load
