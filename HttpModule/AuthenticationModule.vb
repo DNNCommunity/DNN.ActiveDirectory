@@ -22,7 +22,6 @@ Imports DotNetNuke.Entities.Portals
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
     Public Class AuthenticationModule
-        Inherits Services.Authentication.AuthenticationLoginBase
         Implements IHttpModule
 
         Private config As ConfigInfo
@@ -38,7 +37,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                 Return "AuthenticationModule"
             End Get
         End Property
-        Public Overrides ReadOnly Property Enabled As Boolean
 
         Public Sub Init(ByVal application As HttpApplication) Implements IHttpModule.Init
             AddHandler application.AuthenticateRequest, AddressOf OnAuthenticateRequest
