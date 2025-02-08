@@ -95,8 +95,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         End Function
 
-        Private Function IsAuthenticated(ByVal Path As String, ByVal UserName As String, ByVal Password As String) _
-            As Boolean
+        Private Function IsAuthenticated(ByVal Path As String, ByVal UserName As String, ByVal Password As String) As Boolean
+            Dim adGroups As ArrayList
+            Dim hasGroup As Boolean
             Try
                 If config.StripDomainName Then
                     Dim crossRef As CrossReferenceCollection.CrossReference
@@ -105,9 +106,27 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     Next
                 End If
                 Dim userEntry As New DirectoryEntry(Path, UserName, Password, AuthenticationTypes.Signing)
+
                 ' Bind to the native AdsObject to force authentication.
                 Dim obj As Object = userEntry.NativeObject
 
+                'Look at group membership is configured to issue #66
+                If config.UseGroups <> ActiveDirectory.Configuration.UseGroups.None Then
+                    adGroups = utilities.GetADGroups(UserName)
+                    For Each grp In config.GroupList
+                        If adGroups.Contains(Trim(grp)) Then
+                            hasGroup = True
+                            Exit For
+                        End If
+                    Next
+
+                    If config.UseGroups = ActiveDirectory.Configuration.UseGroups.Allow And Not hasGroup Then
+                        Throw New Exception("Not in required group") 'throw exception to set false authentication
+                    End If
+                    If config.UseGroups = ActiveDirectory.Configuration.UseGroups.Reject And hasGroup Then
+                        Throw New Exception("Member of denied groups") 'throw exception to set false authentication
+                    End If
+                End If
             Catch exc As COMException
                 Return False
             End Try
@@ -287,7 +306,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 objAuthUser = New ADUserInfo
                 InitializeUser(objAuthUser)
                 location = Utilities.GetEntryLocation(entry)
-                If location.Length = 0 Then
+                If String.IsNullOrEmpty(location) Then
                     location = adsiConfig.ConfigDomainPath
                 End If
 

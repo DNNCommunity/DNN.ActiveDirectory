@@ -26,6 +26,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class Configuration
         Implements IConfiguration
 
+        Public Enum UseGroups
+            None
+            Allow
+            Reject
+        End Enum
+
         Public Const AUTHENTICATION_PATH As String = "/DesktopModules/AuthenticationServices/ActiveDirectory/"
         Public Const AUTHENTICATION_LOGON_PAGE As String = "WindowsSignin.aspx"
         Public Const AUTHENTICATION_LOGOFF_PAGE As String = "Logoff.aspx"
@@ -53,6 +59,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Public Const AD_SYNCPHOTO As String = "AD_SyncPhoto"
         Public Const AD_ENABLEAUTOLOGIN As String = "AD_ENABLEAUTOLOGIN"
         Public Const AD_ENABLEDEBUGMODE As String = "AD_ENABLEDEBUGMODE"
+        Public Const AD_USEGROUPS As String = "AD_USEGROUPS"
+        Public Const AD_GROUPS As String = "AD_GROUPS"
 
 
         Private portalSettings As Abstractions.Portals.IPortalSettings
@@ -263,7 +271,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 portalController.UpdatePortalSetting(.PortalId, AD_SYNCPHOTO, .Photo.ToString, True, portalSettings.CultureCode, False)
                 portalController.UpdatePortalSetting(.PortalId, AD_ENABLEAUTOLOGIN, .EnableAutoLogin.ToString, True, portalSettings.CultureCode, False)
                 portalController.UpdatePortalSetting(.PortalId, AD_ENABLEDEBUGMODE, .EnableDebugMode.ToString, True, portalSettings.CultureCode, False)
-
+                portalController.UpdatePortalSetting(.PortalId, AD_USEGROUPS, .UseGroups, True, portalSettings.CultureCode, False)
+                portalController.UpdatePortalSetting(.PortalId, AD_GROUPS, String.Join(";", .GroupList), True, portalSettings.CultureCode, False)
                 'Only update password if it has been changed
                 If .Password.Length > 0 Then
                     portalController.UpdatePortalSetting(.PortalId, AD_AUTHENTICATIONPASSWORD, Convert.ToString(objSecurity.Encrypt(AUTHENTICATION_KEY, .Password)), True, portalSettings.CultureCode, False)

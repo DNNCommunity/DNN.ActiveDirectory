@@ -223,6 +223,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Dim userExists As Boolean = objUser IsNot Nothing
             'Dim objDnnUserInfo As UserInfo
 
+
+
             If userExists Then
                 UpdateUser(objUser, loginStatus)
             Else
@@ -407,22 +409,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [sawest]    12/16/2016  Switched changepassword to changepasswordbytoken to support encrypted passwords
         ''' </history>
         ''' -----------------------------------------------------------------------------
-        Private Function RandomizePassword(ByVal objUser As UserInfo, ByRef strPassword As String) As String
+        'Private Function RandomizePassword(ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
-            Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
-            Dim strStoredPassword As String = ""
-            If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
-                strStoredPassword = aspNetUser.GetPassword()
-            End If
+        '    Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
+        '    Dim strStoredPassword As String = ""
+        '    If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
+        '        strStoredPassword = aspNetUser.GetPassword()
+        '    End If
 
-            If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
-                Dim strRandomPassword As String = DNNUserController.GeneratePassword()
-                DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
-                Return strRandomPassword
-            Else
-                Return strStoredPassword
-            End If
-        End Function
+        '    If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
+        '        Dim strRandomPassword As String = DNNUserController.GeneratePassword()
+        '        DNNUserController.ChangePassword(objUser, DNNUserController.ResetPassword(objUser, "").ToString(), strRandomPassword)
+        '        Return strRandomPassword
+        '    Else
+        '        Return strStoredPassword
+        '    End If
+        'End Function
         ''' -----------------------------------------------------------------------------
         ''' <summary>
         ''' RandomizeAndNormalizePassword = Creates a random password and sets all existing userobj in all portals to that password.
@@ -455,22 +457,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' <history>
         '''     [sawest]    12/16/2016  Created function
         ''' </history>
-        Private Function RandomizePassword(ByVal aspNetUser As MembershipUser, ByVal objUser As UserInfo, ByRef strPassword As String) As String
+        'Private Function RandomizePassword(ByVal aspNetUser As MembershipUser, ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
-            Dim strStoredPassword As String = ""
-            If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
-                strStoredPassword = aspNetUser.GetPassword()
-            End If
+        '    Dim strStoredPassword As String = ""
+        '    If Web.Security.Membership.Provider.EnablePasswordRetrieval And Web.Security.Membership.Provider.PasswordFormat <> MembershipPasswordFormat.Hashed Then
+        '        strStoredPassword = aspNetUser.GetPassword()
+        '    End If
 
-            If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
-                Dim strRandomPassword As String = DNNUserController.GeneratePassword()
-                DNNUserController.ResetPasswordToken(objUser, 2)
-                DNNUserController.ChangePasswordByToken(portalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
-                Return strRandomPassword
-            Else
-                Return strStoredPassword
-            End If
-        End Function
+        '    If strStoredPassword = strPassword Or String.IsNullOrEmpty(strStoredPassword) Then
+        '        Dim strRandomPassword As String = DNNUserController.GeneratePassword()
+        '        DNNUserController.ResetPasswordToken(objUser, 2)
+        '        DNNUserController.ChangePasswordByToken(portalSettings.PortalId, objUser.Username, strRandomPassword, objUser.PasswordResetToken.ToString)
+        '        Return strRandomPassword
+        '    Else
+        '        Return strStoredPassword
+        '    End If
+        'End Function
 
 
 

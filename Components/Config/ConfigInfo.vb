@@ -18,7 +18,8 @@
         Public Photo As Boolean
         Public EnableAutoLogin As Boolean
         Public EnableDebugMode As Boolean
-
+        Public UseGroups As Configuration.UseGroups
+        Public GroupList As New List(Of String)
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -120,6 +121,12 @@
                     End If
                     If Cambriansettings.ContainsKey(Configuration.AD_ENABLEDEBUGMODE) Then
                         .EnableDebugMode = CType(Null.GetNull(Cambriansettings(Configuration.AD_ENABLEDEBUGMODE), .EnableDebugMode), Boolean)
+                    End If
+                    If Cambriansettings.ContainsKey(Configuration.AD_USEGROUPS) Then
+                        .UseGroups = CType(Null.GetNull(Cambriansettings(Configuration.AD_USEGROUPS), .UseGroups), Integer)
+                    End If
+                    If Cambriansettings.ContainsKey(Configuration.AD_GROUPS) Then
+                        .GroupList = New List(Of String)(Split(Null.GetNull(Cambriansettings(Configuration.AD_GROUPS), .GroupList), ";"))
                     End If
                 End With
             End If

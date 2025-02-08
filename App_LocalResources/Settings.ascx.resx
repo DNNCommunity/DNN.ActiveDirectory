@@ -279,4 +279,16 @@
   <data name="plAutoLogin.Text" xml:space="preserve">
     <value>Enable Auto Login?</value>
   </data>
+  <data name="plGroupAllow.Help" xml:space="preserve">
+    <value>User group membership to determine access for login. You can allow only users in certain groups to login or you can allow all users except certain groups to login. </value>
+  </data>
+  <data name="plGroupAllow.Text" xml:space="preserve">
+    <value>Group Membership</value>
+  </data>
+  <data name="plGroups.Help" xml:space="preserve">
+    <value>List group names seperated by a semi-colon. (Group1;Group2;Group3)</value>
+  </data>
+  <data name="plGroups.Text" xml:space="preserve">
+    <value>Group List</value>
+  </data>
 </root>

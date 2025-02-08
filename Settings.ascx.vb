@@ -168,6 +168,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     config.Photo = chkSynchronizePhoto.Checked
                     config.EnableAutoLogin = chkAutoLogin.Checked
                     config.EnableDebugMode = chkDebugMode.Checked
+                    config.UseGroups = cboGroupAllow.SelectedItem.Value
+                    config.GroupList = New List(Of String)(Split(txtGroups.Text, ";"))
                 End If
 
                 configuration.UpdateConfig(config)
@@ -265,7 +267,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                             chkAutoCreate.Checked = config.AutoCreateUsers
                             chkAutoLogin.Checked = config.EnableAutoLogin
                             chkDebugMode.Checked = config.EnableDebugMode
-
+                            cboGroupAllow.SelectedValue = config.UseGroups
+                            txtGroups.Text = String.Join(";", config.GroupList)
                             'WorkItems 4766 and 4077
                             txtBots.Text = config.Bots
                             If (txtBots.Text = "") Then

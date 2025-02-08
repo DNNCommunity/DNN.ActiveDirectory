@@ -395,23 +395,22 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function ValidateDomainPath(ByVal Path As String, Optional ByVal ADSIPath As Configuration.Path = Configuration.Path.GC) _
-            As String
+        Public Shared Function ValidateDomainPath(ByVal Path As String, Optional ByVal ADSIPath As Configuration.Path = Configuration.Path.GC) As String
             ' If root domain is not specified in site settings, we start from top root forest
-            If Path.Length = 0 Then
-                Return GetRootForestPath()
-            ElseIf (Path.IndexOf("DC=") <> -1) And (Path.IndexOf("://") <> -1) Then
-                Return Path
-            ElseIf (Path.IndexOf("LDAP://") <> -1) And (Path.IndexOf("://") <> -1) Then
-                Return Path
-            ElseIf (Path.IndexOf(".") <> -1) Then
-                ' "ttt.com.vn" format,  it's possible for "LDAP://ttt.com.vn" format to access Authentication, however GC:// gives better performance
-                Return ConvertToDistinguished(Path)
-            Else
-                ' Invalid path, so we get root path from Active Directory
-                Return GetRootForestPath()
+            If Not String.IsNullOrEmpty(Path) Then
+
+                If ((Path.IndexOf("DC=") <> -1) And (Path.IndexOf("://") <> -1)) Or (Path.IndexOf("LDAP://") <> -1) Then
+                    Return Path
+                End If
+
+                If (Path.IndexOf(".") <> -1) Then
+                    ' "ttt.com.vn" format,  it's possible for "LDAP://ttt.com.vn" format to access Authentication, however GC:// gives better performance
+                    Return ConvertToDistinguished(Path)
+                End If
             End If
-            'End If
+            ' Invalid path, so we get root path from Active Directory
+            Return GetRootForestPath()
+
         End Function
 
         ''' -------------------------------------------------------------------

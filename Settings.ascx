@@ -78,6 +78,19 @@
         <dnn:label id="plDefaultDomain" runat="server" controlname="txtDefaultDomain" text="Default Domain Prefix:" />
         <asp:TextBox ID="txtDefaultDomain" runat="server" />
     </div>
+
+    <div class="dnnFormItem">
+        <dnn:label id="plGroupAllow" runat="server" controlname="cboGroupAllow" text="Use Group Membership" />
+        <asp:DropDownList ID="cboGroupAllow" runat="server">
+            <asp:ListItem id="plGroupAllow_none" controlname="liGroupAllow_none" Value="0">No, do not use group membership.</asp:ListItem>
+            <asp:ListItem id="plGroupAllow_allow" controlname="liGroupAllow_allow" Value ="1">Allow only members of the listed groups to log in.</asp:ListItem>
+            <asp:ListItem id="plGroupAllow_reject" controlname="liGroupAllow_reject" Value="2">Do not allow members of the listed groups to log in.</asp:ListItem>
+        </asp:DropDownList>
+    </div>
+    <div class="dnnFormItem">
+        <dnn:label id="plGroups" runat="server" controlname="txtGroups" text="Group List:" />
+        <asp:TextBox ID="txtGroups" runat="server" Height="72px" TextMode="MultiLine" />
+    </div>
     <div class="dnnFormItem">
         <dnn:label id="plAutoIP" runat="server" controlname="txtAutoIP" text="Auto-login IP Address:" />
         <asp:TextBox ID="txtAutoIP" runat="server" Height="72px" TextMode="MultiLine" />

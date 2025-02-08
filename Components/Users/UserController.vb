@@ -183,14 +183,25 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         Public Overloads Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo) Implements IUserController.AddUserRoles
             Try
-                Dim objPortal As PortalInfo = portalController.GetPortal(PortalID)
+                Dim objPortal As PortalInfo
                 Dim objRoleInfo As New RoleInfo
+                Dim arrUserADGroups As ArrayList
+                Dim strUserPortalRoles As List(Of UserRoleInfo)
+                Dim arrUserPortalRoles As New ArrayList
+                Dim arrADGroupOnly As New ArrayList
+                Dim arrRolesOnly As New ArrayList
+                Dim bMatch As Boolean
+                Dim arrPortalRoles As List(Of RoleInfo)
+                Dim arrADGroups As ArrayList
+
+                objPortal = portalController.GetPortal(PortalID)
+
                 'Get all active directory groups the user belongs to.
-                Dim arrUserADGroups As ArrayList = Utilities.GetADGroups(AuthenticationUser.Username)
+                arrUserADGroups = utilities.GetADGroups(AuthenticationUser.Username)
 
                 'Get all portal roles that the user does belong to.
-                Dim strUserPortalRoles As List(Of UserRoleInfo) = roleController.GetUserRoles(AuthenticationUser, True)
-                Dim arrUserPortalRoles As New ArrayList
+                strUserPortalRoles = roleController.GetUserRoles(AuthenticationUser, True)
+
                 'We want to remove any Auto Assigned roles from the user's portal roles.
                 For Each strRole As UserRoleInfo In strUserPortalRoles
                     objRoleInfo = roleController.GetRoleByName(PortalID, strRole.RoleName)
@@ -198,12 +209,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                         arrUserPortalRoles.Add(objRoleInfo)
                     End If
                 Next
+
                 'Compare the active directory groups the user belongs to against the portal roles the user belongs to.
                 'If both exist then do nothing, if only the group exists put the group into a separate array for later processing,
                 'if only the role exists also put it into a separate array for later processing.
-                Dim arrADGroupOnly As New ArrayList
-                Dim arrRolesOnly As New ArrayList
-                Dim bMatch As Boolean
+
                 'Get the AD groups that don't match a portal role that the user belongs to.
                 For Each strGroup As String In arrUserADGroups
                     bMatch = False
@@ -232,7 +242,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Next
 
                 'Check the Active Directory groups the user belongs to only and see if there's a portal role that matches.
-                Dim arrPortalRoles As List(Of RoleInfo) = roleController.GetRoles(PortalID)
+                arrPortalRoles = roleController.GetRoles(PortalID)
                 For Each objRoleInfo In arrPortalRoles
                     If Not (objRoleInfo.AutoAssignment) Then
                         If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
@@ -245,7 +255,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Next
 
                 'Check the portal roles the user belongs to only and see if there's an Active Directory group that matches
-                Dim arrADGroups As ArrayList = groupController.GetGroups(arrRolesOnly)
+                arrADGroups = groupController.GetGroups(arrRolesOnly)
                 For Each objRoleInfo In arrADGroups
                     If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
                         Security.Roles.RoleController.DeleteUserRole(AuthenticationUser, objRoleInfo, Me.portalSettings, False)

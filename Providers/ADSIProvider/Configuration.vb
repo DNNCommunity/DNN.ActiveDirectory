@@ -100,6 +100,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             WinNT
         End Enum
 
+
         Public Const ADSI_CONFIGURATIONNAMIMGCONTEXT As String = "configurationNamingContext"
         Public Const ADSI_DEFAULTNAMIMGCONTEXT As String = "defaultNamingContext"
         Public Const ADSI_ROOTDOMAINNAMIMGCONTEXT As String = "rootDomainNamingContext"
