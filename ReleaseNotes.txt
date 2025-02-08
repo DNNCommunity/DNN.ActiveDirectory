@@ -7,6 +7,7 @@
 <hr/>
 <div class="License">
 	<h3>About the DotNetNuke.Authentication.ActiveDirectory</h3>
+
 	<p class="Owner">
 		<b>Version 6.0.0</b><br /><br />		
 	</p>
@@ -14,28 +15,36 @@
         FYI: Developers should be aware that the provider uses Visual Studio 2010+ only.</p>
 	
 	<h4>Bug Fixes</h4>
-	<ul>Version 5.0.6
-		<li>8512: Settings not saved properly and two user accounts created.</li>
-		<li>8571: Users not being logged into the correct portal when going to child portal.</li>
+	<ul>Version 8.0.0
+	<li>Issue #88 - AD Login not working on DNN 10.0.0 (RC1)</li>
+	<li>Issue #81 - Refactor out all deprecated DNN calls and add dependency injection</li>
+	</ul>
+
+	<ul>Version 6.0.2
+		<li>Better UPN handling  Issue #12</i>
 	</ul>
 	<ul>Version 6.0.0
 		<li>Compatible with DNN 7, 8, and 9</i>
 	</ul>
-	<ul>Version 6.0.2
-		<li>Better UPN handling  Issue #12</i>
+	<ul>Version 5.0.6
+		<li>8512: Settings not saved properly and two user accounts created.</li>
+		<li>8571: Users not being logged into the correct portal when going to child portal.</li>
 	</ul>
-	<h4>Features</h4>
-	<ul>Version 6.0.0
-		<li>Ability to sync AD thumbnail photo to profile pic in DNN portal.</li>
-	</ul>
-	<ul>Version 6.0.2
-		<li>Keyboard Enter elicits Login function Issue #13</li>
+		<h4>Features</h4>
+		<ul>Version 8.0.0
+	<li>Question #66 - Authentication against AD Group</li>
 	</ul>
 	<ul>Version 6.1.2
 		<li>Fixed Issue: 47</li>
 		<li>Fixed Issue: 36</li>
 	</ul>
-	<p class="Owner">
+	<ul>Version 6.0.2
+		<li>Keyboard Enter elicits Login function Issue #13</li>
+	</ul>
+	<ul>Version 6.0.0
+		<li>Ability to sync AD thumbnail photo to profile pic in DNN portal.</li>
+	</ul>
+		<p class="Owner">
 		To run the provider under IIS 7.x in integrated mode two commands are needed to be run from a command prompt on the server.
 		<ul>
 			<li>%windir%\system32\inetsrv\appcmd unlock config /section:anonymousAuthentication</li>
