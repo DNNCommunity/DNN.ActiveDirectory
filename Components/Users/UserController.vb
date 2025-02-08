@@ -25,18 +25,31 @@ Imports DotNetNuke.Entities.Users
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class UserController
+        Implements IUserController
 
-#Region "Private Shared Members"
-
-        Private mProviderTypeName As String = ""
-        Private Shared dataProvider As DataProvider = dataProvider.Instance()
+        Private Shared dataProvider As DataProvider = DataProvider.Instance()
         Private Shared mRoleName As String = ""
+        Private config As ConfigInfo
+        Private authenticationProvider As IAuthenticationProvider
+        Private portalController As IPortalController
+        Private roleController As IRoleController
+        Private groupController As IGroupController
+        Private portalSettings As PortalSettings
+        Private utilities As IUtilities
 
-#End Region
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal authenticationProvider As IAuthenticationProvider,
+                ByVal portalController As IPortalController,
+                ByVal groupController As IGroupController,
+                ByVal utilities As IUtilities)
 
-        Sub New()
-            Dim _config As Configuration = Configuration.GetConfig()
-            mProviderTypeName = _config.ProviderTypeName
+            Me.config = configuration.GetConfig()
+            Me.authenticationProvider = authenticationProvider
+            Me.portalController = portalController
+            Me.roleController = New RoleController 'missing resolution in DNN platform as of 10.0.0
+            Me.groupController = groupController
+            Me.portalSettings = Me.portalController.GetCurrentSettings
+            Me.utilities = utilities
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -49,8 +62,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetUser (ByVal LoggedOnUserName As String) As ADUserInfo
-            Return AuthenticationProvider.Instance (mProviderTypeName).GetUser (LoggedOnUserName)
+        Public Function GetUser(ByVal LoggedOnUserName As String) As ADUserInfo Implements IUserController.GetUser
+            Return authenticationProvider.GetUser(LoggedOnUserName)
         End Function
 
         ''' -------------------------------------------------------------------
@@ -63,94 +76,94 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function GetUser (ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) As ADUserInfo
-            Return AuthenticationProvider.Instance (mProviderTypeName).GetUser (LoggedOnUserName, LoggedOnPassword)
+        Public Function GetUser(ByVal LoggedOnUserName As String, ByVal LoggedOnPassword As String) As ADUserInfo Implements IUserController.GetUser
+            Return authenticationProvider.GetUser(LoggedOnUserName, LoggedOnPassword)
         End Function
 
-        ''' -----------------------------------------------------------------------------
-        ''' <summary>
-        ''' CreateDNNUser persists the DNN User information to the Database
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <param name="user">The user to persist to the Data Store.</param>
-        ''' <returns>The UserId of the newly created user.</returns>
-        ''' <history>
-        '''     [cnurse]	12/13/2005	created
-        '''     [mhorton]     06/12/2008  ACD-5737
-        ''' </history>
-        ''' -----------------------------------------------------------------------------
-        <Obsolete ("No longer used")> _
-        Private Function CreateDNNUser (ByRef user As ADUserInfo) As UserCreateStatus
+        '''' -----------------------------------------------------------------------------
+        '''' <summary>
+        '''' CreateDNNUser persists the DNN User information to the Database
+        '''' </summary>
+        '''' <remarks>
+        '''' </remarks>
+        '''' <param name="user">The user to persist to the Data Store.</param>
+        '''' <returns>The UserId of the newly created user.</returns>
+        '''' <history>
+        ''''     [cnurse]	12/13/2005	created
+        ''''     [mhorton]     06/12/2008  ACD-5737
+        '''' </history>
+        '''' -----------------------------------------------------------------------------
+        '<Obsolete ("No longer used")> _
+        'Private Function CreateDNNUser (ByRef user As ADUserInfo) As UserCreateStatus
 
-            Dim objSecurity As New PortalSecurity
-            Dim _
-                userName As String = _
-                    objSecurity.InputFilter (user.Username, _
-                                             PortalSecurity.FilterFlag.NoScripting Or _
-                                             PortalSecurity.FilterFlag.NoAngleBrackets Or _
-                                             PortalSecurity.FilterFlag.NoMarkup)
-            Dim _
-                email As String = _
-                    objSecurity.InputFilter (user.Email, _
-                                             PortalSecurity.FilterFlag.NoScripting Or _
-                                             PortalSecurity.FilterFlag.NoAngleBrackets Or _
-                                             PortalSecurity.FilterFlag.NoMarkup)
-            Dim _
-                lastName As String = _
-                    objSecurity.InputFilter (user.LastName, _
-                                             PortalSecurity.FilterFlag.NoScripting Or _
-                                             PortalSecurity.FilterFlag.NoAngleBrackets Or _
-                                             PortalSecurity.FilterFlag.NoMarkup)
-            Dim _
-                firstName As String = _
-                    objSecurity.InputFilter (user.FirstName, _
-                                             PortalSecurity.FilterFlag.NoScripting Or _
-                                             PortalSecurity.FilterFlag.NoAngleBrackets Or _
-                                             PortalSecurity.FilterFlag.NoMarkup)
-            Dim createStatus As UserCreateStatus = UserCreateStatus.Success
-            Dim _
-                displayName As String = _
-                    objSecurity.InputFilter (user.DisplayName, _
-                                             PortalSecurity.FilterFlag.NoScripting Or _
-                                             PortalSecurity.FilterFlag.NoAngleBrackets Or _
-                                             PortalSecurity.FilterFlag.NoMarkup)
-            Dim updatePassword As Boolean = user.Membership.UpdatePassword
-            Dim isApproved As Boolean = user.Membership.Approved
+        '    Dim objSecurity As New PortalSecurity
+        '    Dim _
+        '        userName As String = _
+        '            objSecurity.InputFilter (user.Username, _
+        '                                     PortalSecurity.FilterFlag.NoScripting Or _
+        '                                     PortalSecurity.FilterFlag.NoAngleBrackets Or _
+        '                                     PortalSecurity.FilterFlag.NoMarkup)
+        '    Dim _
+        '        email As String = _
+        '            objSecurity.InputFilter (user.Email, _
+        '                                     PortalSecurity.FilterFlag.NoScripting Or _
+        '                                     PortalSecurity.FilterFlag.NoAngleBrackets Or _
+        '                                     PortalSecurity.FilterFlag.NoMarkup)
+        '    Dim _
+        '        lastName As String = _
+        '            objSecurity.InputFilter (user.LastName, _
+        '                                     PortalSecurity.FilterFlag.NoScripting Or _
+        '                                     PortalSecurity.FilterFlag.NoAngleBrackets Or _
+        '                                     PortalSecurity.FilterFlag.NoMarkup)
+        '    Dim _
+        '        firstName As String = _
+        '            objSecurity.InputFilter (user.FirstName, _
+        '                                     PortalSecurity.FilterFlag.NoScripting Or _
+        '                                     PortalSecurity.FilterFlag.NoAngleBrackets Or _
+        '                                     PortalSecurity.FilterFlag.NoMarkup)
+        '    Dim createStatus As UserCreateStatus = UserCreateStatus.Success
+        '    Dim _
+        '        displayName As String = _
+        '            objSecurity.InputFilter (user.DisplayName, _
+        '                                     PortalSecurity.FilterFlag.NoScripting Or _
+        '                                     PortalSecurity.FilterFlag.NoAngleBrackets Or _
+        '                                     PortalSecurity.FilterFlag.NoMarkup)
+        '    Dim updatePassword As Boolean = user.Membership.UpdatePassword
+        '    Dim isApproved As Boolean = user.Membership.Approved
 
-            Try
-                user.UserID = _
-                    CType ( _
-                        dataProvider.AddUser (user.PortalID, userName, firstName, lastName, user.AffiliateID, _
-                                              user.IsSuperUser, email, displayName, updatePassword, isApproved, - 1), _
-                        Integer)
-                DataCache.ClearPortalCache (user.PortalID, False)
-                'ACD-5737
-                If Not user.IsSuperUser Then
+        '    Try
+        '        user.UserID = _
+        '            CType ( _
+        '                dataProvider.AddUser (user.PortalID, userName, firstName, lastName, user.AffiliateID, _
+        '                                      user.IsSuperUser, email, displayName, updatePassword, isApproved, - 1), _
+        '                Integer)
+        '        DataCache.ClearPortalCache (user.PortalID, False)
+        '        'ACD-5737
+        '        If Not user.IsSuperUser Then
 
-                    Dim objRoles As New RoleController
-                    Dim objRole As RoleInfo
+        '            Dim objRoles As New RoleController
+        '            Dim objRole As RoleInfo
 
-                    ' autoassign user to portal roles
-                    Dim arrRoles As ArrayList = objRoles.GetPortalRoles (user.PortalID)
-                    Dim i As Integer
-                    For i = 0 To arrRoles.Count - 1
-                        objRole = CType (arrRoles (i), RoleInfo)
-                        If objRole.AutoAssignment = True Then
-                            objRoles.AddUserRole (user.PortalID, user.UserID, objRole.RoleID, Null.NullDate, _
-                                                  Null.NullDate)
-                        End If
-                    Next
-                End If
-            Catch ex As Exception
-                'Clear User (duplicate User information)
-                user = Nothing
-                createStatus = UserCreateStatus.ProviderError
-            End Try
+        '            ' autoassign user to portal roles
+        '            Dim arrRoles As ArrayList = objRoles.GetPortalRoles (user.PortalID)
+        '            Dim i As Integer
+        '            For i = 0 To arrRoles.Count - 1
+        '                objRole = CType (arrRoles (i), RoleInfo)
+        '                If objRole.AutoAssignment = True Then
+        '                    objRoles.AddUserRole (user.PortalID, user.UserID, objRole.RoleID, Null.NullDate, _
+        '                                          Null.NullDate)
+        '                End If
+        '            Next
+        '        End If
+        '    Catch ex As Exception
+        '        'Clear User (duplicate User information)
+        '        user = Nothing
+        '        createStatus = UserCreateStatus.ProviderError
+        '    End Try
 
-            Return createStatus
+        '    Return createStatus
 
-        End Function
+        'End Function
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -168,32 +181,39 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         ''' </history>
         ''' -------------------------------------------------------------------
 
-        Public Overloads Shared Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo)
+        Public Overloads Sub AddUserRoles(ByVal PortalID As Integer, ByVal AuthenticationUser As ADUserInfo) Implements IUserController.AddUserRoles
             Try
-                Dim objPortals As New PortalController
-                Dim objPortal As PortalInfo = objPortals.GetPortal(PortalID)
-                Dim objPortalSettings As New PortalSettings(PortalID)
+                Dim objPortal As PortalInfo
                 Dim objRoleInfo As New RoleInfo
+                Dim arrUserADGroups As ArrayList
+                Dim strUserPortalRoles As List(Of UserRoleInfo)
+                Dim arrUserPortalRoles As New ArrayList
+                Dim arrADGroupOnly As New ArrayList
+                Dim arrRolesOnly As New ArrayList
+                Dim bMatch As Boolean
+                Dim arrPortalRoles As List(Of RoleInfo)
+                Dim arrADGroups As ArrayList
+
+                objPortal = portalController.GetPortal(PortalID)
+
                 'Get all active directory groups the user belongs to.
-                Dim arrUserADGroups As ArrayList = Utilities.GetADGroups(AuthenticationUser.Username)
+                arrUserADGroups = utilities.GetADGroups(AuthenticationUser.Username)
 
                 'Get all portal roles that the user does belong to.
-                Dim objRoleController As New RoleController
-                Dim strUserPortalRoles As List(Of UserRoleInfo) = objRoleController.GetUserRoles(AuthenticationUser, True)
-                Dim arrUserPortalRoles As New ArrayList
+                strUserPortalRoles = roleController.GetUserRoles(AuthenticationUser, True)
+
                 'We want to remove any Auto Assigned roles from the user's portal roles.
                 For Each strRole As UserRoleInfo In strUserPortalRoles
-                    objRoleInfo = objRoleController.GetRoleByName(PortalID, strRole.RoleName)
+                    objRoleInfo = roleController.GetRoleByName(PortalID, strRole.RoleName)
                     If Not (objRoleInfo.AutoAssignment) Then
                         arrUserPortalRoles.Add(objRoleInfo)
                     End If
                 Next
+
                 'Compare the active directory groups the user belongs to against the portal roles the user belongs to.
                 'If both exist then do nothing, if only the group exists put the group into a separate array for later processing,
                 'if only the role exists also put it into a separate array for later processing.
-                Dim arrADGroupOnly As New ArrayList
-                Dim arrRolesOnly As New ArrayList
-                Dim bMatch As Boolean
+
                 'Get the AD groups that don't match a portal role that the user belongs to.
                 For Each strGroup As String In arrUserADGroups
                     bMatch = False
@@ -222,12 +242,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Next
 
                 'Check the Active Directory groups the user belongs to only and see if there's a portal role that matches.
-                Dim arrPortalRoles As List(Of RoleInfo) = objRoleController.GetRoles(PortalID)
+                arrPortalRoles = roleController.GetRoles(PortalID)
                 For Each objRoleInfo In arrPortalRoles
                     If Not (objRoleInfo.AutoAssignment) Then
                         If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
                             If arrADGroupOnly.Contains(objRoleInfo.RoleName) Then
-                                objRoleController.AddUserRole(PortalID, AuthenticationUser.UserID, objRoleInfo.RoleID, Date.Today, _
+                                roleController.AddUserRole(PortalID, AuthenticationUser.UserID, objRoleInfo.RoleID, RoleStatus.Approved, False, Date.Today,
                                                            Null.NullDate)
                             End If
                         End If
@@ -235,11 +255,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                 Next
 
                 'Check the portal roles the user belongs to only and see if there's an Active Directory group that matches
-                Dim objGroupController As New GroupController
-                Dim arrADGroups As ArrayList = objGroupController.GetGroups(arrRolesOnly)
+                arrADGroups = groupController.GetGroups(arrRolesOnly)
                 For Each objRoleInfo In arrADGroups
                     If Not (objRoleInfo.RoleID = objPortal.AdministratorRoleId) Then
-                        RoleController.DeleteUserRole(AuthenticationUser, objRoleInfo, objPortalSettings, False)
+                        Security.Roles.RoleController.DeleteUserRole(AuthenticationUser, objRoleInfo, Me.portalSettings, False)
                     End If
                 Next
 
@@ -258,7 +277,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]     30/11/2008  Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Private Shared Function RolesExists (ByVal s As String) _
+        Private Shared Function RolesExists(ByVal s As String) _
             As Boolean
 
             ' AndAlso prevents evaluation of the second Boolean
@@ -282,7 +301,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         '''     [mhorton]   02/17/2012 User's profile was getting blanked when getting updated - Item 7739
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function UpdateDnnUser(ByVal authenticationUser As UserInfo) As Boolean
+        Public Function UpdateDnnUser(ByVal authenticationUser As UserInfo) As Boolean Implements IUserController.UpdateDnnUser
             'Updating user information
             Users.UserController.UpdateUser(authenticationUser.PortalID, authenticationUser)
             Return True

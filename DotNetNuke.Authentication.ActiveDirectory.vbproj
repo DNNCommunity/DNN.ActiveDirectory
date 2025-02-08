@@ -10,6 +10,9 @@
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <TargetFrameworkProfile />
+    <Use64BitIISExpress />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <PropertyGroup>
@@ -32,7 +35,7 @@
     <OptionInfer>On</OptionInfer>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -58,9 +61,23 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DotNetNuke, Version=9.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="DotNetNuke, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\adTest\bin\DotNetNuke.dll</HintPath>
+      <HintPath>..\..\..\..\..\dnndev\bin\DotNetNuke.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.Abstractions, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\dnndev\bin\DotNetNuke.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetNuke.DependencyInjection, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\dnndev\bin\DotNetNuke.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection">
+      <HintPath>..\..\..\bin\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <HintPath>..\..\..\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -118,17 +135,21 @@
     <Compile Include="Components\AuthenticationController.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Components\AuthenticationProvider.vb" />
     <Compile Include="Components\Common\AuthenticationMode.vb" />
     <Compile Include="Components\Common\AuthenticationStatus.vb" />
     <Compile Include="Components\Common\ObjectClass.vb" />
-    <Compile Include="Components\Config\ApplicationPool.vb" />
+    <Compile Include="Components\Config\ConfigInfo.vb" />
     <Compile Include="Components\Config\Configuration.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationController.vb" />
+    <Compile Include="Components\Interfaces\IConfiguration.vb" />
     <Compile Include="Components\Groups\GroupController.vb" />
     <Compile Include="Components\Groups\GroupInfo.vb" />
-    <Compile Include="Components\IAuthenticationObjectBase.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationObjectBase.vb" />
+    <Compile Include="Components\Interfaces\IAuthenticationProvider.vb" />
+    <Compile Include="Components\Interfaces\IGroupController.vb" />
+    <Compile Include="Components\Interfaces\IUserController.vb" />
     <Compile Include="Components\Users\UserController.vb" />
-    <Compile Include="Components\Users\UserInfo.vb" />
+    <Compile Include="Components\Users\ADUserInfo.vb" />
     <Compile Include="HttpModule\AuthenticationModule.vb" />
     <Compile Include="Login.ascx.designer.vb">
       <DependentUpon>Login.ascx</DependentUpon>
@@ -143,6 +164,9 @@
     <Compile Include="Providers\ADSIProvider\Domain.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Providers\ADSIProvider\ConfigInfo.vb" />
+    <Compile Include="Providers\ADSIProvider\Interfaces\IConfiguration.vb" />
+    <Compile Include="Providers\ADSIProvider\Interfaces\IUtilities.vb" />
     <Compile Include="Providers\ADSIProvider\Search.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -154,6 +178,7 @@
       <DependentUpon>Settings.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="StartUp.vb" />
     <Compile Include="WindowsSignin.aspx.designer.vb">
       <DependentUpon>WindowsSignin.aspx</DependentUpon>
     </Compile>
@@ -169,6 +194,7 @@
     <None Include="App_LocalResources\Settings.ascx.resx" />
     <None Include="BuildScripts\ModulePackage.targets" />
     <None Include="BuildScripts\MSBuild.Community.Tasks.Targets" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\Documentation.css" />
@@ -189,6 +215,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_LocalResources\Login.ascx.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
@@ -223,5 +252,12 @@
   <Target Name="BeforeBuild" DependsOnTargets="VersionInfo">
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="PackageModule">
+  </Target>
+  <Import Project="packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
   </Target>
 </Project>

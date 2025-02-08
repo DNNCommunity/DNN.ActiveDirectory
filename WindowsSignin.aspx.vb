@@ -24,6 +24,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class WindowsSignin
         Inherits Page
 
+        Private objAuthentication As IAuthenticationController
+        Private configuration As IConfiguration
+
+        Sub New(authenticationController As IAuthenticationController,
+                ByVal configuration As IConfiguration)
+            Me.objAuthentication = authenticationController
+            Me.configuration = configuration
+        End Sub
 #Region " Web Form Designer Generated Code "
 
         'This call is required by the Web Form Designer.
@@ -40,12 +48,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             'CODEGEN: This method call is required by the Web Form Designer
             'Do not modify it using the code editor.
             InitializeComponent()
-
+            Dim config As ConfigInfo
             If Request.ServerVariables("LOGON_USER").Length > 0 Then
-                Dim objAuthentication As New AuthenticationController
                 ' Reset config
                 Configuration.ResetConfig()
-                Dim config As Configuration = Configuration.GetConfig()
+                config = configuration.GetConfig()
                 If (config.WindowsAuthentication Or config.HideWindowsLogin) Then
                     objAuthentication.AuthenticationLogon()
                 Else

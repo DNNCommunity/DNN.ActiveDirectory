@@ -20,46 +20,22 @@
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class GroupController
-        Private mProviderTypeName As String = ""
+        Implements IGroupController
+        Private config As ConfigInfo
+        Private authenticationProvider As IAuthenticationProvider
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Sub New()
-            Dim _config As Configuration = Configuration.GetConfig()
-            mProviderTypeName = _config.ProviderTypeName
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal authenticationProvider As IAuthenticationProvider)
+            Me.config = configuration.GetConfig()
+            Me.authenticationProvider = authenticationProvider
         End Sub
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Function GetGroups() As ArrayList
-            Return AuthenticationProvider.Instance (mProviderTypeName).GetGroups()
+        Public Function GetGroups() As ArrayList Implements IGroupController.GetGroups
+            Return authenticationProvider.GetGroups()
         End Function
 
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' </remarks>
-        ''' <history>
-        '''     [mhorton]	29/05/2011	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Function GetGroups(ByVal arrUserPortalRoles As ArrayList) As ArrayList
-            Return AuthenticationProvider.Instance(mProviderTypeName).GetGroups(arrUserPortalRoles)
+        Public Function GetGroups(ByVal arrUserPortalRoles As ArrayList) As ArrayList Implements IGroupController.GetGroups
+            Return authenticationProvider.GetGroups(arrUserPortalRoles)
         End Function
     End Class
 End Namespace

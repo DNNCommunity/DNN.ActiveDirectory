@@ -23,12 +23,16 @@ Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
-
+Imports Microsoft.Extensions.DependencyInjection
+Imports System.Data.SqlClient
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings
         Inherits AuthenticationSettingsBase
 
+        Public objAuthenticationController As IAuthenticationController = DependencyProvider.GetRequiredService(Of IAuthenticationController)
+        Public configuration As IConfiguration = DependencyProvider.GetRequiredService(Of IConfiguration)
+        Public portalController As IPortalController = DependencyProvider.GetRequiredService(Of IPortalController)
 #Region "Private Members"
 
         Private _strError As String = Null.NullString
@@ -41,9 +45,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Dim _
                 strError As String = strInvalidIP & " " &
                                      Localization.GetString("InValidIPAddress", Me.LocalResourceFile)
-            tblSettings.Visible = True
-            pnlError.Visible = True
-            lblError.Text = strError
+            ' tblSettings.Visible = True
+            MessageCell.Visible = True
+            MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
+            MessageCell.InnerText = strError
         End Sub
 
         Private Function GetUserDomainName(ByVal UserName As String) As String
@@ -130,57 +135,58 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         Public Overrides Sub UpdateSettings()
             Dim _portalSettings As PortalSettings = CType(HttpContext.Current.Items("PortalSettings"), PortalSettings)
-            Try
+            Dim config As New ConfigInfo
+            Dim statusMessage As String
 
-                'Code Cleanup
-                If Not chkAuthentication.Checked Then
-                    Configuration.UpdateConfig(_portalSettings.PortalId, False, False, "", "", "", "", False, False,
-                                                False, "", "", "", "", False, "", False, False, False)
-                    Configuration.ResetConfig()
-                Else
-                    Dim providerTypeName As String = cboProviders.SelectedItem.Value
-                    Dim authenticationType As String = cboAuthenticationType.SelectedItem.Value
+            config.PortalId = _portalSettings.PortalId
+
+            Try
+                If chkAuthentication.Checked Then
+
                     If Not (txtAutoIP.Text = String.Empty) Then
                         If Not (CheckEnteredIPAddr()) Then
                             Exit Sub
                         End If
                     End If
-                    'ACD-5585
-                    'WorkItems 4766 and 4077
-                    If chkAuthentication.Checked And Not chkHidden.Checked Then
-                        Configuration.UpdateConfig(_portalSettings.PortalId, chkAuthentication.Checked,
-                                                    chkHidden.Checked,
-                                                    txtRootDomain.Text, txtEmailDomain.Text, txtUserName.Text,
-                                                    txtPassword.Text, chkSynchronizeRole.Checked,
-                                                    chkSynchronizePassword.Checked, chkStripDomainName.Checked,
-                                                    providerTypeName, authenticationType, txtAutoIP.Text,
-                                                    txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
-                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
-                    Else
-                        Configuration.UpdateConfig(_portalSettings.PortalId, False, chkHidden.Checked,
-                                                    txtRootDomain.Text, txtEmailDomain.Text,
-                                                    txtUserName.Text, txtPassword.Text, chkSynchronizeRole.Checked,
-                                                    chkSynchronizePassword.Checked,
-                                                    chkStripDomainName.Checked, providerTypeName, authenticationType,
-                                                    txtAutoIP.Text, txtDefaultDomain.Text, chkAutoCreate.Checked, txtBots.Text,
-                                                    chkSynchronizePhoto.Checked, chkAutoLogin.Checked, chkDebugMode.Checked)
-                    End If
-                    Configuration.ResetConfig()
-                    Dim objAuthenticationController As New AuthenticationController
-                    Dim statusMessage As String = objAuthenticationController.NetworkStatus
+
+                    config.PortalId = _portalSettings.PortalId
+                    config.WindowsAuthentication = chkAuthentication.Checked
+                    config.HideWindowsLogin = chkHidden.Checked
+                    config.RootDomain = txtRootDomain.Text
+                    config.EmailDomain = txtEmailDomain.Text
+                    config.UserName = txtUserName.Text
+                    config.Password = txtPassword.Text
+                    config.SynchronizeRole = chkSynchronizeRole.Checked
+                    config.SynchronizePassword = chkSynchronizePassword.Checked
+                    config.StripDomainName = chkStripDomainName.Checked
+                    config.ProviderTypeName = cboProviders.SelectedItem.Value
+                    config.AuthenticationType = cboAuthenticationType.SelectedItem.Value
+                    config.AutoIP = txtAutoIP.Text
+                    config.DefaultDomain = txtDefaultDomain.Text
+                    config.AutoCreateUsers = chkAutoCreate.Checked
+                    config.Bots = txtBots.Text
+                    config.Photo = chkSynchronizePhoto.Checked
+                    config.EnableAutoLogin = chkAutoLogin.Checked
+                    config.EnableDebugMode = chkDebugMode.Checked
+                    config.UseGroups = cboGroupAllow.SelectedItem.Value
+                    config.GroupList = New List(Of String)(Split(txtGroups.Text, ";"))
+                End If
+
+                configuration.UpdateConfig(config)
+                configuration.ResetConfig()
+
+                If chkAuthentication.Checked Then
+                    statusMessage = objAuthenticationController.NetworkStatus
+
                     If statusMessage.ToLower.IndexOf("fail") > -1 Then
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
-                                                                                                                     statusMessage),
-                                                                                                    ModuleMessage.
-                                                                                                       ModuleMessageType _
-                                                                                                       .RedError))
+                        MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
                     Else
-                        MessageCell.Controls.Add(Skins.Skin.GetModuleMessageControl("", LocalizedStatus(
-                                                                                                                     statusMessage),
-                                                                                                    ModuleMessage.
-                                                                                                       ModuleMessageType _
-                                                                                                       .GreenSuccess))
+                        MessageCell.Attributes("class") = "dnnFormSuccess dnnFormMessage"
                     End If
+
+                    MessageCell.Visible = True
+                    MessageCell.InnerHtml = LocalizedStatus(statusMessage)
+
                 End If
             Catch exc As Exception 'Module failed to load
                 ProcessModuleLoadException(Me, exc)
@@ -192,10 +198,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region "Event Handlers"
 
         Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Init
-            Dim objAuthenticationController As New AuthenticationController
             Dim _
                 objProviderConfiguration As ProviderConfiguration =
-                    ProviderConfiguration.GetProviderConfiguration(Configuration.AUTHENTICATION_KEY)
+                    ProviderConfiguration.GetProviderConfiguration(ActiveDirectory.Configuration.AUTHENTICATION_KEY)
             Dim _Provider As Object
             ' Bind Authentication provider list, this allows each portal could use different provider for authentication
             For Each _Provider In objProviderConfiguration.Providers
@@ -225,11 +230,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     Response.Redirect("~/DesktopModules/AuthenticationServices/ActiveDirectory/trusterror.htm", True)
                 Else
                     ' Obtain PortalSettings from Current Context
-                    Dim _portalSettings As PortalSettings = PortalController.Instance.GetCurrentPortalSettings
+                    Dim _portalSettings As PortalSettings = portalController.GetCurrentSettings
 
                     ' Reset config
-                    Configuration.ResetConfig()
-                    Dim config As Configuration = Configuration.GetConfig()
+                    configuration.ResetConfig()
+                    Dim config As ConfigInfo = configuration.GetConfig()
 
                     If UserInfo.Username.IndexOf("\") > 0 Then
                         Dim strDomain As String = GetUserDomainName(UserInfo.Username)
@@ -242,46 +247,45 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
                     End If
 
                     If Not Page.IsPostBack Then
+                        If config IsNot Nothing Then
+                            chkAuthentication.Checked = config.WindowsAuthentication
+                            chkHidden.Checked = config.HideWindowsLogin
+                            If chkHidden.Checked Then
+                                chkAuthentication.Checked = True
+                            End If
+                            chkSynchronizeRole.Checked = config.SynchronizeRole
+                            chkSynchronizePhoto.Checked = config.Photo
+                            chkSynchronizePassword.Checked = config.SynchronizePassword
+                            chkStripDomainName.Checked = config.StripDomainName
+                            txtRootDomain.Text = config.RootDomain
+                            txtUserName.Text = config.UserName
+                            txtEmailDomain.Text = config.EmailDomain
+                            txtAutoIP.Text = config.AutoIP
+                            'ACD-5585
+                            txtDefaultDomain.Text = config.DefaultDomain
+                            'ACD-4259
+                            chkAutoCreate.Checked = config.AutoCreateUsers
+                            chkAutoLogin.Checked = config.EnableAutoLogin
+                            chkDebugMode.Checked = config.EnableDebugMode
+                            cboGroupAllow.SelectedValue = config.UseGroups
+                            txtGroups.Text = String.Join(";", config.GroupList)
+                            'WorkItems 4766 and 4077
+                            txtBots.Text = config.Bots
+                            If (txtBots.Text = "") Then
+                                txtBots.Text = "gsa-crawler;MS Search 5.0 Robot"
+                            End If
 
-                        chkAuthentication.Checked = config.WindowsAuthentication
-                        chkHidden.Checked = config.HideWindowsLogin
-                        If chkHidden.Checked Then
-                            chkAuthentication.Checked = True
+                            Me.cboAuthenticationType.Items.FindByText(config.AuthenticationType).Selected = True
                         End If
-                        chkSynchronizeRole.Checked = config.SynchronizeRole
-                        chkSynchronizePhoto.Checked = config.Photo
-                        chkSynchronizePassword.Checked = config.SynchronizePassword
-                        chkStripDomainName.Checked = config.StripDomainName
-                        txtRootDomain.Text = config.RootDomain
-                        txtUserName.Text = config.UserName
-                        txtEmailDomain.Text = config.EmailDomain
-                        txtAutoIP.Text = config.AutoIP
-                        'ACD-5585
-                        txtDefaultDomain.Text = config.DefaultDomain
-                        'ACD-4259
-                        chkAutoCreate.Checked = config.AutoCreateUsers
-                        chkAutoLogin.Checked = config.EnableAutoLogin
-                        chkDebugMode.Checked = config.EnableDebugMode
-
-                        'WorkItems 4766 and 4077
-                        txtBots.Text = config.Bots
-                        If (txtBots.Text = "") Then
-                            txtBots.Text = "gsa-crawler;MS Search 5.0 Robot"
-                        End If
-
-                        Me.cboAuthenticationType.Items.FindByText(config.AuthenticationType).Selected = True
-
                     End If
 
-                    valConfirm.ErrorMessage = Localization.GetString("PasswordMatchFailure", Me.LocalResourceFile)
 
                     If String.IsNullOrEmpty(_strError) Then
-                        tblSettings.Visible = True
-                        pnlError.Visible = False
+                        MessageCell.Visible = False
                     Else
-                        tblSettings.Visible = False
-                        pnlError.Visible = True
-                        lblError.Text = _strError
+                        MessageCell.Visible = True
+                        MessageCell.Attributes("class") = "dnnFormError dnnFormMessage"
+                        MessageCell.InnerText = _strError
                     End If
                 End If
             Catch exc As Exception 'Module failed to load

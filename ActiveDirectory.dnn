@@ -1,6 +1,6 @@
 ﻿<dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="DNN_ActiveDirectoryAuthentication" type="Auth_System" version="07.02.00">
+    <package name="DNN_ActiveDirectoryAuthentication" type="Auth_System" version="08.00.00">
       <friendlyName>DNN_ActiveDirectoryAuthentication</friendlyName>
       <description>The DotNetNuke Active Directory Authentication Project is an Authentication provider for DotNetNuke that uses the Windows 
         Active Directory authentication protocol to authenticate users.
@@ -33,7 +33,7 @@
             <assembly>
               <path>bin\Providers</path>
               <name>DotNetNuke.Authentication.ActiveDirectory.dll</name>
-              <version>07.02.00</version>
+              <version>08.00.00</version>
             </assembly>
             <assembly>
               <path>bin</path>

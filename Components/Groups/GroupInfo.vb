@@ -24,18 +24,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         Inherits RoleInfo
         Implements IAuthenticationObjectBase
 
-        Private mGUID As String = ""
-        Private mLocation As String = ""
+        'Private mGUID As String = ""
+        'Private mLocation As String = ""
         Private mIsPopulated As Boolean = False
-        Private mMembers As New ArrayList
-        ' store members object
+        'Private mMembers As New ArrayList
         Private mAuthenticationMember As New ArrayList
-        ' store members DistinguishedName string
-        Private mDNNPopulated As Boolean = False
-        Private mDNNMember As New ArrayList
-        ' store members UserId        
-
-        Private mProcessLog As String = ""
+        'Private mDNNPopulated As Boolean = False
+        'Private mDNNMember As New ArrayList
+        'Private mProcessLog As String = ""
 
         ''' -------------------------------------------------------------------
         ''' <summary>

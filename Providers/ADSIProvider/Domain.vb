@@ -34,6 +34,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Private mCanonicalName As String = ""
         Private mLevel As Integer
         Private mChildPopulate As Boolean = False
+        Private config As ConfigInfo
+        Private utilities As IUtilities
+        Private adsiConfiguration As IConfiguration
 
         ''' -------------------------------------------------------------------
         ''' <summary>
@@ -44,8 +47,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New()
+        Sub New(ByVal configuration As IConfiguration,
+                ByVal utilities As IUtilities)
             MyBase.New()
+            Me.adsiConfiguration = configuration
+            Me.config = configuration.GetConfig
+            Me.utilities = utilities
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -57,12 +64,18 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New (ByVal Path As String, ByVal UserName As String, ByVal Password As String, _
-                 ByVal AuthenticationType As AuthenticationTypes)
-            MyBase.New (Path, UserName, Password, AuthenticationType)
+        Sub New(ByVal Path As String, ByVal UserName As String, ByVal Password As String,
+                 ByVal AuthenticationType As AuthenticationTypes,
+                 ByVal configuration As IConfiguration,
+                 ByVal utilities As IUtilities)
+            MyBase.New(Path, UserName, Password, AuthenticationType)
+            Me.adsiConfiguration = configuration
+            Me.config = configuration.GetConfig
+            Me.utilities = utilities
             PopulateInfo()
-            PopulateChild (Me)
+            PopulateChild(Me)
             mChildPopulate = True
+
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -74,10 +87,15 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New (ByVal Path As String)
-            MyBase.New (Path)
+        Sub New(ByVal Path As String,
+                 ByVal configuration As IConfiguration,
+                 ByVal utilities As IUtilities)
+            MyBase.New(Path)
+            Me.adsiConfiguration = configuration
+            Me.config = configuration.GetConfig
+            Me.utilities = utilities
             PopulateInfo()
-            PopulateChild (Me)
+            PopulateChild(Me)
             mChildPopulate = True
         End Sub
 
@@ -91,10 +109,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
         Private Sub PopulateInfo()
-            Dim config As Configuration = Configuration.GetConfig()
 
             mDistinguishedName = CType (MyBase.Properties (Configuration.ADSI_DISTINGUISHEDNAME).Value, String)
-            mCanonicalName = Utilities.ConvertToCanonical (mDistinguishedName, False)
+            mCanonicalName = ADSI.Utilities.ConvertToCanonical(mDistinguishedName, False)
 
             ' Note that this property will be null string if LDAP is unaccessible
             mNetBIOSName = Utilities.CanonicalToNetBIOS (mCanonicalName)
@@ -110,26 +127,26 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Private Sub PopulateChild (ByVal Domain As Domain)
-            Dim objSearch As New Search (Domain)
+        Private Sub PopulateChild(ByVal Domain As Domain)
+            Dim objSearch As New Search(Domain)
 
             objSearch.SearchScope = SearchScope.OneLevel
-            objSearch.AddFilter (Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.domainDNS.ToString)
+            objSearch.AddFilter(ADSI.Configuration.ADSI_CLASS, CompareOperator.Is, ObjectClass.domainDNS.ToString)
 
             Dim resDomains As ArrayList = objSearch.GetEntries
             Dim entry As DirectoryEntry
 
             For Each entry In resDomains
-                Dim child As Domain = GetDomain (entry.Path)
+                Dim child As Domain = GetDomain(entry.Path, adsiConfiguration, utilities)
 
                 If Not child Is Nothing Then
                     child.ParentDomain = Domain
                     child.Level = Domain.Level + 1
                     ' Add this child into childDomains collection
-                    Domain.ChildDomains.Add (child)
+                    Domain.ChildDomains.Add(child)
                     ' add this child and all it's child into allchilddomains collection
-                    Domain.AllChildDomains.Add (child)
-                    Domain.AllChildDomains.AddRange (child.AllChildDomains)
+                    Domain.AllChildDomains.Add(child)
+                    Domain.AllChildDomains.AddRange(child.AllChildDomains)
                 End If
             Next
 
@@ -145,8 +162,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetDomain (ByVal Path As String) As Domain
-            Return GetDomain(Path, "", "", AuthenticationTypes.Delegation)
+        Public Shared Function GetDomain(ByVal Path As String, ByVal configuration As IConfiguration,
+                 ByVal utilities As IUtilities) As Domain
+            Return GetDomain(Path, "", "", AuthenticationTypes.Delegation, configuration,
+                 utilities)
         End Function
 
         ''' -------------------------------------------------------------------
@@ -159,18 +178,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Function GetDomain (ByVal Path As String, ByVal UserName As String, ByVal Password As String, _
-                                          ByVal AuthenticationType As AuthenticationTypes) As Domain
+        Public Shared Function GetDomain(ByVal Path As String, ByVal UserName As String, ByVal Password As String,
+                                          ByVal AuthenticationType As AuthenticationTypes, ByVal configuration As IConfiguration,
+                 ByVal utilities As IUtilities) As Domain
 
-            Dim Domain As Domain = CType (DataCache.GetCache (Path), Domain)
+            Dim Domain As Domain = CType(DataCache.GetCache(Path), Domain)
             If Domain Is Nothing Then
                 If (UserName.Length > 0) AndAlso (Password.Length > 0) Then
-                    Domain = New Domain (Path, UserName, Password, AuthenticationType)
+                    Domain = New Domain(Path, UserName, Password, AuthenticationType, configuration,
+                 utilities)
                 Else
-                    Domain = New Domain (Path)
+                    Domain = New Domain(Path, configuration, utilities)
                 End If
 
-                DataCache.SetCache (Path, Domain)
+                DataCache.SetCache(Path, Domain)
             End If
 
             Return Domain

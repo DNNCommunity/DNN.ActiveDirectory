@@ -88,10 +88,10 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                                              rootLDAP.Properties ("configurationNamingContext").Value.ToString
                 Dim objCrossRefContainer As DirectoryEntry
 
-                If (UserName.Length > 0) AndAlso (Password.Length > 0) Then
-                    objCrossRefContainer = New DirectoryEntry (crossRefPath, UserName, Password, AuthType)
+                If UserName IsNot Nothing And Password IsNot Nothing Then
+                    objCrossRefContainer = New DirectoryEntry(crossRefPath, UserName, Password, AuthType)
                 Else
-                    objCrossRefContainer = New DirectoryEntry (crossRefPath)
+                    objCrossRefContainer = New DirectoryEntry(crossRefPath)
                 End If
 
                 Dim objCrossRef As DirectoryEntry
