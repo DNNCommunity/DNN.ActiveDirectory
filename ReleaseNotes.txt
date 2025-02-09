@@ -18,6 +18,7 @@
 	<ul>Version 8.0.0
 	<li>Issue #88 - AD Login not working on DNN 10.0.0 (RC1)</li>
 	<li>Issue #81 - Refactor out all deprecated DNN calls and add dependency injection</li>
+	<li>Issue #75 - Change random password method to use DNN generate password</li>
 	</ul>
 
 	<ul>Version 6.0.2
