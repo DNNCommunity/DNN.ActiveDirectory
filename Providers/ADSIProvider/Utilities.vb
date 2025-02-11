@@ -120,7 +120,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
             If (adsiConfig.UserName.Length > 0) AndAlso (adsiConfig.Password.Length > 0) Then
                 returnEntry =
-                    New DirectoryEntry(Path, adsiConfig.UserName, adsiConfig.Password, AuthenticationTypes.Delegation)
+                    New DirectoryEntry(Path, adsiConfig.UserName, adsiConfig.Password, AuthenticationTypes.Signing)
             Else
                 returnEntry = New DirectoryEntry(Path)
             End If
