@@ -1,0 +1,9 @@
+D:\Sites\dnndev10\bin\Providers\DotNetNuke.Authentication.ActiveDirectory.dll
+D:\Sites\dnndev10\bin\Providers\DotNetNuke.Authentication.ActiveDirectory.pdb
+D:\Sites\dnndev10\bin\Providers\DotNetNuke.Authentication.ActiveDirectory.xml
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.vbproj.AssemblyReference.cache
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.vbproj.CoreCompileInputs.cache
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.vbproj.CopyComplete
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.dll
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.xml
+D:\Sites\dnndev10\DesktopModules\AuthenticationServices\DNN.ActiveDirectory\obj\Release\DotNetNuke.Authentication.ActiveDirectory.pdb
