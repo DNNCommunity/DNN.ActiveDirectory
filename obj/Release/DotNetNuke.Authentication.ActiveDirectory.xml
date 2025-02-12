@@ -34,19 +34,6 @@ DotNetNuke.Authentication.ActiveDirectory
  </history>
  -------------------------------------------------------------------
 </member>
-<member name="M:DotNetNuke.Authentication.ActiveDirectory.AuthenticationController.RandomizePassword(DotNetNuke.Entities.Users.UserInfo,System.String@)">
- -----------------------------------------------------------------------------
- <summary>
- RandomizePassword = Creates a random password to be stored in the database
- </summary>
- <param name="objUser">DNN User Object</param>
- <history>
-     [mhorton]   12/10/2008 - ACD-4158
-     [sawest]    12/16/2016  Added check for enable password retrieval
-     [sawest]    12/16/2016  Switched changepassword to changepasswordbytoken to support encrypted passwords
- </history>
- -----------------------------------------------------------------------------
-</member>
 <member name="M:DotNetNuke.Authentication.ActiveDirectory.AuthenticationController.RandomizeAndNormalizePassword(DotNetNuke.Entities.Users.UserInfo,DotNetNuke.Authentication.ActiveDirectory.ADUserInfo)">
  -----------------------------------------------------------------------------
  <summary>
@@ -57,19 +44,6 @@ DotNetNuke.Authentication.ActiveDirectory
      [sawest]   8/14/2018 - Created
  </history>
  -----------------------------------------------------------------------------
-</member>
-<member name="M:DotNetNuke.Authentication.ActiveDirectory.AuthenticationController.RandomizePassword(System.Web.Security.MembershipUser,DotNetNuke.Entities.Users.UserInfo,System.String@)">
- <summary>
- RandomizePassword = Creates a random password to be stored in the database
- First function calls the GetUser function again.  Need an overloaded function that can accept a MembershipUser so GetUser is not called twice.
- </summary>
- <param name="aspNetUser">MembershipUser object</param>
- <param name="objUser">DNN User Object</param>
- <param name="strPassword">Password</param>
- <returns></returns>
- <history>
-     [sawest]    12/16/2016  Created function
- </history>
 </member>
 <member name="M:DotNetNuke.Authentication.ActiveDirectory.AuthenticationController.SetStatus(System.Int32,DotNetNuke.Authentication.ActiveDirectory.AuthenticationStatus)">
  -------------------------------------------------------------------
@@ -1641,6 +1615,69 @@ To modify move field declaration from designer file to code-behind file.
 <member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._txtDefaultDomain">
 <summary>
 txtDefaultDomain control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._plGroupAllow">
+<summary>
+plGroupAllow control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._cboGroupAllow">
+<summary>
+cboGroupAllow control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._plGroupAllow_none">
+<summary>
+plGroupAllow_none control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._plGroupAllow_allow">
+<summary>
+plGroupAllow_allow control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._plGroupAllow_reject">
+<summary>
+plGroupAllow_reject control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._plGroups">
+<summary>
+plGroups control.
+</summary>
+<remarks>
+Auto-generated field.
+To modify move field declaration from designer file to code-behind file.
+</remarks>
+</member>
+<member name="F:DotNetNuke.Authentication.ActiveDirectory.Settings._txtGroups">
+<summary>
+txtGroups control.
 </summary>
 <remarks>
 Auto-generated field.
