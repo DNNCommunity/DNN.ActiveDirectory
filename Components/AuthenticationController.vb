@@ -398,17 +398,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
         End Sub
 
-        ''' -----------------------------------------------------------------------------
-        ''' <summary>
-        ''' RandomizePassword = Creates a random password to be stored in the database
-        ''' </summary>
-        ''' <param name="objUser">DNN User Object</param>
-        ''' <history>
-        '''     [mhorton]   12/10/2008 - ACD-4158
-        '''     [sawest]    12/16/2016  Added check for enable password retrieval
-        '''     [sawest]    12/16/2016  Switched changepassword to changepasswordbytoken to support encrypted passwords
-        ''' </history>
-        ''' -----------------------------------------------------------------------------
+
         'Private Function RandomizePassword(ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
         '    Dim aspNetUser As MembershipUser = Web.Security.Membership.GetUser(objUser.Username)
@@ -446,17 +436,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Next
             Return strRandomPassword
         End Function
-        ''' <summary>
-        ''' RandomizePassword = Creates a random password to be stored in the database
-        ''' First function calls the GetUser function again.  Need an overloaded function that can accept a MembershipUser so GetUser is not called twice.
-        ''' </summary>
-        ''' <param name="aspNetUser">MembershipUser object</param>
-        ''' <param name="objUser">DNN User Object</param>
-        ''' <param name="strPassword">Password</param>
-        ''' <returns></returns>
-        ''' <history>
-        '''     [sawest]    12/16/2016  Created function
-        ''' </history>
+
         'Private Function RandomizePassword(ByVal aspNetUser As MembershipUser, ByVal objUser As UserInfo, ByRef strPassword As String) As String
 
         '    Dim strStoredPassword As String = ""
