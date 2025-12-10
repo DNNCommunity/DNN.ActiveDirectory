@@ -18,6 +18,7 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 
+Imports DotNetNuke.Entities.Modules
 Imports DotNetNuke.Entities.Portals
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
@@ -35,7 +36,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 #Region " Web Form Designer Generated Code "
 
         'This call is required by the Web Form Designer.
-        <DebuggerStepThrough()> _
+        <DebuggerStepThrough()>
         Private Sub InitializeComponent()
 
         End Sub
@@ -44,14 +45,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
         'Do not delete or move it.
         Private designerPlaceholderDeclaration As Object
 
-        Private Sub Page_Init (ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Init
+        Private Sub Page_Init(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Init
             'CODEGEN: This method call is required by the Web Form Designer
             'Do not modify it using the code editor.
             InitializeComponent()
             Dim config As ConfigInfo
             If Request.ServerVariables("LOGON_USER").Length > 0 Then
                 ' Reset config
-                Configuration.ResetConfig()
+                configuration.ResetConfig()
                 config = configuration.GetConfig()
                 If (config.WindowsAuthentication Or config.HideWindowsLogin) Then
                     objAuthentication.AuthenticationLogon()
@@ -62,6 +63,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             End If
 
         End Sub
+
 
 #End Region
 

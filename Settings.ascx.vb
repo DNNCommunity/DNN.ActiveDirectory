@@ -18,13 +18,11 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 
-Imports DotNetNuke.UI.Skins.Controls
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
 Imports Microsoft.Extensions.DependencyInjection
-Imports System.Data.SqlClient
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Settings

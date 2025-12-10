@@ -105,7 +105,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                         UserName = crossRef.NetBIOSName & "\" & UserName
                     Next
                 End If
-                Dim userEntry As New DirectoryEntry(Path, UserName, Password, AuthenticationTypes.Signing)
+                Dim userEntry As New DirectoryEntry(Path, UserName, Password, adsiConfig.AuthenticationType)
 
                 ' Bind to the native AdsObject to force authentication.
                 Dim obj As Object = userEntry.NativeObject
