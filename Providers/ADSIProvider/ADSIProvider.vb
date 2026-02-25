@@ -18,9 +18,8 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports System.DirectoryServices
-Imports DotNetNuke.Entities.Portals
 Imports System.Runtime.InteropServices
-Imports DotNetNuke.Services.Exceptions
+Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Security.Roles
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
@@ -222,14 +221,20 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                     End If
                     If config.Photo Then
                         'sync photo from AD if checked in settings
-                        If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_PHOTO).Value) = "") Then
-                            .Profile.Photo =
-                            Utilities.WritePhoto(UserInfo, UserEntry.Properties(Configuration.ADSI_PHOTO).Value)
-                        End If
+                        'added Try catch block issue #97 - Steven West 2/25/2026
+                        Try
+                            If Not (Utilities.CheckNullString(UserEntry.Properties(Configuration.ADSI_PHOTO).Value) = "") Then
+                                .Profile.Photo =
+                                Utilities.WritePhoto(UserInfo, UserEntry.Properties(Configuration.ADSI_PHOTO).Value)
+                            End If
+                        Catch ex As Exception
+                            DotNetNuke.Services.Exceptions.Exceptions.LogException(ex)
+                        End Try
+
                     End If
                 End If
 
-                    If .Email = "" Then
+                If .Email = "" Then
                     .Email = Utilities.TrimUserDomainName(UserInfo.Username) & adsiConfig.DefaultEmailDomain
                 End If
                 If .DisplayName = "" Then
@@ -489,9 +494,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         Public Function GetNetworkStatus() As String Implements IAuthenticationProvider.GetNetworkStatus
             Dim sb As New StringBuilder
+            Dim re As DirectoryEntry
             ' Refresh settings cache first
             adsiConfiguration.ResetConfig()
             adsiConfig = adsiConfiguration.GetConfig
+            utilities.reloadConfig()
 
             If adsiConfig IsNot Nothing Then
                 sb.Append("<b>[Global Catalog Status]</b>" & "<br>")
@@ -508,10 +515,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
                 sb.Append("<b>[Root Domain Status]</b><br>")
                 Try
-                    If Not utilities.GetRootEntry() Is Nothing Then
-                        sb.Append("OK<br>")
+                    re = utilities.GetRootEntry()
+                    If Not re Is Nothing Then
+                        sb.Append($"OK: {re.Path}<br>")
                     Else
-                        sb.Append("FAIL<br>")
+                        sb.Append($"FAIL: {adsiConfig.RootDomainPath}<br>")
                     End If
                 Catch ex As COMException
                     sb.Append("FAIL<br>")

@@ -104,7 +104,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return mIsPopulated
             End Get
-            Set (ByVal Value As Boolean)
+            Set(ByVal Value As Boolean)
                 mIsPopulated = Value
             End Set
         End Property

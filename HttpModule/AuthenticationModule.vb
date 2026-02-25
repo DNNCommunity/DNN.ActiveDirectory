@@ -17,7 +17,6 @@
 ' CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 ' DEALINGS IN THE SOFTWARE.
 '
-Imports DotNetNuke.Abstractions.Logging
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
@@ -29,7 +28,6 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
         ''' <summary>
         ''' Need to setup dependency injection. 
         ''' </summary>
-
 
         Public ReadOnly Property ModuleName() As String
             Get
@@ -141,7 +139,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
                         response.Redirect(url & "?portalid=" & portalSettings.PortalId)
                     End If
                 ElseIf (Not authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogoff Then
-                    AuthenticationLogoff(portalSettings)
+                    AuthenticationController.AuthenticationLogoff(portalSettings)
                 ElseIf (authStatus = AuthenticationStatus.WinLogoff) AndAlso blnWinLogon Then ' has been logoff before
                     AuthenticationController.SetStatus(portalSettings.PortalId, AuthenticationStatus.Undefined)
                     response.Redirect(request.RawUrl)
@@ -149,44 +147,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.HttpModules
 
             End If
         End Sub
-        ''' -------------------------------------------------------------------
-        ''' <summary>
-        ''' </summary>
-        ''' <remarks>
-        ''' Using old globals.navigateURL because IHTTPModule (authenicationmodule) needs DI setup.
-        ''' Once DI is setup for that module, we can switch this to the INavigateManager.
-        ''' Function was moved from AuthenticationController to here. It was the only reference and was keeping DI from being
-        ''' complete in that class.
-        ''' </remarks>
-        ''' <history>
-        '''     [tamttt]	08/01/2004	Created
-        ''' </history>
-        ''' -------------------------------------------------------------------
-        Public Sub AuthenticationLogoff(portalsettings As PortalSettings)
 
-            ' Log User Off from Cookie Authentication System
-            FormsAuthentication.SignOut()
-            If AuthenticationController.GetStatus(portalsettings.PortalId) = AuthenticationStatus.WinLogon Then
-                AuthenticationController.SetStatus(portalsettings.PortalId, AuthenticationStatus.WinLogoff)
-            End If
-
-            ' expire cookies
-            HttpContext.Current.Response.Cookies("portalaliasid").Value = Nothing
-            HttpContext.Current.Response.Cookies("portalaliasid").Path = "/"
-            HttpContext.Current.Response.Cookies("portalaliasid").Expires = DateTime.Now.AddYears(-30)
-
-            HttpContext.Current.Response.Cookies("portalroles").Value = Nothing
-            HttpContext.Current.Response.Cookies("portalroles").Path = "/"
-            HttpContext.Current.Response.Cookies("portalroles").Expires = DateTime.Now.AddYears(-30)
-
-            ' Redirect browser back to portal 
-            If portalsettings.HomeTabId <> -1 Then
-                HttpContext.Current.Response.Redirect(NavigateURL(portalsettings.HomeTabId), True)
-            Else
-
-                HttpContext.Current.Response.Redirect(NavigateURL(), True)
-            End If
-        End Sub
         Public Sub Dispose() Implements IHttpModule.Dispose
             ' Should check to see why this routine is never called
         End Sub

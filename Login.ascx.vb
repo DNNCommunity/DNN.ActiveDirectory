@@ -19,12 +19,12 @@
 '
 
 
-Imports DotNetNuke.Services.Authentication
-Imports DotNetNuke.Security.Membership
-Imports DotNetNuke.Services.Log.EventLog
 Imports System.Security.Permissions
-Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
+Imports DotNetNuke.Security.Membership
+Imports DotNetNuke.Services.Authentication
+Imports DotNetNuke.Services.Log.EventLog
 Imports Microsoft.Extensions.DependencyInjection
+Imports DNNUserInfo = DotNetNuke.Entities.Users.UserInfo
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class Login

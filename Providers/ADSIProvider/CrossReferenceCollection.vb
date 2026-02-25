@@ -78,14 +78,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Sub New (ByVal UserName As String, ByVal Password As String, ByVal AuthType As AuthenticationTypes)
+        Public Sub New(ByVal UserName As String, ByVal Password As String, ByVal AuthType As AuthenticationTypes)
             MyBase.New()
             Try
                 ' Obtain NETBIOS only if LDAP accessible to prevent error
-                Dim rootLDAP As New DirectoryEntry ("LDAP://rootDSE", UserName, Password, AuthType)
+                Dim rootLDAP As New DirectoryEntry("LDAP://rootDSE", UserName, Password, AuthType)
                 Dim _
                     crossRefPath As String = "LDAP://CN=Partitions," & _
-                                             rootLDAP.Properties ("configurationNamingContext").Value.ToString
+                                             rootLDAP.Properties("configurationNamingContext").Value.ToString
                 Dim objCrossRefContainer As DirectoryEntry
 
                 If UserName IsNot Nothing And Password IsNot Nothing Then
@@ -96,12 +96,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
                 Dim objCrossRef As DirectoryEntry
                 For Each objCrossRef In objCrossRefContainer.Children
-                    If Not objCrossRef.Properties ("nETBIOSName").Value Is Nothing Then
-                        Dim netBIOSName As String = CType (objCrossRef.Properties ("nETBIOSName").Value, String)
-                        Dim canonicalName As String = CType (objCrossRef.Properties ("dnsRoot").Value, String)
-                        Dim domainPath As String = CType (objCrossRef.Properties ("nCName").Value, String)
-                        Dim crossRef As CrossReference = New CrossReference (domainPath, netBIOSName, canonicalName)
-                        Me.Add (crossRef)
+                    If Not objCrossRef.Properties("nETBIOSName").Value Is Nothing Then
+                        Dim netBIOSName As String = CType(objCrossRef.Properties("nETBIOSName").Value, String)
+                        Dim canonicalName As String = CType(objCrossRef.Properties("dnsRoot").Value, String)
+                        Dim domainPath As String = CType(objCrossRef.Properties("nCName").Value, String)
+                        Dim crossRef As CrossReference = New CrossReference(domainPath, netBIOSName, canonicalName)
+                        Me.Add(crossRef)
                     End If
                 Next
             Catch ex As COMException
@@ -133,12 +133,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Friend Sub Add (ByVal RefObject As CrossReference)
+        Friend Sub Add(ByVal RefObject As CrossReference)
             Dim index As Integer
             Try
-                index = MyBase.List.Add (RefObject)
-                mCanonicalLookup.Add (RefObject.CanonicalName, index)
-                mNetBIOSLookup.Add (RefObject.NetBIOSName, index)
+                index = MyBase.List.Add(RefObject)
+                mCanonicalLookup.Add(RefObject.CanonicalName, index)
+                mNetBIOSLookup.Add(RefObject.NetBIOSName, index)
             Catch ex As COMException
                 mProcessLog += ex.Message
             End Try
@@ -154,11 +154,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function Item (ByVal index As Integer) As CrossReference
+        Public Function Item(ByVal index As Integer) As CrossReference
             Try
                 Dim obj As Object
-                obj = MyBase.List.Item (index)
-                Return CType (obj, CrossReference)
+                obj = MyBase.List.Item(index)
+                Return CType(obj, CrossReference)
             Catch Exc As Exception
                 Return Nothing
             End Try
@@ -173,23 +173,23 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function Item (ByVal Name As String) As CrossReference
+        Public Function Item(ByVal Name As String) As CrossReference
             Dim index As Integer
             Dim obj As Object
 
             ' Do validation first
             Try
-                If mCanonicalLookup.Item (Name) Is Nothing Then
+                If mCanonicalLookup.Item(Name) Is Nothing Then
                     Return Nothing
                 End If
             Catch ex As Exception
                 Return Nothing
             End Try
 
-            index = CInt (mCanonicalLookup.Item (Name))
-            obj = MyBase.List.Item (index)
+            index = CInt(mCanonicalLookup.Item(Name))
+            obj = MyBase.List.Item(index)
 
-            Return CType (obj, CrossReference)
+            Return CType(obj, CrossReference)
         End Function
 
         ''' -------------------------------------------------------------------
@@ -201,23 +201,23 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Function ItemByNetBIOS (ByVal Name As String) As CrossReference
+        Public Function ItemByNetBIOS(ByVal Name As String) As CrossReference
             Dim index As Integer
             Dim obj As Object
 
             ' Do validation first
             Try
-                If mNetBIOSLookup.Item (Name) Is Nothing Then
+                If mNetBIOSLookup.Item(Name) Is Nothing Then
                     Return Nothing
                 End If
             Catch ex As Exception
                 Return Nothing
             End Try
 
-            index = CInt (mNetBIOSLookup.Item (Name))
-            obj = MyBase.List.Item (index)
+            index = CInt(mNetBIOSLookup.Item(Name))
+            obj = MyBase.List.Item(index)
 
-            Return CType (obj, CrossReference)
+            Return CType(obj, CrossReference)
         End Function
 
         ''' -------------------------------------------------------------------

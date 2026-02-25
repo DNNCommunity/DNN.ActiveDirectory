@@ -453,21 +453,6 @@ DotNetNuke.Authentication.ActiveDirectory
  Need to setup dependency injection. 
  </summary>
 </member>
-<member name="M:DotNetNuke.Authentication.ActiveDirectory.HttpModules.AuthenticationModule.AuthenticationLogoff(DotNetNuke.Entities.Portals.PortalSettings)">
- -------------------------------------------------------------------
- <summary>
- </summary>
- <remarks>
- Using old globals.navigateURL because IHTTPModule (authenicationmodule) needs DI setup.
- Once DI is setup for that module, we can switch this to the INavigateManager.
- Function was moved from AuthenticationController to here. It was the only reference and was keeping DI from being
- complete in that class.
- </remarks>
- <history>
-     [tamttt]	08/01/2004	Created
- </history>
- -------------------------------------------------------------------
-</member>
 <member name="F:DotNetNuke.Authentication.ActiveDirectory.Login._plUsername">
 <summary>
 plUsername control.

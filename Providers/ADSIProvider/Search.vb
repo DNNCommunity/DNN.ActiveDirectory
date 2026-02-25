@@ -49,8 +49,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New (ByVal rearchRoot As DirectoryEntry)
-            MyBase.New (rearchRoot)
+        Sub New(ByVal rearchRoot As DirectoryEntry)
+            MyBase.New(rearchRoot)
             PopulateDefaultProperties()
         End Sub
 
@@ -63,9 +63,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Sub New (ByVal rearchRoot As DirectoryEntry, ByVal Filter As String, _
+        Sub New(ByVal rearchRoot As DirectoryEntry, ByVal Filter As String, _
                  Optional ByVal SortProperty As String = Configuration.ADSI_CNAME)
-            MyBase.New (rearchRoot, Filter)
+            MyBase.New(rearchRoot, Filter)
             PopulateDefaultProperties()
 
             Sort.PropertyName = SortProperty
@@ -136,7 +136,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 Filter = FilterString
                 resultCollection = FindAll()
                 For Each result In resultCollection
-                    entries.Add (result.GetDirectoryEntry)
+                    entries.Add(result.GetDirectoryEntry)
                 Next
 
                 'Item 4230 - Explicit call of Dispose() is required, according to 
@@ -161,14 +161,14 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' </history>
         ''' -------------------------------------------------------------------
 
-            Public Overloads Function GetPropertyEntries (ByVal Propertyname As String) As ArrayList
+        Public Overloads Function GetPropertyEntries(ByVal Propertyname As String) As ArrayList
             Dim resultCollection As SearchResultCollection
             Dim entries As New ArrayList
             Try
                 Filter = FilterString
                 resultCollection = FindAll()
                 For Each result As SearchResult In resultCollection
-                    entries.Add (result.GetDirectoryEntry.Properties (Propertyname) (0))
+                    entries.Add(result.GetDirectoryEntry.Properties(Propertyname)(0))
                 Next
 
                 'Explicit call of Dispose() is required, according to 
@@ -191,12 +191,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Sub AddFilter (ByVal Name As String, ByVal [Operator] As CompareOperator, _
+        Public Sub AddFilter(ByVal Name As String, ByVal [Operator] As CompareOperator, _
                               Optional ByVal Value As String = "*")
             Dim filter As New SearchFilter
 
-            filter.SetFilter (Name, [Operator], Value)
-            mSearchFilters.Add (filter)
+            filter.SetFilter(Name, [Operator], Value)
+            mSearchFilters.Add(filter)
 
         End Sub
 
@@ -213,7 +213,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Get
                 Return mSearchFilters
             End Get
-            Set (ByVal Value As ArrayList)
+            Set(ByVal Value As ArrayList)
                 mSearchFilters = Value
             End Set
         End Property
@@ -232,11 +232,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
                 Dim filter As SearchFilter
                 Dim sb As New StringBuilder
 
-                sb.Append ("(&")
+                sb.Append("(&")
                 For Each filter In Me.SearchFilters
-                    sb.Append (AppendFilter (filter))
+                    sb.Append(AppendFilter(filter))
                 Next
-                sb.Append (")")
+                sb.Append(")")
                 Return sb.ToString
             End Get
         End Property
@@ -250,44 +250,44 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Private Function AppendFilter (ByVal Filter As SearchFilter) As String
+        Private Function AppendFilter(ByVal Filter As SearchFilter) As String
             Dim sb As New StringBuilder
             With Filter
                 Select Case Filter.ADSICompareOperator
                     Case CompareOperator.Is
-                        sb.Append ("(")
-                        sb.Append (.Name)
-                        sb.Append ("=")
-                        sb.Append (.Value)
-                        sb.Append (")")
+                        sb.Append("(")
+                        sb.Append(.Name)
+                        sb.Append("=")
+                        sb.Append(.Value)
+                        sb.Append(")")
                     Case CompareOperator.[IsNot]
-                        sb.Append ("(!")
-                        sb.Append (.Name)
-                        sb.Append ("=")
-                        sb.Append (.Value)
-                        sb.Append (")")
+                        sb.Append("(!")
+                        sb.Append(.Name)
+                        sb.Append("=")
+                        sb.Append(.Value)
+                        sb.Append(")")
                     Case CompareOperator.StartsWith
-                        sb.Append ("(")
-                        sb.Append (.Name)
-                        sb.Append ("=")
-                        sb.Append (.Value)
-                        sb.Append ("*)")
+                        sb.Append("(")
+                        sb.Append(.Name)
+                        sb.Append("=")
+                        sb.Append(.Value)
+                        sb.Append("*)")
                     Case CompareOperator.EndsWith
-                        sb.Append ("(")
-                        sb.Append (.Name)
-                        sb.Append ("=*")
-                        sb.Append (.Value)
-                        sb.Append (")")
+                        sb.Append("(")
+                        sb.Append(.Name)
+                        sb.Append("=*")
+                        sb.Append(.Value)
+                        sb.Append(")")
                     Case CompareOperator.Present
-                        sb.Append ("(")
-                        sb.Append (.Name)
-                        sb.Append ("=")
-                        sb.Append ("*)")
+                        sb.Append("(")
+                        sb.Append(.Name)
+                        sb.Append("=")
+                        sb.Append("*)")
                     Case CompareOperator.NotPresent
-                        sb.Append ("(!")
-                        sb.Append (.Name)
-                        sb.Append ("=")
-                        sb.Append ("*)")
+                        sb.Append("(!")
+                        sb.Append(.Name)
+                        sb.Append("=")
+                        sb.Append("*)")
                 End Select
             End With
 
@@ -304,12 +304,12 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-            Public Structure SearchFilter
+        Public Structure SearchFilter
             Friend mName As String
             Friend mValue As String
             Friend mCompareOperator As CompareOperator
 
-            Friend Sub SetFilter (ByVal Name As String, ByVal [Operator] As CompareOperator, ByVal Value As String)
+            Friend Sub SetFilter(ByVal Name As String, ByVal [Operator] As CompareOperator, ByVal Value As String)
                 mName = Name
                 mValue = Value
                 mCompareOperator = [Operator]

@@ -19,9 +19,9 @@
 '
 
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
-Imports DotNetNuke.Services.Authentication
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
+Imports DotNetNuke.Services.Authentication
 Imports Microsoft.Extensions.DependencyInjection
 
 Namespace DotNetNuke.Authentication.ActiveDirectory

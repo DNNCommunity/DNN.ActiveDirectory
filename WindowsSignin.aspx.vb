@@ -18,9 +18,6 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 
-Imports DotNetNuke.Entities.Modules
-Imports DotNetNuke.Entities.Portals
-
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Partial Class WindowsSignin
         Inherits Page
@@ -67,7 +64,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
 
 #End Region
 
-        Private Sub Page_Load (ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
+        Private Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
             'Put user code to initialize the page here        
         End Sub
     End Class

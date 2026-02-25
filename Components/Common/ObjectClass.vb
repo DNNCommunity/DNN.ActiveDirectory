@@ -29,7 +29,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     '''     [tamttt]	08/01/2004	Created
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Enum ObjectClass As Integer
+    Public Enum ObjectClass As Integer
         domainDNS
         '= 203
         person

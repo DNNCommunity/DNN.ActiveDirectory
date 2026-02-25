@@ -1,5 +1,4 @@
-﻿Imports System.IO
-Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
+﻿Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class ConfigInfo
         Public PortalId As Integer
         Public SettingModuleId As Integer

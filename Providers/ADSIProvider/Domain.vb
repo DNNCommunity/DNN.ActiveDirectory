@@ -18,7 +18,6 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports System.DirectoryServices
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class Domain
@@ -110,11 +109,11 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         ''' -------------------------------------------------------------------
         Private Sub PopulateInfo()
 
-            mDistinguishedName = CType (MyBase.Properties (Configuration.ADSI_DISTINGUISHEDNAME).Value, String)
+            mDistinguishedName = CType(MyBase.Properties(Configuration.ADSI_DISTINGUISHEDNAME).Value, String)
             mCanonicalName = ADSI.Utilities.ConvertToCanonical(mDistinguishedName, False)
 
             ' Note that this property will be null string if LDAP is unaccessible
-            mNetBIOSName = Utilities.CanonicalToNetBIOS (mCanonicalName)
+            mNetBIOSName = Utilities.CanonicalToNetBIOS(mCanonicalName)
 
         End Sub
 
@@ -208,8 +207,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         '''     [tamttt]	08/01/2004	Created
         ''' </history>
         ''' -------------------------------------------------------------------
-        Public Shared Sub ResetDomain (ByVal Path As String)
-            DataCache.RemoveCache (Path)
+        Public Shared Sub ResetDomain(ByVal Path As String)
+            DataCache.RemoveCache(Path)
         End Sub
 
         ''' -------------------------------------------------------------------
@@ -258,7 +257,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Get
                 Return mParentDomain
             End Get
-            Set (ByVal Value As Domain)
+            Set(ByVal Value As Domain)
                 mParentDomain = Value
             End Set
         End Property
@@ -276,7 +275,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Get
                 Return mLevel
             End Get
-            Set (ByVal Value As Integer)
+            Set(ByVal Value As Integer)
                 mLevel = Value
             End Set
         End Property
@@ -294,7 +293,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Get
                 Return mDistinguishedName
             End Get
-            Set (ByVal Value As String)
+            Set(ByVal Value As String)
                 mDistinguishedName = Value
             End Set
         End Property
@@ -312,7 +311,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Get
                 Return mChildPopulate
             End Get
-            Set (ByVal Value As Boolean)
+            Set(ByVal Value As Boolean)
                 mChildPopulate = Value
             End Set
         End Property

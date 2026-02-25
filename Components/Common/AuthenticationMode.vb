@@ -29,7 +29,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     '''     [tamttt]	08/01/2004	Created
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Enum AuthenticationMode As Integer
+    Public Enum AuthenticationMode As Integer
         FormAuthentication
         WindowsAuthentication
         MixedAuthentication

@@ -18,10 +18,9 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports DotNetNuke.Authentication.ActiveDirectory.ADSI
-Imports DotNetNuke.Security.Membership
-Imports DotNetNuke.Security.Roles
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Entities.Users
+Imports DotNetNuke.Security.Roles
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class UserController

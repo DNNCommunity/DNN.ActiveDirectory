@@ -19,9 +19,7 @@
 '
 Imports System.DirectoryServices
 Imports System.Runtime.InteropServices
-Imports DotNetNuke.Services.Exceptions
 Imports DotNetNuke.Entities.Portals
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
@@ -144,6 +142,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
 
         Private config As ActiveDirectory.ConfigInfo
         Private portalSettings As PortalSettings
+        Private configuration As ActiveDirectory.IConfiguration
         ''' -------------------------------------------------------------------
         ''' <summary>
         '''     Obtain Authentication settings from database
@@ -157,7 +156,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         Sub New(ByVal configuration As ActiveDirectory.IConfiguration,
                 ByVal portalController As IPortalController)
 
-            Me.config = configuration.GetConfig()
+            Me.configuration = configuration
+            Me.config = Me.configuration.GetConfig()
             Me.portalSettings = portalController.GetCurrentSettings
 
         End Sub
@@ -240,8 +240,8 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
         End Function
 
         Public Sub ResetConfig() Implements IConfiguration.ResetConfig
-            Dim strKey As String = $"{ADSI_CONFIG_CACHE_PREFIX}.{CStr(portalSettings.PortalId)}"
-            DataCache.RemoveCache(strKey)
+            DataCache.ClearCache()
+            Me.config = Me.configuration.GetConfig()
         End Sub
 
         Public Sub SetSecurity(ByVal Entry As DirectoryEntry, config As ConfigInfo) Implements IConfiguration.SetSecurity

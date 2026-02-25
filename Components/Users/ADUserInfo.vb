@@ -64,7 +64,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return mIsAuthenticated
             End Get
-            Set (ByVal value As Boolean)
+            Set(ByVal value As Boolean)
                 mIsAuthenticated = value
             End Set
         End Property
@@ -112,7 +112,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return mAuthenticationExists
             End Get
-            Set (ByVal Value As Boolean)
+            Set(ByVal Value As Boolean)
                 mAuthenticationExists = Value
             End Set
         End Property
@@ -130,7 +130,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return mCName
             End Get
-            Set (ByVal Value As String)
+            Set(ByVal Value As String)
                 mCName = Value
             End Set
         End Property
@@ -148,7 +148,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
             Get
                 Return mDistinguishedName
             End Get
-            Set (ByVal Value As String)
+            Set(ByVal Value As String)
                 mDistinguishedName = Value
             End Set
         End Property

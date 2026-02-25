@@ -29,7 +29,7 @@ Namespace DotNetNuke.Authentication.ActiveDirectory
     '''     [mhorton]	10/05/2009	Obsolete Properties removed.  - WorkItem:2943
     ''' </history>
     ''' -------------------------------------------------------------------
-        Public Interface IAuthenticationObjectBase
+    Public Interface IAuthenticationObjectBase
         ReadOnly Property Name() As String
         ReadOnly Property ObjectClass() As ObjectClass
     End Interface

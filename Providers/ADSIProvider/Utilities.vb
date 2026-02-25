@@ -18,14 +18,11 @@
 ' DEALINGS IN THE SOFTWARE.
 '
 Imports System.DirectoryServices
-Imports System.Security.Principal
-Imports System.Runtime.InteropServices
-Imports DotNetNuke.Services.Exceptions
 Imports System.Net
-Imports SecurityException = System.Security.SecurityException
-Imports DotNetNuke.Services.Log.EventLog
+Imports System.Runtime.InteropServices
+Imports System.Security.Principal
 Imports DotNetNuke.Services.FileSystem
-Imports DotNetNuke.Entities.Users
+Imports SecurityException = System.Security.SecurityException
 
 Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
     Public Class Utilities
@@ -38,6 +35,9 @@ Namespace DotNetNuke.Authentication.ActiveDirectory.ADSI
             Me.adsiConfiguration = adsiConfiguration
             Me.adsiConfig = adsiConfiguration.GetConfig
 
+        End Sub
+        Public Sub reloadConfig()
+            Me.adsiConfig = adsiConfiguration.GetConfig
         End Sub
 
         Public Overloads Function GetRootDomain(ByVal ADSIPath As Configuration.Path) As Domain Implements IUtilities.GetRootDomain

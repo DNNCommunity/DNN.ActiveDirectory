@@ -19,8 +19,6 @@
 '
 Imports DotNetNuke.Entities.Portals
 Imports DotNetNuke.Framework.Providers
-Imports DotNetNuke.Security
-Imports DotNetNuke.Common.Utilities
 
 Namespace DotNetNuke.Authentication.ActiveDirectory
     Public Class Configuration
